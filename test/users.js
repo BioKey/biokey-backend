@@ -1,5 +1,3 @@
-process.env.NODE_ENV = 'test';
-
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var mongoose = require('mongoose');
@@ -9,7 +7,6 @@ var User = require('../models/user');
 
 var should = chai.should();
 chai.use(chaiHttp);
-
 
 after(function() {
   //clear out db
