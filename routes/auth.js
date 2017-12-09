@@ -11,8 +11,9 @@ var bcrypt = require('bcryptjs');
 var config = require('../config'); // get config file
 
 router.post('/login', function(req, res) {
+  if (!req.body.email || !req.body.password) return res.status(422).send('Invalid paramaters.');
 
-  User.findOne({ email: req.body.email }, function (err, user) {
+  User.findOne({ email: req.body.email }, { password: 1 }, function (err, user) {
     if (err) return res.status(500).send('Error on the server.');
     if (!user) return res.status(404).send('No user found.');
     
@@ -37,15 +38,17 @@ router.get('/logout', function(req, res) {
 });
 
 router.post('/register', function(req, res) {
+  if (!req.body.email || !req.body.password) return res.status(422).send('Invalid paramaters.');
 
   var hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-  User.create({
+  var newUser = new User({
     name : req.body.name,
     email : req.body.email,
     password : hashedPassword
-  }, 
-  function (err, user) {
+  })
+
+  newUser.save(function (err, user) {
     if (err) return res.status(500).send("There was a problem registering the user`.");
 
     // if user is registered without errors
@@ -61,7 +64,7 @@ router.post('/register', function(req, res) {
 
 router.get('/me', middleware.auth.verifyToken, function(req, res, next) {
 
-  User.findById(req.userId, { password: 0 }, function (err, user) {
+  User.findById(req.userId, function (err, user) {
     if (err) return res.status(500).send("There was a problem finding the user.");
     if (!user) return res.status(404).send("No user found.");
     res.status(200).send(user);

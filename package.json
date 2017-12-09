@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "watch": "node_modules/.bin/nodemon ./bin/www",
     "test": "node_modules/.bin/_mocha ./test --recursive",
-    "coverage": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha test.js || true"
+    "coverage": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha ./test --recursive || true"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
