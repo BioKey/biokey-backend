@@ -14,8 +14,9 @@ var UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    select: false
   },
-  idAdmin: {
+  isAdmin: {
     type: Boolean,
     default: false
   }

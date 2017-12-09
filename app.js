@@ -3,6 +3,7 @@ var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var debug = require('debug');
 
 var app = express();
 
@@ -10,17 +11,19 @@ var app = express();
 var config = require('./config');
 
 // *** mongoose *** //
- mongoose.Promise = global.Promise;
+mongoose.Promise = global.Promise;
 mongoose.connect(config.mongoURI[app.get('env')], { useMongoClient: true })
 .then(res => {
-  return console.log('Connected to Database: ' + config.mongoURI[app.settings.env]);
+  return debug('biokey-backend:db')('Connected to Database: ' + config.mongoURI[app.settings.env]);
 })
 .catch(err => {
-  console.log('Error connecting to the database. ' + err);
+  debug('biokey-backend:db')('Error connecting to the database. ' + err);
 });
 
 // *** express *** //
-app.use(logger('dev'));
+if (app.get('env') !== 'test') {
+  app.use(logger('dev'));
+}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
