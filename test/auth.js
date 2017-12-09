@@ -1,12 +1,11 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var mongoose = require('mongoose');
-var bcrypt = require('bcryptjs');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const mongoose = require('mongoose');
 
-var server = require('../app');
-var User = require('../models/user');
+const server = require('../app');
+const User = require('../models/user');
 
-var should = chai.should();
+const should = chai.should();
 chai.use(chaiHttp);
 
 
@@ -41,9 +40,7 @@ describe('Auth', function() {
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.have.property('auth');
         res.body.should.have.property('token');
-        res.body.auth.should.equal(true);
         done();
       });
     });
@@ -73,11 +70,7 @@ describe('Auth', function() {
   describe('/api/auth/login', function() {
 
     beforeEach(function(done){
-      var newUser = new User({
-        name: testUser.name,
-        email: testUser.email,
-        password: bcrypt.hashSync(testUser.password, 8)
-      });
+      var newUser = new User(testUser);
       newUser.save(done);
     });
 
@@ -94,14 +87,12 @@ describe('Auth', function() {
       .end(function(error, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.have.property('auth');
         res.body.should.have.property('token');
-        res.body.auth.should.equal(true);
         done();
       });
     });
 
-    it('POST should require valid password', function(done) {
+    it('POST should require correct password', function(done) {
       chai.request(server)
       .post('/api/auth/login')
       .send({
@@ -110,11 +101,7 @@ describe('Auth', function() {
       })
       .end(function(error, res){
         res.should.have.status(401);
-        res.should.be.json;
-        res.body.should.have.property('auth');
-        res.body.should.have.property('token');
-        res.body.auth.should.equal(false);
-        should.equal(res.body.token, null);
+        res.text.should.equal('Unauthorized');
         done();
       });
     });
@@ -124,7 +111,7 @@ describe('Auth', function() {
       .post('/api/auth/login')
       .send({ password: testUser.password })
       .end(function(err, res){
-        res.should.have.status(422);
+        res.should.have.status(400);
         done();
       });
     });
@@ -134,7 +121,7 @@ describe('Auth', function() {
       .post('/api/auth/login')
       .send({ email: testUser.email })
       .end(function(err, res){
-        res.should.have.status(422);
+        res.should.have.status(400);
         done();
       });
     });
@@ -148,7 +135,7 @@ describe('Auth', function() {
         password: 'Other'
       })
       .end(function(err, res){
-        res.should.have.status(404);
+        res.should.have.status(401);
         done();
       });
     });
@@ -172,11 +159,7 @@ describe('Auth', function() {
     }
 
     beforeEach(function(done){
-      var newUser = new User({
-        name: testUser.name,
-        email: testUser.email,
-        password: bcrypt.hashSync(testUser.password, 8)
-      });
+      var newUser = new User(testUser);
       newUser.save(function(err, data) {
         testUser._id = data.id;
         done();
@@ -197,13 +180,11 @@ describe('Auth', function() {
 
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.have.property('auth');
         res.body.should.have.property('token');
-        res.body.auth.should.equal(true);
 
         chai.request(server)
         .get('/api/auth/me')
-        .set('x-access-token', res.body.token)
+        .set('authorization', res.body.token)
         .end(function(err1, res1){
           res1.should.have.status(200);
           res1.should.be.json;
@@ -217,7 +198,7 @@ describe('Auth', function() {
       chai.request(server)
         .get('/api/auth/me')
         .end(function(err, res){
-          res.should.have.status(403);
+          res.should.have.status(401);
           done();
         });
     });
@@ -225,9 +206,9 @@ describe('Auth', function() {
     it('GET should deny invalid token', function(done) {
       chai.request(server)
         .get('/api/auth/me')
-        .set('x-access-token', 'Other token')
+        .set('authorization', 'Other token')
         .end(function(err, res){
-          res.should.have.status(500);
+          res.should.have.status(401);
           done();
         });
     });
