@@ -10,7 +10,7 @@ const config = require('./config');
 //DB setup
 mongoose.Promise = global.Promise;
 mongoose.connect(config.mongoURI[app.get('env')], { useMongoClient: true })
-.then(res => {
+.then(db => {
   return console.log('Connected to Database: ' + config.mongoURI[app.settings.env]);
 })
 .catch(err => {
@@ -18,7 +18,7 @@ mongoose.connect(config.mongoURI[app.get('env')], { useMongoClient: true })
 });
 
 // App setup
-if (app.get('env') !== 'test') app.use(morgan('combined'));
+if(app.get('env') !== 'test') app.use(morgan('combined'));
 app.use(cors());
 app.use(bodyParser.json({ type: '*/*' }));
 
