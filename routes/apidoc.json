@@ -1,12 +1,19 @@
 {
-  "name": "biokey-backend",
-  "version": "0.0.1",
-  "description": "backend for biokey security system",
-  "title": "BioKey Documentation",
-  "url" : "https://service.biokey.com/api",
-  "sampleUrl": "https://service.biokey.com/api",
-  "template": {
-  	"withCompare": true,
-  	"withGenerator": true
-  }
+	"name": "biokey-backend",
+	"description": "backend for biokey security system",
+	"title": "BioKey Documentation",
+	"url" : "https://service.biokey.com",
+	"template": {
+		"withCompare": true,
+		"withGenerator": true
+	},
+	"order": [
+		"Register",
+		"Login",
+		"Me",
+		"ListUsers",
+		"GetUser",
+		"UpdateUser",
+		"DeleteUser"
+	]
 }
