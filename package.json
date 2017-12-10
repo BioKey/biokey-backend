@@ -6,7 +6,8 @@
     "start": "node ./bin/www",
     "watch": "node_modules/.bin/nodemon ./bin/www",
     "test": "NODE_ENV=test node_modules/.bin/_mocha ./test --recursive",
-    "coverage": "NODE_ENV=test node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha ./test --recursive || true"
+    "coverage": "NODE_ENV=test node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha ./test --recursive || true",
+    "docs": "node_modules/.bin/apidoc -i routes -o docs"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
@@ -22,6 +23,7 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
+    "apidoc": "^0.17.6",
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "istanbul": "^0.4.5",
