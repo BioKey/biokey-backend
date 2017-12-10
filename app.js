@@ -22,6 +22,10 @@ if (app.get('env') !== 'test') app.use(morgan('combined'));
 app.use(cors());
 app.use(bodyParser.json({ type: '*/*' }));
 
+app.get('/', function(req, res) {
+  res.send('Hello world');
+});
+
 // Routes setup
 var auth = require('./routes/auth');
 app.use('/api/auth', auth);
