@@ -1,5 +1,6 @@
 # biokey-backend
 [![Build Status](https://travis-ci.org/BioKey/biokey-backend.svg?branch=master)](https://travis-ci.org/BioKey/biokey-backend)
+[![Coverage Status](https://coveralls.io/repos/github/BioKey/biokey-backend/badge.svg)](https://coveralls.io/github/BioKey/biokey-backend)
 
 ## Installation
 ```shell
