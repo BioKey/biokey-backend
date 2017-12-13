@@ -1,4 +1,7 @@
 language: node_js
 node_js:
-  - "7"
+  - "stable"
 services: mongodb
+
+after_success:
+- npm run coveralls
