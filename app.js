@@ -33,4 +33,22 @@ app.use('/api/auth', auth);
 var users = require('./routes/users');
 app.use('/api/users', users);
 
+var activities = require('./routes/activities');
+app.use('/activities', activities);
+
+var activityTypes = require('./routes/activityTypes');
+app.use('/activityTypes', activityTypes);
+
+var keystrokes = require('./routes/keystrokes');
+app.use('/keystrokes', keystrokes);
+
+var machines = require('./routes/machines');
+app.use('/machines', machines);
+
+var organizations = require('./routes/organizations');
+app.use('/organizations', organizations);
+
+var typingProfiles = require('./routes/typingProfiles');
+app.use('/typingProfiles', typingProfiles);
+
 module.exports = app;
