@@ -58,7 +58,7 @@ router.route('/:keystroke_id')
                 //Save keystroke
                 keystroke.save(err => {
                     if (err) return res.status(500).send({errors: [err]});
-                    return res.json({});
+                    return res.json({updated: keystroke});
                 });
             });
         });
@@ -69,7 +69,7 @@ router.route('/:keystroke_id')
             if (err) return res.status(500).send({errors: [err]});
             if (!deleted) return res.status(404).send({errors: [{errmsg: 'Keystroke not found'}]});
             deleted.remove();
-            return res.json({});
+            return res.json({deleted: deleted});
         });
     });
 

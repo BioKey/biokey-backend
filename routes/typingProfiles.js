@@ -70,7 +70,7 @@ router.route('/:typingProfile_id')
                     //Save typingProfile
                     typingProfile.save(err => {
                         if(err) return res.status(500).send({errors: [err]});
-                        return res.json({typingProfile: typingProfile});
+                        return res.json({updated: typingProfile});
                     });
                 });
             });
@@ -82,7 +82,7 @@ router.route('/:typingProfile_id')
             if (err) return res.status(500).send({errors: [err]});
             if (!deleted) return res.status(404).send({errors: [{errmsg: 'TypingProfile not found'}]});
             deleted.remove();
-            return res.json({});
+            return res.json({deleted: deleted});
         });
     });
 

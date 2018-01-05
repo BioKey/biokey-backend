@@ -56,7 +56,7 @@ router.route('/:machine_id')
                 //Save machine
                 machine.save(err => {
                     if (err) return res.status(500).send({errors: [err]});
-                    return res.json({});
+                    return res.json({updated: machine});
                 });
             });
         });
@@ -67,7 +67,7 @@ router.route('/:machine_id')
             if (err) return res.status(500).send({errors: [err]});
             if (!deleted) return res.status(404).send({errors: [{errmsg: 'Machine not found'}]});
             deleted.remove();
-            return res.json({});
+            return res.json({deleted: deleted});
         });
     });
 

@@ -67,7 +67,7 @@ router.route('/:activity_id')
                     //Save Activity
                     activity.save(err => {
                         if(err) return res.status(500).send({errors: [err]});
-                        return res.json({activity: activity});
+                        return res.json({updated: activity});
                     });
                 });
             });
@@ -79,7 +79,7 @@ router.route('/:activity_id')
             if (err) return res.status(500).send({errors: [err]});
             if (!deleted) return res.status(404).send({errors: [{errmsg: 'Activity not found'}]});
             deleted.remove();
-            return res.json({});
+            return res.json({deleted: deleted});
         });
     });
 
