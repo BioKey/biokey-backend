@@ -45,7 +45,7 @@ router.route('/:organization_id')
 
             organization.save(err => {
                 if (err) return res.status(500).send({errors: [err]});
-                return res.json({});
+                return res.json({updated: organization});
             })
 
         });

@@ -43,7 +43,7 @@ router.route('/:activityType_id')
 
             activityType.save(err => {
                 if (err) return res.status(500).send({errors: [err]});
-                return res.json({});
+                return res.json({updated: activityType});
             })
 
         });
@@ -54,7 +54,7 @@ router.route('/:activityType_id')
             if (err) return res.status(500).send({errors: [err]});
             if (!deleted) return res.status(404).send({errors: [{errmsg: 'ActivityType not found'}]});
             deleted.remove();
-            return res.json({});
+            return res.json({deleted: deleted});
         });
     });
 
