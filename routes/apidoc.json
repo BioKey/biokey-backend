@@ -14,6 +14,7 @@
 		"ListUsers",
 		"GetUser",
 		"UpdateUser",
-		"DeleteUser"
+		"DeleteUser",
+		"ListActivities"
 	]
 }
