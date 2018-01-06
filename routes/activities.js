@@ -11,11 +11,11 @@ var Activity = require('../controllers/activities');
  * @apiGroup Activities
  * 
  * @apiSuccess {Array} activities List of activities
- * @apiSuccess {String} activities._id UUID of the user for the system
+ * @apiSuccess {String} activities._id UUID of the activity for the system
  * @apiSuccess {Number} activities.timestamp Time that the activity occurred
  * @apiSuccess {TypingProfile} activities.typingProfile The typing profile associated with the activity
  * @apiSuccess {ActivityType} activities.activityType The type of the activity
- * @apiSuccess {Number} users.__v Version code of the schema being used
+ * @apiSuccess {Number} activities.__v Version code of the schema being used
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
@@ -33,9 +33,9 @@ router.get('/', Activity.getAll);
 
 /**
  * @api {get} /api/activities/:id  GetActivity
- * @apiName Get Activity
+ * @apiName GetActivity
  * @apiDescription
- * Get a specific user
+ * Get a specific activity.
  * 
  * @apiGroup Activities
  * @apiUse ActivitySuccess
@@ -90,7 +90,7 @@ router.put('/:activity_id', Activity.update); //NOTE FOR CODE REVIEW: should we 
  * @api {delete} /api/activities/:id  DeleteActivity
  * @apiName DeleteActivity
  * @apiDescription
- * Delete a user.
+ * Delete an activity.
  * @apiGroup Activities
  */
 router.delete('/:activity_id', Activity.delete);
