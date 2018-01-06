@@ -30,3 +30,22 @@
  *       "isAdmin": false
  *     }
  */
+
+/**
+ * @apiDefine ActivitySuccess
+ * @apiSuccess {String} _id UUID of the user for the system
+ * @apiSuccess {Number} timestamp Time that the activity occurred
+ * @apiSuccess {TypingProfile} typingProfile The typing profile associated with the activity
+ * @apiSuccess {ActivityType} activityType The type of the activity
+ * @apiSuccess {Number} __v Version code of the schema being used
+ * 
+ * @apiSuccessExample Response (example):
+ *     HTTP/1.1 200 Success
+ *     {
+ *       "_id": "5a4fd2d5fb0f2f041278e510",
+ *       "typingProfile": "5a4c08cd19d0a40d9c051653",
+ *		 "activityType": "5a4c019629015e0c8b9c1737",
+ *		 "timestamp": 234567
+ *       "__v": 0
+ *     }
+ */
