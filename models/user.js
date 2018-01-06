@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false
+  },
+  organization: {
+    type: mongoose.Schema.ObjectId, 
+    ref: ('Organization'),
+    require: true
   }
 });
 

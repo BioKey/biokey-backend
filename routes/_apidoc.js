@@ -17,6 +17,7 @@
  * @apiSuccess {String} _id  UUID of the user for the system
  * @apiSuccess {String} email User's email
  * @apiSuccess {String} name User's name
+ * @apiSuccess {Organization} organization User's organization
  * @apiSuccess {Number} __v Version code of the schema being used
  * @apiSuccess {Boolean} isAdmin  Whether user is a system administrator
  * 
@@ -26,6 +27,7 @@
  *       "_id": "5a2c87d5f8de982a759cedf0",
  *       "email": "test@example.com",
  *       "name": "Hosh Weinstein",
+ *       "organization": "5a4c019629015e0c8b9c1737"
  *       "__v": 0,
  *       "isAdmin": false
  *     }

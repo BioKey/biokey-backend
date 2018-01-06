@@ -14,6 +14,7 @@ const User = require('../controllers/users');
  * @apiSuccess {String} users._id  UUID of the user for the system
  * @apiSuccess {String} users.email User's email
  * @apiSuccess {String} users.name User's name
+ * @apiSuccess {Organization} users.organization User's organization
  * @apiSuccess {Number} users.__v Version code of the schema being used
  * @apiSuccess {Boolean} users.isAdmin  Whether user is a system administrator
  * 
@@ -24,6 +25,7 @@ const User = require('../controllers/users');
  *            "_id": "5a2c87d5f8de982a759cedf0",
  *            "email": "test@example.com",
  *            "name": "Hosh Weinstein",
+ *            "organization": "5a4c019629015e0c8b9c1737"
  *            "__v": 0,
  *            "isAdmin": false
  *          }
@@ -55,11 +57,13 @@ const User = require('../controllers/users');
  * @apiParam {String} name The user's new name
  * @apiParam {String} email The user's new email
  * @apiParam {Boolean} isAdmin The user's new isAdmin state
+ * @apiParam {Organization} organization The user's new organization
  * @apiParamExample {json} Request-Example:
  *     {
  *       "name": "Hosh Weinstein",
  *       "email": "test@example.com",
- *       "isadmin": false
+ *       "isadmin": false,
+ *       "organization": "5a4c019629015e0c8b9c1737"
  *     }
  *
  * @apiUse UserSuccess
