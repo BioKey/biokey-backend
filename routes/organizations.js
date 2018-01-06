@@ -2,16 +2,103 @@ var express = require('express');
 var router = express.Router();
 var Organization = require('../controllers/organizations');
 
-//TODO: add docs
-
+/**
+ * @api {get} /api/organizations  ListOrganizations
+ * @apiName ListOrganizations
+ * @apiDescription
+ * Get a list of all organizations
+ * 
+ * @apiGroup Organizations
+ * 
+ * @apiSuccess {Array} organizations List of organizations
+ * @apiSuccess {String} organizations._id UUID of the organization for the system.
+ * @apiSuccess {String} organizations.name The organization's unique name.
+ * @apiSuccess {Number} organizations.maxUsers The number of users that the organization may have.
+ * @apiSuccess {[String]} organizations.challengeStrategies The authentication strategies that the organization accepts.
+ * @apiSuccess {Number} organizations.defaultThreshold The certainty threshold for users' continuous authentication.
+ * @apiSuccess {Number} organizations.__v Version code of the schema being used.
+ * 
+ * @apiSuccessExample Response (example):
+ *     HTTP/1.1 200 Success
+ *     [
+ *          {
+ *              "_id": "5a4fd2d5fb0f2f041278e510",
+ *              "name": "testOrganization",
+ *              "maxUsers": "100",
+ *              "challengeStrategies": "["Password", "Google Auth"]",
+ *              "defaultThreshold": "100",
+ *              "__v": 0
+ *          }
+ *     ]
+ */
 router.get('/', Organization.getAll);
 
-router.get('/:machine_id', Organization.get)
+/**
+ * @api {get} /api/organizations/:id  GetOrganization
+ * @apiName GetOrganization
+ * @apiDescription
+ * Get a specific organization.
+ * 
+ * @apiGroup Organizations
+ * @apiUse OrganizationSuccess
+ */
+router.get('/:organization_id', Organization.get)
 
+/**
+ * @api {post} /api/organizations  PostOrganization
+ * @apiName PostOrganization
+ * @apiDescription
+ * Post a new organization.
+ * 
+ * @apiGroup Organizations
+ * 
+ * @apiParam {String} name The new organization's unique name.
+ * @apiParam {Number} maxUsers The number of users that the new organization may have.
+ * @apiParam {[String]} challengeStrategies The authentication strategies that the new organization accepts.
+ * @apiParam {Number} defaultThreshold The new organization's certainty threshold for users' continuous authentication.
+ * @apiParamExample {json} Request-Example
+ *     {
+ *          "name": "testOrganization",
+ *          "maxUsers": "100",
+ *          "challengeStrategies": "["Password", "Google Auth"]",
+ *          "defaultThreshold": "100"
+ *     }
+ * 
+ * @apiUse OrganizationSuccess
+ */
 router.post('/', Organization.post);
 
-router.put('/:machine_id', Organization.update);
+/**
+ * @api {put} /api/organizations/:id  UpdateOrganization
+ * @apiName UpdateOrganization
+ * @apiDescription
+ * Update a organization.
+ * 
+ * @apiGroup Organizations
+ * 
+ * @apiParam {String} name The organization's new unique name.
+ * @apiParam {Number} maxUsers The new number of users that the organization may have.
+ * @apiParam {[String]} challengeStrategies The new set of authentication strategies that the organization accepts.
+ * @apiParam {Number} defaultThreshold The organization's new certainty threshold for users' continuous authentication.
+ * @apiParamExample {json} Request-Example
+ *     {
+ *          "name": "testOrganization",
+ *          "maxUsers": "100",
+ *          "challengeStrategies": "["Password", "Google Auth"]",
+ *          "defaultThreshold": "100"
+ *     }
+ * 
+ * @apiUse OrganizationSuccess
+ */
+router.put('/:organization_id', Organization.update);
 
-router.delete('/:machine_id', Organization.delete);
+/**
+ * @api {delete} /api/organizations/:id  DeleteOrganization
+ * @apiName DeleteOrganization
+ * @apiDescription
+ * Delete a organization.
+ * @apiGroup Organizations
+ */
+router.delete('/:organization_id', Organization.delete);
 
 module.exports = router;

@@ -22,7 +22,7 @@ var ActivityType = require('../controllers/activityTypes');
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "description": "Lockout",
- *		        "importance": "MEDIUM",
+ *              "importance": "MEDIUM",
  *              "__v": 0
  *          }
  *     ]
@@ -61,10 +61,10 @@ router.get('/:activityType_id', ActivityType.get)
 router.post('/', ActivityType.post);
 
 /**
- * @api {post} /api/activityTypes  PostActivityType
- * @apiName PostActivityType
+ * @api {put} /api/activityTypes  UpdateActivityType
+ * @apiName UpdateActivityType
  * @apiDescription
- * Post a new activity type.
+ * Update an activity type.
  * 
  * @apiGroup ActivityTypes
  * 
