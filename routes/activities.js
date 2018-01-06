@@ -48,6 +48,8 @@ router.get('/:activity_id', Activity.get)
  * @apiDescription
  * Post a new activity.
  * 
+ * @apiGroup Activities
+ * 
  * @apiParam {Number} timestamp The new activity's timestamp
  * @apiParam {TypingProfile} typingProfile The new activity's typing profile
  * @apiParam {ActivityType} activityType The new activity's type
@@ -67,6 +69,8 @@ router.post('/', Activity.post);
  * @apiName UpdateActivity
  * @apiDescription
  * Update an activity.
+ * 
+ * @apiGroup Activities
  * 
  * @apiParam {Number} timestamp The activity's new timestamp
  * @apiParam {TypingProfile} typingProfile The activity's new typing profile
