@@ -4,7 +4,7 @@ var TypingProfile = require('../models/typingProfile');
 exports.getAll = function (req, res) {
     Keystroke.find((err, keystrokes) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json({keystrokes: keystrokes});
+        return res.json(keystrokes);
     });
 }
 
