@@ -3,7 +3,7 @@ var ActivityType = require('../models/activityType');
 exports.getAll = function (req, res) {
     ActivityType.find((err, activityTypes) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json({activityTypes: activityTypes});
+        return res.json(activityTypes);
     });
 }
 
