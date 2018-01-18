@@ -7,7 +7,7 @@ var Machine = require('../models/machine');
 exports.getAll = function (req, res) {
     TypingProfile.find((err, typingProfiles) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json({typingProfiles: typingProfiles});
+        return res.json(typingProfiles);
     });
 }
 
