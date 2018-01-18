@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 
 var server = require('../app');
 var Keystroke = require('../models/keystroke');
-var TypingProfile = require('../models/typingProfile')
+var TypingProfile = require('../models/typingProfile');
 
 var should = chai.should();
 chai.use(chaiHttp);

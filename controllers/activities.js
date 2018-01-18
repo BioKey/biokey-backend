@@ -6,7 +6,7 @@ const TypingProfile = require('../models/typingProfile');
 exports.getAll = function (req, res) {
     Activity.find((err, activities) => {
         if (err) return res.status(500).send("There was a problem finding the activities.");
-        return res.status(200).json({activities: activities});
+        return res.status(200).json(activities);
     });
 }
 
