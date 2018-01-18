@@ -3,7 +3,7 @@ var Organization = require('../models/organization');
 exports.getAll = function (req, res) {
     Organization.find((err, organizations) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json({organizations: organizations});
+        return res.json(organizations);
     });
 }
 

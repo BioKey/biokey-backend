@@ -12,10 +12,7 @@ var organizationSchema = mongoose.Schema({
         require: true
     },
     challengeStrategies: [String],
-    defaultThreshold: {
-        type: Number,
-        defualt: 50 // PLACEHOLDER
-    }
+    defaultThreshold: Number
 });
 
 module.exports = mongoose.model('Organization', organizationSchema);

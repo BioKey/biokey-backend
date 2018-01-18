@@ -2,6 +2,8 @@ var TypingProfile = require('../models/typingProfile');
 var User = require('../models/user');
 var Machine = require('../models/machine');
 
+//TODO: interact with the ML server for all of this.
+
 exports.getAll = function (req, res) {
     TypingProfile.find((err, typingProfiles) => {
         if (err) return res.status(500).send({errors: [err]});
@@ -28,6 +30,7 @@ exports.post = function (req, res) {
             if (err) return res.status(500).send({errors: [err]});
             if (!machine) return res.status(404).send({errors: [{errmsg: 'Machine not found'}]});
             //Save typingProfile
+            //TODO: Hash typing profile once received
             typingProfile.save(err => {
                 if(err) return res.status(500).send({errors: [err]});
                 return res.json({typingProfile: typingProfile});

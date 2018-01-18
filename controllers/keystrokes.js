@@ -47,6 +47,7 @@ exports.update = function (req, res) {
             //Save keystroke
             keystroke.save(err => {
                 if (err) return res.status(500).send({errors: [err]});
+                //TODO: send to machine learning server
                 return res.json({updated: keystroke});
             });
         });
