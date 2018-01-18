@@ -134,7 +134,6 @@ describe('ActivityTypes', function(){
           response.should.be.json;
           confirmActivityType(response.body.updated, {
             _id: res.body[0]._id,
-            name: 'BK Inc.',
             'description': 'Updated lockout',
             'importance': res.body[0].importance
           });
