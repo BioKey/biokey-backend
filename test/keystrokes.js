@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var server = require('../app');
 var Keystroke = require('../models/keystroke');
 var TypingProfile = require('../models/typingProfile');
+var User = require('../models/user');
 
 var should = chai.should();
 chai.use(chaiHttp);
@@ -19,6 +20,14 @@ after(function() {
 
 describe('Keystrokes', function(){
 
+  var testUser = {
+    name: 'Batman',
+    email: 'batman@gotham.co',
+    password: 'test',
+    isAdmin: true,
+    organization: mongoose.Types.ObjectId()
+  };
+
   var testKeystroke = {
     character: 'a',
     timestamp: 8008,
@@ -26,28 +35,35 @@ describe('Keystrokes', function(){
   };
 
   var testTypingProfile = {
-    user: mongoose.Types.ObjectId(),
     machine: mongoose.Types.ObjectId(),
     authStatus: false,
     lockStatus: true,
-    accessToken: 'token',
     tensorFlowModel: 'tfmodel'
   };
 
   beforeEach(function(done){
-    var newTypingProfile = new TypingProfile(testTypingProfile);
-    newTypingProfile.save(function(err, data){
-        testTypingProfile._id = data.id;
-        testKeystroke.typingProfile = data.id;
-    });
-    var newKeystroke = new Keystroke(testKeystroke);
-    newKeystroke.save(function(err, data){
-      testKeystroke._id = data.id;
-      done();
+    var newUser = new User(testUser);
+    chai.request(server)
+    .post('/api/auth/register')
+    .send(newUser)
+    .end(function(err, res){
+      testTypingProfile.accessToken = res.body.token;
+
+      var newTypingProfile = new TypingProfile(testTypingProfile);
+      newTypingProfile.save(function(err, data){
+          testTypingProfile._id = data.id;
+          testKeystroke.typingProfile = data.id;
+      });
+      var newKeystroke = new Keystroke(testKeystroke);
+      newKeystroke.save(function(err, data){
+        testKeystroke._id = data.id;
+        done();
+      });
     });
   });
 
   afterEach(function(done){
+    User.collection.drop();
     Keystroke.collection.drop();
     TypingProfile.collection.drop();
     done();
@@ -80,6 +96,7 @@ describe('Keystrokes', function(){
       postKeystroke.typingProfile = testKeystroke.typingProfile;
       chai.request(server)
       .post('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
       .send({keystroke: postKeystroke})
       .end(function(err, res){
         res.should.have.status(200);
@@ -94,6 +111,7 @@ describe('Keystrokes', function(){
       postKeystroke.typingProfile = mongoose.Types.ObjectId();
       chai.request(server)
       .post('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
       .send({keystroke: postKeystroke})
       .end(function(err, res){
         res.should.have.status(404);
@@ -105,6 +123,7 @@ describe('Keystrokes', function(){
     it('GET should list all keystrokes', function(done){
       chai.request(server)
       .get('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -121,6 +140,7 @@ describe('Keystrokes', function(){
     it('GET should, when it exists, list one keystroke', function(done){
       chai.request(server)
       .get('/api/keystrokes/'+testKeystroke._id)
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -132,6 +152,7 @@ describe('Keystrokes', function(){
     it('GET should not list the requested keystroke if it does not exist', function(done){
       chai.request(server)
       .get('/api/keystrokes/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();
@@ -142,9 +163,11 @@ describe('Keystrokes', function(){
     it('PUT should update a single keystroke', function(done){
       chai.request(server)
       .get('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
         .put('/api/keystrokes/'+res.body[0]._id)
+        .set('authorization', testTypingProfile.accessToken)
         .send({keystroke: {
           'character': 'c',
           'timestamp': 9000,
@@ -169,6 +192,7 @@ describe('Keystrokes', function(){
     it('PUT should not update the requested keystroke if it does not exist', function(done){
       chai.request(server)
       .put('/api/keystrokes/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .send({})
       .end(function(err, res){
         res.should.have.status(404);
@@ -179,9 +203,11 @@ describe('Keystrokes', function(){
     it('PUT should not update the keystroke if the typingProfile cannot be found', function(done){
         chai.request(server)
         .get('/api/keystrokes')
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err, res){
           chai.request(server)
           .put('/api/keystrokes/'+res.body[0]._id)
+          .set('authorization', testTypingProfile.accessToken)
           .send({keystroke: {
             'character': 'c',
             'timestamp': 9000,
@@ -194,11 +220,54 @@ describe('Keystrokes', function(){
           });
         });
       });
+    
+    it('PUT should not update the requested keystroke if the auth header is invalid', function(done){
+      chai.request(server)
+      .get('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
+      .end(function(err, res){
+        chai.request(server)
+        .put('/api/keystrokes/'+res.body[0]._id)
+        .set('authorization', testTypingProfile.accessToken+"a")
+        .send({})
+        .end(function(error, response){
+          response.should.have.status(401);
+          done();
+        });
+      });
+    });
+    
+    it.only('PUT should not update the requested keystroke if the user is not an admin', function(done){
+      testUser.isAdmin = false;
+      chai.request(server)
+      .get('/api/users')
+      .end(function(error, response){
+        chai.request(server)
+        .put('/api/users/'+response.body[0]._id)
+        .send(testUser)
+        .end(function(error, response){
+          chai.request(server)
+          .get('/api/keystrokes')
+          .set('authorization', testTypingProfile.accessToken)
+          .end(function(err, res){
+          chai.request(server)
+            .put('/api/keystrokes/'+res.body[0]._id)
+            .set('authorization', testTypingProfile.accessToken)
+            .send({})
+            .end(function(error, response){
+              response.should.have.status(401);
+              done();
+            });
+          });
+        });
+      });
+    });
 
     //DELETE Testing
     it('DELETE should delete a single keystroke', function(done){
       chai.request(server)
       .get('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
 
         res.should.have.status(200);
@@ -207,12 +276,14 @@ describe('Keystrokes', function(){
 
         chai.request(server)
         .delete('/api/keystrokes/'+res.body[0]._id)
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err2, res2){
 
           res2.should.have.status(200);
 
           chai.request(server)
           .get('/api/keystrokes')
+          .set('authorization', testTypingProfile.accessToken)
           .end(function(err3, res3){
 
             res3.should.have.status(200);
@@ -228,6 +299,7 @@ describe('Keystrokes', function(){
     it('DELETE should not delete the requested keystroke if it does not exist', function(done){
       chai.request(server)
       .delete('/api/keystrokes/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();

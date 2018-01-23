@@ -108,7 +108,7 @@ describe('TypingProfiles', function(){
     //POST Testing
     it('POST should create a new typingProfile', function(done){
         //Need to save a new user
-        testUser.email = 'new email'
+        testUser.email = 'new email';
         var newUser = new User(testUser);
         newUser.save(function(err, data){
             testUser._id = data.id;

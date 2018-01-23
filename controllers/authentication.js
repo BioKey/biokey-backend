@@ -18,6 +18,7 @@ exports.register = function(req, res, next){
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
+  const isAdmin = req.body.isAdmin;
 
   if(!email || !password || !name){
     res.status(422).send({error: 'email, password, and name is required'});
@@ -36,7 +37,8 @@ exports.register = function(req, res, next){
     const user = new User({
       email: email,
       password: password,
-      name: name
+      name: name,
+      isAdmin: isAdmin
     });
 
     user.save(function(err){

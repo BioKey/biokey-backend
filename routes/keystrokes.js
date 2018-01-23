@@ -88,7 +88,7 @@ router.post('/', Keystroke.post);
  * 
  * @apiUse KeystrokeSuccess
  */
-router.put('/:keystroke_id', /*middleware.requireAdmin,*/ Keystroke.update);
+router.put('/:keystroke_id', middleware.requireAdmin, Keystroke.update);
 
 /**
  * @api {delete} /api/keystrokes/:id  DeleteKeystroke
@@ -97,6 +97,6 @@ router.put('/:keystroke_id', /*middleware.requireAdmin,*/ Keystroke.update);
  * Delete a keystroke. Requires admin permissions.
  * @apiGroup Keystrokes
  */
-router.delete('/:keystroke_id', /*middleware.requireAdmin, */Keystroke.delete);
+router.delete('/:keystroke_id', middleware.requireAdmin, Keystroke.delete);
 
 module.exports = router;
