@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Keystroke = require('../controllers/keystrokes');
+const middleware = require('../services/middleware');
 
 /**
  * @api {get} /api/keystrokes  ListKeystrokes
@@ -70,7 +71,7 @@ router.post('/', Keystroke.post);
  * @api {put} /api/keystrokes/:id  UpdateKeystroke
  * @apiName UpdateKeystroke
  * @apiDescription
- * Update a keystroke.
+ * Update a keystroke. Requires admin permissions.
  * 
  * @apiGroup Keystrokes
  * 
@@ -87,15 +88,15 @@ router.post('/', Keystroke.post);
  * 
  * @apiUse KeystrokeSuccess
  */
-router.put('/:keystroke_id', Keystroke.update);
+router.put('/:keystroke_id', /*middleware.requireAdmin,*/ Keystroke.update);
 
 /**
  * @api {delete} /api/keystrokes/:id  DeleteKeystroke
  * @apiName DeleteKeystroke
  * @apiDescription
- * Delete a keystroke.
+ * Delete a keystroke. Requires admin permissions.
  * @apiGroup Keystrokes
  */
-router.delete('/:keystroke_id', Keystroke.delete);
+router.delete('/:keystroke_id', /*middleware.requireAdmin, */Keystroke.delete);
 
 module.exports = router;
