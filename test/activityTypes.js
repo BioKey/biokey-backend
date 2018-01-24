@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 
 var server = require('../app');
 var ActivityType = require('../models/activityType');
+var User = require('../models/user');
 
 var should = chai.should();
 chai.use(chaiHttp);
@@ -11,8 +12,10 @@ chai.use(chaiHttp);
 after(function() {
     //clear out db
     ActivityType.remove(function(err){
-      mongoose.connection.close();
-      done();    
+      User.remove(function(err){
+        mongoose.connection.close();
+        done(); 
+      });   
     });
 });
 
@@ -23,16 +26,34 @@ describe('ActivityTypes', function(){
     importance: 'HIGH'
   };
 
+  var testUser = {
+    name: 'Batman',
+    email: 'batman@gotham.co',
+    password: 'test',
+    isAdmin: true,
+    organization: mongoose.Types.ObjectId()
+  };
+
+  var testToken;
+
   beforeEach(function(done){
-    var newActivityType = new ActivityType(testActivityType);
-    newActivityType.save(function(err, data){
-      testActivityType._id = data.id;
-      done();
+    var newUser = new User(testUser);
+    chai.request(server)
+    .post('/api/auth/register')
+    .send(newUser)
+    .end(function(err, res){
+      testToken = res.body.token;
+      var newActivityType = new ActivityType(testActivityType);
+      newActivityType.save(function(err, data){
+        testActivityType._id = data.id;
+        done();
+      });
     });
   });
 
   afterEach(function(done){
     ActivityType.collection.drop();
+    User.collection.drop();
     done();
   });
 
@@ -57,6 +78,7 @@ describe('ActivityTypes', function(){
     it('POST should create a new activityType', function(done){
       chai.request(server)
       .post('/api/activityTypes')
+      .set('authorization', testToken)
       .send({activityType: postActivityType})
       .end(function(err, res){
         res.should.have.status(200);
@@ -70,10 +92,12 @@ describe('ActivityTypes', function(){
     it('POST should not create an activityType with a duplicate description', function(done){
       chai.request(server)
       .post('/api/activityTypes')
+      .set('authorization', testToken)
       .send({activityType: postActivityType})
       .end(function(err, res){ });
       chai.request(server)
       .post('/api/activityTypes')
+      .set('authorization', testToken)
       .send({activityType: postActivityType})
       .end(function(err, res){
         res.should.have.status(500);
@@ -85,6 +109,7 @@ describe('ActivityTypes', function(){
     it('GET should list all activityTypes', function(done){
       chai.request(server)
       .get('/api/activityTypes')
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -101,6 +126,7 @@ describe('ActivityTypes', function(){
     it('GET should, when it exists, list one activityType', function(done){
       chai.request(server)
       .get('/api/activityTypes/'+testActivityType._id)
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -112,6 +138,7 @@ describe('ActivityTypes', function(){
     it('GET should not list the requested activityType if it does not exist', function(done){
       chai.request(server)
       .get('/api/activityTypes/' + mongoose.Types.ObjectId())
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();
@@ -122,9 +149,11 @@ describe('ActivityTypes', function(){
     it('PUT should update a single activityType', function(done){
       chai.request(server)
       .get('/api/activityTypes')
+      .set('authorization', testToken)
       .end(function(err, res){
         chai.request(server)
         .put('/api/activityTypes/'+res.body[0]._id)
+        .set('authorization', testToken)
         .send({activityType: {
           'description': 'Updated lockout',
           'importance': res.body[0].importance
@@ -145,6 +174,7 @@ describe('ActivityTypes', function(){
     it('PUT should not update the requested activityType if it does not exist', function(done){
       chai.request(server)
       .put('/api/activityTypes/' + mongoose.Types.ObjectId())
+      .set('authorization', testToken)
       .send({})
       .end(function(err, res){
         res.should.have.status(404);
@@ -156,6 +186,7 @@ describe('ActivityTypes', function(){
     it('DELETE should delete a single activityType', function(done){
       chai.request(server)
       .get('/api/activityTypes')
+      .set('authorization', testToken)
       .end(function(err, res){
 
         res.should.have.status(200);
@@ -164,12 +195,14 @@ describe('ActivityTypes', function(){
 
         chai.request(server)
         .delete('/api/activityTypes/'+res.body[0]._id)
+        .set('authorization', testToken)
         .end(function(err2, res2){
 
           res2.should.have.status(200);
 
           chai.request(server)
           .get('/api/activityTypes')
+          .set('authorization', testToken)
           .end(function(err3, res3){
 
             res3.should.have.status(200);
@@ -185,6 +218,7 @@ describe('ActivityTypes', function(){
     it('DELETE should not delete the requested activityType if it does not exist', function(done){
       chai.request(server)
       .delete('/api/activityTypes/' + mongoose.Types.ObjectId())
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();

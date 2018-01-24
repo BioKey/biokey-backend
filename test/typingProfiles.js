@@ -14,8 +14,14 @@ chai.use(chaiHttp);
 after(function() {
     //clear out db
     TypingProfile.remove(function(err){
-      mongoose.connection.close();
-      done();    
+      User.remove(function(err){
+        Machine.remove(function(err){
+          Organization.remove(function(err){
+            mongoose.connection.close();
+            done(); 
+          });
+        });
+      });   
     });
 });
 
@@ -32,7 +38,7 @@ describe('TypingProfiles', function(){
     name: 'Batman',
     email: 'batman@gotham.co',
     password: 'test',
-    isAdmin: false,
+    isAdmin: true,
     organization: mongoose.Types.ObjectId()
   };
 
@@ -47,26 +53,34 @@ describe('TypingProfiles', function(){
   }
 
   beforeEach(function(done){
-    var newOrganization = new Organization(testOrganization);
-    newOrganization.save(function(err, data){
-        testMachine.organization = data.id;
-        testUser.organization = data.id;
-        testOrganization._id = data.id;
-    });
     var newUser = new User(testUser);
-    newUser.save(function(err, data){
-        testUser._id = data.id;
-        testTypingProfile.user = data.id;
-    });
-    var newMachine = new Machine(testMachine);
-    newMachine.save(function(err, data){
-        testMachine._id = data.id;
-        testTypingProfile.machine = data.id;
-    });
-    var newTypingProfile = new TypingProfile(testTypingProfile);
-    newTypingProfile.save(function(err, data){
-      testTypingProfile._id = data.id;
-      done();
+    chai.request(server)
+    .post('/api/auth/register')
+    .send(newUser)
+    .end(function(err, res){
+      testTypingProfile.accessToken = res.body.token;
+      User.findOne({email: testUser.email}, function(err, user){
+        var newOrganization = new Organization(testOrganization);
+        newOrganization.save(function(err, data){
+            testMachine.organization = data.id;
+            testUser.organization = data.id;
+            testOrganization._id = data.id;
+        });
+
+            testUser._id = user.id;
+            testTypingProfile.user = user.id;
+        
+        var newMachine = new Machine(testMachine);
+        newMachine.save(function(err, data){
+            testMachine._id = data.id;
+            testTypingProfile.machine = data.id;
+        });
+        var newTypingProfile = new TypingProfile(testTypingProfile);
+        newTypingProfile.save(function(err, data){
+          testTypingProfile._id = data.id;
+          done();
+        });
+      });
     });
   });
 
@@ -109,6 +123,7 @@ describe('TypingProfiles', function(){
     it('POST should create a new typingProfile', function(done){
         //Need to save a new user
         testUser.email = 'new email';
+        testUser._id = mongoose.Types.ObjectId();
         var newUser = new User(testUser);
         newUser.save(function(err, data){
             testUser._id = data.id;
@@ -118,6 +133,7 @@ describe('TypingProfiles', function(){
             
             chai.request(server)
             .post('/api/typingProfiles')
+            .set('authorization', testTypingProfile.accessToken)
             .send({typingProfile: postTypingProfile})
             .end(function(err, res){
                 res.should.have.status(200);
@@ -135,6 +151,7 @@ describe('TypingProfiles', function(){
       postTypingProfile.machine = testTypingProfile.machine;
       chai.request(server)
       .post('/api/typingProfiles')
+      .set('authorization', testTypingProfile.accessToken)
       .send({typingProfile: postTypingProfile})
       .end(function(err, res){
         res.should.have.status(404);
@@ -147,6 +164,7 @@ describe('TypingProfiles', function(){
         postTypingProfile.machine = mongoose.Types.ObjectId();
         chai.request(server)
         .post('/api/typingProfiles')
+        .set('authorization', testTypingProfile.accessToken)
         .send({typingProfile: postTypingProfile})
         .end(function(err, res){
           res.should.have.status(404);
@@ -158,6 +176,7 @@ describe('TypingProfiles', function(){
     it('GET should list all typingProfiles', function(done){
       chai.request(server)
       .get('/api/typingProfiles')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -174,6 +193,7 @@ describe('TypingProfiles', function(){
     it('GET should, when it exists, list one typingProfile', function(done){
       chai.request(server)
       .get('/api/typingProfiles/'+testTypingProfile._id)
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -185,6 +205,7 @@ describe('TypingProfiles', function(){
     it('GET should not list the requested typingProfile if it does not exist', function(done){
       chai.request(server)
       .get('/api/typingProfiles/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();
@@ -195,9 +216,11 @@ describe('TypingProfiles', function(){
     it('PUT should update a single typingProfile', function(done){
       chai.request(server)
       .get('/api/typingProfiles')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
         .put('/api/typingProfiles/'+res.body[0]._id)
+        .set('authorization', testTypingProfile.accessToken)
         .send({typingProfile: {
           authStatus: true,
           lockStatus: true,
@@ -227,6 +250,7 @@ describe('TypingProfiles', function(){
     it('PUT should not update the requested typingProfile if it does not exist', function(done){
       chai.request(server)
       .put('/api/typingProfiles/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .send({})
       .end(function(err, res){
         res.should.have.status(404);
@@ -237,9 +261,11 @@ describe('TypingProfiles', function(){
     it('PUT should not update the typingProfile if the user cannot be found', function(done){
         chai.request(server)
         .get('/api/typingProfiles')
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err, res){
           chai.request(server)
           .put('/api/typingProfiles/'+res.body[0]._id)
+          .set('authorization', testTypingProfile.accessToken)
           .send({typingProfile: {
             'character': 'c',
             'timestamp': 9000,
@@ -257,9 +283,11 @@ describe('TypingProfiles', function(){
       it('PUT should not update the typingProfile if the machine cannot be found', function(done){
         chai.request(server)
         .get('/api/typingProfiles')
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err, res){
           chai.request(server)
           .put('/api/typingProfiles/'+res.body[0]._id)
+          .set('authorization', testTypingProfile.accessToken)
           .send({typingProfile: {
             'character': 'c',
             'timestamp': 9000,
@@ -278,6 +306,7 @@ describe('TypingProfiles', function(){
     it('DELETE should delete a single typingProfile', function(done){
       chai.request(server)
       .get('/api/typingProfiles')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
 
         res.should.have.status(200);
@@ -286,12 +315,14 @@ describe('TypingProfiles', function(){
 
         chai.request(server)
         .delete('/api/typingProfiles/'+res.body[0]._id)
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err2, res2){
 
           res2.should.have.status(200);
 
           chai.request(server)
           .get('/api/typingProfiles')
+          .set('authorization', testTypingProfile.accessToken)
           .end(function(err3, res3){
 
             res3.should.have.status(200);
@@ -307,6 +338,7 @@ describe('TypingProfiles', function(){
     it('DELETE should not delete the requested typingProfile if it does not exist', function(done){
       chai.request(server)
       .delete('/api/typingProfiles/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();

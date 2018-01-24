@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var ActivityType = require('../controllers/activityTypes');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/activityTypes  ListActivityTypes
  * @apiName ListActivityTypes
@@ -58,7 +60,7 @@ router.get('/:activityType_id', ActivityType.get)
  * 
  * @apiUse ActivityTypeSuccess
  */
-router.post('/', ActivityType.post);
+router.post('/', middleware.requireAdmin, ActivityType.post);
 
 /**
  * @api {put} /api/activityTypes  UpdateActivityType
@@ -78,7 +80,7 @@ router.post('/', ActivityType.post);
  * 
  * @apiUse ActivityTypeSuccess
  */
-router.put('/:activityType_id', ActivityType.update);
+router.put('/:activityType_id', middleware.requireAdmin, ActivityType.update);
 
 /**
  * @api {delete} /api/activityTypes/:id  DeleteActivityType
@@ -87,7 +89,7 @@ router.put('/:activityType_id', ActivityType.update);
  * Delete an activity type.
  * @apiGroup ActivityTypes
  */
-router.delete('/:activityType_id', ActivityType.delete);
+router.delete('/:activityType_id', middleware.requireAdmin, ActivityType.delete);
 
 router.route('/')
 

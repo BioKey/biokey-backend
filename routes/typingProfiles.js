@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var TypingProfile = require('../controllers/typingProfiles');
+const middleware = require('../services/middleware');
 
 /**
  * @api {get} /api/typingProfiles  ListTypingProfiles
@@ -35,7 +36,7 @@ var TypingProfile = require('../controllers/typingProfiles');
  *          }
  *     ]
  */
-router.get('/', TypingProfile.getAll);
+router.get('/', middleware.requireAdmin, TypingProfile.getAll);
 
 /**
  * @api {get} /api/typingProfiles/:id  GetTypingProfile
@@ -102,7 +103,7 @@ router.post('/', TypingProfile.post);
  * 
  * @apiUse TypingProfileSuccess
  */
-router.put('/:typingProfile_id', TypingProfile.update);
+router.put('/:typingProfile_id', middleware.requireAdmin, TypingProfile.update);
 
 /**
  * @api {delete} /api/typingProfiles/:id  DeleteTypingProfile
@@ -111,6 +112,6 @@ router.put('/:typingProfile_id', TypingProfile.update);
  * Delete a typing profile.
  * @apiGroup TypingProfiles
  */
-router.delete('/:typingProfile_id', TypingProfile.delete);
+router.delete('/:typingProfile_id', middleware.requireAdmin, TypingProfile.delete);
 
 module.exports = router;

@@ -13,8 +13,12 @@ chai.use(chaiHttp);
 after(function() {
     //clear out db
     Keystroke.remove(function(err){
-      mongoose.connection.close();
-      done();    
+      TypingProfile.remove(function(err){
+        User.remove(function(err){
+          mongoose.connection.close();
+          done(); 
+        });
+      });   
     });
 });
 
@@ -99,6 +103,7 @@ describe('Keystrokes', function(){
       .set('authorization', testTypingProfile.accessToken)
       .send({keystroke: postKeystroke})
       .end(function(err, res){
+        console.log(err);
         res.should.have.status(200);
         res.should.be.json;
         postKeystroke._id = res.body.keystroke._id;
@@ -236,32 +241,6 @@ describe('Keystrokes', function(){
         });
       });
     });
-    
-    it.only('PUT should not update the requested keystroke if the user is not an admin', function(done){
-      testUser.isAdmin = false;
-      chai.request(server)
-      .get('/api/users')
-      .end(function(error, response){
-        chai.request(server)
-        .put('/api/users/'+response.body[0]._id)
-        .send(testUser)
-        .end(function(error, response){
-          chai.request(server)
-          .get('/api/keystrokes')
-          .set('authorization', testTypingProfile.accessToken)
-          .end(function(err, res){
-          chai.request(server)
-            .put('/api/keystrokes/'+res.body[0]._id)
-            .set('authorization', testTypingProfile.accessToken)
-            .send({})
-            .end(function(error, response){
-              response.should.have.status(401);
-              done();
-            });
-          });
-        });
-      });
-    });
 
     //DELETE Testing
     it('DELETE should delete a single keystroke', function(done){
@@ -305,5 +284,33 @@ describe('Keystrokes', function(){
         done();
       });
     });
+
+     
+    it('PUT should not update the requested keystroke if the user is not an admin', function(done){
+      testUser.isAdmin = false;
+      chai.request(server)
+      .get('/api/users')
+      .end(function(error, response){
+        chai.request(server)
+        .put('/api/users/'+response.body[0]._id)
+        .send(testUser)
+        .end(function(error, response){
+          chai.request(server)
+          .get('/api/keystrokes')
+          .set('authorization', testTypingProfile.accessToken)
+          .end(function(err, res){
+          chai.request(server)
+            .put('/api/keystrokes/'+res.body[0]._id)
+            .set('authorization', testTypingProfile.accessToken)
+            .send({})
+            .end(function(error, response){
+              response.should.have.status(401);
+              done();
+            });
+          });
+        });
+      });
+    });
   });
+  
 });

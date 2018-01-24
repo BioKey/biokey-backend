@@ -3,6 +3,7 @@ var chaiHttp = require('chai-http');
 var mongoose = require('mongoose');
 
 var server = require('../app');
+var User = require('../models/user');
 var Activity = require('../models/activity');
 var TypingProfile = require('../models/typingProfile');
 var ActivityType = require('../models/activityType');
@@ -13,8 +14,14 @@ chai.use(chaiHttp);
 after(function() {
     //clear out db
     Activity.remove(function(err){
-      mongoose.connection.close();
-      done();    
+      TypingProfile.remove(function(err){
+        ActivityType.remove(function(err){
+          User.remove(function(err){
+            mongoose.connection.close();
+            done(); 
+          });
+        });  
+      }); 
     });
 });
 
@@ -29,7 +36,6 @@ describe('Activities', function(){
     machine: mongoose.Types.ObjectId(),
     authStatus: false,
     lockStatus: true,
-    accessToken: 'token',
     tensorFlowModel: 'tfmodel'
   };
 
@@ -38,25 +44,41 @@ describe('Activities', function(){
     importance: 'LOW'
   };
 
+  var testUser = {
+    name: 'Batman',
+    email: 'batman@gotham.co',
+    password: 'test',
+    isAdmin: true,
+    organization: mongoose.Types.ObjectId()
+  };
+
   beforeEach(function(done){
-    var newTypingProfile = new TypingProfile(testTypingProfile);
-    newTypingProfile.save(function(err, data){
-        testTypingProfile._id = data.id;
-        testActivity.typingProfile = data.id;
-    });
-    var newActivityType = new ActivityType(testActivityType);
-    newActivityType.save(function(err, data){
-        testActivityType._id = data.id;
-        testActivity.activityType = data.id;
-    });
-    var newActivity = new Activity(testActivity);
-    newActivity.save(function(err, data){
-      testActivity._id = data.id;
-      done();
+    var newUser = new User(testUser);
+    chai.request(server)
+    .post('/api/auth/register')
+    .send(newUser)
+    .end(function(err, res){
+      testTypingProfile.accessToken = res.body.token;
+      var newTypingProfile = new TypingProfile(testTypingProfile);
+      newTypingProfile.save(function(err, data){
+          testTypingProfile._id = data.id;
+          testActivity.typingProfile = data.id;
+      });
+      var newActivityType = new ActivityType(testActivityType);
+      newActivityType.save(function(err, data){
+          testActivityType._id = data.id;
+          testActivity.activityType = data.id;
+      });
+      var newActivity = new Activity(testActivity);
+      newActivity.save(function(err, data){
+        testActivity._id = data.id;
+        done();
+      });
     });
   });
 
   afterEach(function(done){
+    User.collection.drop();
     Activity.collection.drop();
     TypingProfile.collection.drop();
     ActivityType.collection.drop();
@@ -87,6 +109,7 @@ describe('Activities', function(){
       postActivity.activityType = testActivity.activityType;
       chai.request(server)
       .post('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
       .send({activity: postActivity})
       .end(function(err, res){
         res.should.have.status(200);
@@ -102,6 +125,7 @@ describe('Activities', function(){
       postActivity.activityType = testActivity.activityType;
       chai.request(server)
       .post('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
       .send({activity: postActivity})
       .end(function(err, res){
         res.should.have.status(404);
@@ -114,6 +138,7 @@ describe('Activities', function(){
         postActivity.activityType = mongoose.Types.ObjectId();
         chai.request(server)
         .post('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
         .send({activity: postActivity})
         .end(function(err, res){
           res.should.have.status(404);
@@ -125,6 +150,7 @@ describe('Activities', function(){
     it('GET should list all activities', function(done){
       chai.request(server)
       .get('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -141,6 +167,7 @@ describe('Activities', function(){
     it('GET should, when it exists, list one activity', function(done){
       chai.request(server)
       .get('/api/activities/'+testActivity._id)
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -152,6 +179,7 @@ describe('Activities', function(){
     it('GET should not list the requested activity if it does not exist', function(done){
       chai.request(server)
       .get('/api/activities/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();
@@ -162,9 +190,11 @@ describe('Activities', function(){
     it('PUT should update a single activity', function(done){
       chai.request(server)
       .get('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
         .put('/api/activities/'+res.body[0]._id)
+        .set('authorization', testTypingProfile.accessToken)
         .send({activity: {
           'timestamp': 9000,
           'typingProfile': res.body[0].typingProfile,
@@ -187,6 +217,7 @@ describe('Activities', function(){
     it('PUT should not update the requested activity if it does not exist', function(done){
       chai.request(server)
       .put('/api/activities/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .send({})
       .end(function(err, res){
         res.should.have.status(404);
@@ -197,9 +228,11 @@ describe('Activities', function(){
     it('PUT should not update the activity if the typingProfile cannot be found', function(done){
         chai.request(server)
         .get('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err, res){
           chai.request(server)
           .put('/api/activities/'+res.body[0]._id)
+          .set('authorization', testTypingProfile.accessToken)
           .send({activity: {
             'character': 'c',
             'timestamp': 9000,
@@ -217,9 +250,11 @@ describe('Activities', function(){
       it('PUT should not update the activity if the activityType cannot be found', function(done){
         chai.request(server)
         .get('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err, res){
           chai.request(server)
           .put('/api/activities/'+res.body[0]._id)
+          .set('authorization', testTypingProfile.accessToken)
           .send({activity: {
             'character': 'c',
             'timestamp': 9000,
@@ -238,6 +273,7 @@ describe('Activities', function(){
     it('DELETE should delete a single activity', function(done){
       chai.request(server)
       .get('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
 
         res.should.have.status(200);
@@ -246,12 +282,14 @@ describe('Activities', function(){
 
         chai.request(server)
         .delete('/api/activities/'+res.body[0]._id)
+        .set('authorization', testTypingProfile.accessToken)
         .end(function(err2, res2){
 
           res2.should.have.status(200);
 
           chai.request(server)
           .get('/api/activities')
+          .set('authorization', testTypingProfile.accessToken)
           .end(function(err3, res3){
 
             res3.should.have.status(200);
@@ -267,6 +305,7 @@ describe('Activities', function(){
     it('DELETE should not delete the requested activity if it does not exist', function(done){
       chai.request(server)
       .delete('/api/activities/' + mongoose.Types.ObjectId())
+      .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();

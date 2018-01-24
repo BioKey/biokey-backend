@@ -9,7 +9,6 @@ const requireSignin = passport.authenticate('local', {session: false});
 const requireAdmin = function(req, res, next){
     //Require user to be authenticated
     requireAuth(req, res, function(){
-        console.log(req.user);
         //Checks if the user was found
         if(!req.user) { res.status(500).send("There was a problem with your session."); }
         //Checks if the user is an admin

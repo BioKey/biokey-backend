@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Organization = require('../controllers/organizations');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/organizations  ListOrganizations
  * @apiName ListOrganizations
@@ -31,7 +33,7 @@ var Organization = require('../controllers/organizations');
  *          }
  *     ]
  */
-router.get('/', Organization.getAll);
+router.get('/', middleware.requireAdmin, Organization.getAll);
 
 /**
  * @api {get} /api/organizations/:id  GetOrganization
@@ -42,7 +44,7 @@ router.get('/', Organization.getAll);
  * @apiGroup Organizations
  * @apiUse OrganizationSuccess
  */
-router.get('/:organization_id', Organization.get)
+router.get('/:organization_id', middleware.requireAdmin, Organization.get)
 
 /**
  * @api {post} /api/organizations  PostOrganization
@@ -66,7 +68,7 @@ router.get('/:organization_id', Organization.get)
  * 
  * @apiUse OrganizationSuccess
  */
-router.post('/', Organization.post);
+router.post('/', middleware.requireAdmin, Organization.post);
 
 /**
  * @api {put} /api/organizations/:id  UpdateOrganization
@@ -90,7 +92,7 @@ router.post('/', Organization.post);
  * 
  * @apiUse OrganizationSuccess
  */
-router.put('/:organization_id', Organization.update);
+router.put('/:organization_id', middleware.requireAdmin, Organization.update);
 
 /**
  * @api {delete} /api/organizations/:id  DeleteOrganization
@@ -99,6 +101,6 @@ router.put('/:organization_id', Organization.update);
  * Delete a organization.
  * @apiGroup Organizations
  */
-router.delete('/:organization_id', Organization.delete);
+router.delete('/:organization_id', middleware.requireAdmin, Organization.delete);
 
 module.exports = router;

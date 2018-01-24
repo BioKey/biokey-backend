@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Machine = require('../controllers/machines');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/machines  ListMachines
  * @apiName ListMachines
@@ -27,7 +29,7 @@ var Machine = require('../controllers/machines');
  *          }
  *     ]
  */
-router.get('/', Machine.getAll);
+router.get('/', middleware.requireAdmin, Machine.getAll);
 
 /**
  * @api {get} /api/machines/:id  GetMachine
@@ -58,7 +60,7 @@ router.get('/:machine_id', Machine.get)
  * 
  * @apiUse MachineSuccess
  */
-router.post('/', Machine.post);
+router.post('/', middleware.requireAdmin, Machine.post);
 
 /**
  * @api {put} /api/machines/:id  UpdateMachine
@@ -78,7 +80,7 @@ router.post('/', Machine.post);
  * 
  * @apiUse MachineSuccess
  */
-router.put('/:machine_id', Machine.update);
+router.put('/:machine_id', middleware.requireAdmin, Machine.update);
 
 /**
  * @api {delete} /api/machines/:id  DeleteMachine
@@ -87,6 +89,6 @@ router.put('/:machine_id', Machine.update);
  * Delete a machine.
  * @apiGroup Machines
  */
-router.delete('/:machine_id', Machine.delete);
+router.delete('/:machine_id', middleware.requireAdmin, Machine.delete);
 
 module.exports = router;

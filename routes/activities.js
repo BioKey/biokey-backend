@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Activity = require('../controllers/activities');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/activities  ListActivities
  * @apiName ListActivities
@@ -29,7 +31,7 @@ var Activity = require('../controllers/activities');
  *          }
  *     ]
  */
-router.get('/', Activity.getAll);
+router.get('/', middleware.requireAuth, Activity.getAll);
 
 /**
  * @api {get} /api/activities/:id  GetActivity
@@ -40,7 +42,7 @@ router.get('/', Activity.getAll);
  * @apiGroup Activities
  * @apiUse ActivitySuccess
  */
-router.get('/:activity_id', Activity.get)
+router.get('/:activity_id', middleware.requireAuth, Activity.get)
 
 /**
  * @api {post} /api/activities  PostActivity
@@ -62,7 +64,7 @@ router.get('/:activity_id', Activity.get)
  * 
  * @apiUse ActivitySuccess
  */
-router.post('/', Activity.post);
+router.post('/', middleware.requireAuth, Activity.post);
 
 /**
  * @api {put} /api/activities/:id  UpdateActivity
@@ -84,7 +86,7 @@ router.post('/', Activity.post);
  * 
  * @apiUse ActivitySuccess
  */
-router.put('/:activity_id', Activity.update); //NOTE FOR CODE REVIEW: should we be able to edit logs in prod?
+router.put('/:activity_id', middleware.requireAdmin, Activity.update); //NOTE FOR CODE REVIEW: should we be able to edit logs in prod?
 
 /**
  * @api {delete} /api/activities/:id  DeleteActivity
@@ -93,6 +95,6 @@ router.put('/:activity_id', Activity.update); //NOTE FOR CODE REVIEW: should we 
  * Delete an activity.
  * @apiGroup Activities
  */
-router.delete('/:activity_id', Activity.delete);
+router.delete('/:activity_id', middleware.requireAdmin, Activity.delete);
 
 module.exports = router;
