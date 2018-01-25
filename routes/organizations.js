@@ -12,6 +12,7 @@ const middleware = require('../services/middleware');
  * 
  * @apiGroup Organizations
  * 
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} organizations List of organizations
  * @apiSuccess {String} organizations._id UUID of the organization for the system.
  * @apiSuccess {String} organizations.name The organization's unique name.
@@ -32,6 +33,7 @@ const middleware = require('../services/middleware');
  *              "__v": 0
  *          }
  *     ]
+ * @apiUse AdminError
  */
 router.get('/', middleware.requireAdmin, Organization.getAll);
 
@@ -42,7 +44,9 @@ router.get('/', middleware.requireAdmin, Organization.getAll);
  * Get a specific organization.
  * 
  * @apiGroup Organizations
+ * @apiUse RequestHeaders
  * @apiUse OrganizationSuccess
+ * @apiUse AdminError
  */
 router.get('/:organization_id', middleware.requireAdmin, Organization.get)
 
@@ -54,6 +58,7 @@ router.get('/:organization_id', middleware.requireAdmin, Organization.get)
  * 
  * @apiGroup Organizations
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} name The new organization's unique name.
  * @apiParam {Number} maxUsers The number of users that the new organization may have.
  * @apiParam {[String]} challengeStrategies The authentication strategies that the new organization accepts.
@@ -67,6 +72,7 @@ router.get('/:organization_id', middleware.requireAdmin, Organization.get)
  *     }
  * 
  * @apiUse OrganizationSuccess
+ * @apiUse AdminError
  */
 router.post('/', middleware.requireAdmin, Organization.post);
 
@@ -78,6 +84,7 @@ router.post('/', middleware.requireAdmin, Organization.post);
  * 
  * @apiGroup Organizations
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} name The organization's new unique name.
  * @apiParam {Number} maxUsers The new number of users that the organization may have.
  * @apiParam {[String]} challengeStrategies The new set of authentication strategies that the organization accepts.
@@ -91,6 +98,7 @@ router.post('/', middleware.requireAdmin, Organization.post);
  *     }
  * 
  * @apiUse OrganizationSuccess
+ * @apiUse AdminError
  */
 router.put('/:organization_id', middleware.requireAdmin, Organization.update);
 
@@ -100,6 +108,8 @@ router.put('/:organization_id', middleware.requireAdmin, Organization.update);
  * @apiDescription
  * Delete a organization.
  * @apiGroup Organizations
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
 router.delete('/:organization_id', middleware.requireAdmin, Organization.delete);
 

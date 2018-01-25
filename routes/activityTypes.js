@@ -50,6 +50,7 @@ router.get('/:activityType_id', ActivityType.get)
  * 
  * @apiGroup ActivityTypes
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} description Unique description of the new activity type
  * @apiParam {String} importance Severity level. One of {"LOW", "MEDIUM", "HIGH"}
  * @apiParamExample {json} Request-Example
@@ -59,6 +60,7 @@ router.get('/:activityType_id', ActivityType.get)
  *     }
  * 
  * @apiUse ActivityTypeSuccess
+ * @apiUse AdminError
  */
 router.post('/', middleware.requireAdmin, ActivityType.post);
 
@@ -70,6 +72,7 @@ router.post('/', middleware.requireAdmin, ActivityType.post);
  * 
  * @apiGroup ActivityTypes
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} description The new unique description of the activity type
  * @apiParam {String} importance The new severity level. One of {"LOW", "MEDIUM", "HIGH"}
  * @apiParamExample {json} Request-Example
@@ -79,6 +82,7 @@ router.post('/', middleware.requireAdmin, ActivityType.post);
  *     }
  * 
  * @apiUse ActivityTypeSuccess
+ * @apiUse AdminError
  */
 router.put('/:activityType_id', middleware.requireAdmin, ActivityType.update);
 
@@ -88,6 +92,8 @@ router.put('/:activityType_id', middleware.requireAdmin, ActivityType.update);
  * @apiDescription
  * Delete an activity type.
  * @apiGroup ActivityTypes
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
 router.delete('/:activityType_id', middleware.requireAdmin, ActivityType.delete);
 

@@ -12,6 +12,7 @@ const middleware = require('../services/middleware');
  * 
  * @apiGroup Machines
  * 
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} machines List of machines
  * @apiSuccess {String} machines._id UUID of the machine for the system.
  * @apiSuccess {String} machines.mac The machine's unique MAC address.
@@ -38,9 +39,11 @@ router.get('/', middleware.requireAdmin, Machine.getAll);
  * Get a specific machine.
  * 
  * @apiGroup Machines
+ * @apiUse RequestHeaders
  * @apiUse MachineSuccess
+ * @apiUse AdminError
  */
-router.get('/:machine_id', Machine.get)
+router.get('/:machine_id', middleware.requireAdmin, Machine.get)
 
 /**
  * @api {post} /api/machines  PostMachine
@@ -50,6 +53,7 @@ router.get('/:machine_id', Machine.get)
  * 
  * @apiGroup Machines
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} mac The new machine's unique MAC address.
  * @apiParam {String} organization The organization that the new machine is assigned to.
  * @apiParamExample {json} Request-Example
@@ -59,6 +63,7 @@ router.get('/:machine_id', Machine.get)
  *     }
  * 
  * @apiUse MachineSuccess
+ * @apiUse AdminError
  */
 router.post('/', middleware.requireAdmin, Machine.post);
 
@@ -70,6 +75,7 @@ router.post('/', middleware.requireAdmin, Machine.post);
  * 
  * @apiGroup Machines
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} mac The machine's new unique MAC address.
  * @apiParam {String} organization The organization that the machine is newly assigned to.
  * @apiParamExample {json} Request-Example
@@ -79,6 +85,7 @@ router.post('/', middleware.requireAdmin, Machine.post);
  *     }
  * 
  * @apiUse MachineSuccess
+ * @apiUse AdminError
  */
 router.put('/:machine_id', middleware.requireAdmin, Machine.update);
 
@@ -88,6 +95,8 @@ router.put('/:machine_id', middleware.requireAdmin, Machine.update);
  * @apiDescription
  * Delete a machine.
  * @apiGroup Machines
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
 router.delete('/:machine_id', middleware.requireAdmin, Machine.delete);
 

@@ -11,6 +11,8 @@ const middleware = require('../services/middleware');
  * 
  * @apiGroup Keystrokes
  * 
+ * @apiUse RequestHeaders
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} keystrokes List of keystrokes
  * @apiSuccess {String} keystrokes._id UUID of the keystroke for the system.
  * @apiSuccess {String} keystrokes.character The key that was pressed/released.
@@ -30,8 +32,10 @@ const middleware = require('../services/middleware');
  *              "__v": 0
  *          }
  *     ]
+ * 
+ * @apiUse AdminError
  */
-router.get('/', middleware.requireAuth, Keystroke.getAll);
+router.get('/', middleware.requireAdmin, Keystroke.getAll);
 
 /**
  * @api {get} /api/keystrokes/:id  GetKeystroke
@@ -40,9 +44,12 @@ router.get('/', middleware.requireAuth, Keystroke.getAll);
  * Get a specific keystroke.
  * 
  * @apiGroup Keystrokes
+ * @apiUse RequestHeaders
+ * @apiUse RequestHeaders
  * @apiUse KeystrokeSuccess
+ * @apiUse AdminError
  */
-router.get('/:keystroke_id', middleware.requireAuth, Keystroke.get)
+router.get('/:keystroke_id', middleware.requireAdmin, Keystroke.get)
 
 /**
  * @api {post} /api/keystrokes  PostKeystroke
@@ -52,6 +59,7 @@ router.get('/:keystroke_id', middleware.requireAuth, Keystroke.get)
  * 
  * @apiGroup Keystrokes
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} character The key that was newly pressed/released.
  * @apiParam {Number} timestamp The time that the new keystroke occurred.
  * @apiParam {String} upOrDown Specifies whether the key was pressed or released. One of {"U", "D"}
@@ -64,6 +72,7 @@ router.get('/:keystroke_id', middleware.requireAuth, Keystroke.get)
  *     }
  * 
  * @apiUse KeystrokeSuccess
+ * @apiUse UnauthorizedError
  */
 router.post('/', middleware.requireAuth, Keystroke.post);
 
@@ -75,6 +84,7 @@ router.post('/', middleware.requireAuth, Keystroke.post);
  * 
  * @apiGroup Keystrokes
  *
+ * @apiUse RequestHeaders
  * @apiParam {String} character The new key that was pressed/released.
  * @apiParam {Number} timestamp The new time that the keystroke occurred.
  * @apiParam {String} upOrDown The new direction of the keystroke. One of {"U", "D"}
@@ -86,9 +96,8 @@ router.post('/', middleware.requireAuth, Keystroke.post);
  *          "upOrDown": "D"
  *     }
  * 
- * @apiHeader authorization The access token associated with the typing profile's session.
- * 
  * @apiUse KeystrokeSuccess
+ * @apiUse AdminError
  */
 router.put('/:keystroke_id', middleware.requireAdmin, Keystroke.update);
 
@@ -98,7 +107,8 @@ router.put('/:keystroke_id', middleware.requireAdmin, Keystroke.update);
  * @apiDescription
  * Delete a keystroke. Requires admin permissions.
  * @apiGroup Keystrokes
- * @apiHeader authorization The access token associated with the typing profile's session.
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
 router.delete('/:keystroke_id', middleware.requireAdmin, Keystroke.delete);
 

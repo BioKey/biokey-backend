@@ -12,6 +12,7 @@ const middleware = require('../services/middleware');
  * 
  * @apiGroup Activities
  * 
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} activities List of activities
  * @apiSuccess {String} activities._id UUID of the activity for the system
  * @apiSuccess {Number} activities.timestamp Time that the activity occurred
@@ -30,6 +31,8 @@ const middleware = require('../services/middleware');
  *              "__v": 0
  *          }
  *     ]
+ * 
+ * @apiUse UnauthorizedError
  */
 router.get('/', middleware.requireAuth, Activity.getAll);
 
@@ -40,7 +43,9 @@ router.get('/', middleware.requireAuth, Activity.getAll);
  * Get a specific activity.
  * 
  * @apiGroup Activities
+ * @apiUse RequestHeaders
  * @apiUse ActivitySuccess
+ * @apiUse UnauthorizedError
  */
 router.get('/:activity_id', middleware.requireAuth, Activity.get)
 
@@ -52,6 +57,7 @@ router.get('/:activity_id', middleware.requireAuth, Activity.get)
  * 
  * @apiGroup Activities
  * 
+ * @apiUse RequestHeaders
  * @apiParam {Number} timestamp The new activity's timestamp
  * @apiParam {TypingProfile} typingProfile The new activity's typing profile
  * @apiParam {ActivityType} activityType The new activity's type
@@ -63,6 +69,7 @@ router.get('/:activity_id', middleware.requireAuth, Activity.get)
  *     }
  * 
  * @apiUse ActivitySuccess
+ * @apiUse UnauthorizedError
  */
 router.post('/', middleware.requireAuth, Activity.post);
 
@@ -74,6 +81,7 @@ router.post('/', middleware.requireAuth, Activity.post);
  * 
  * @apiGroup Activities
  * 
+ * @apiUse RequestHeaders
  * @apiParam {Number} timestamp The activity's new timestamp
  * @apiParam {TypingProfile} typingProfile The activity's new typing profile
  * @apiParam {ActivityType} activityType The activity's new type
@@ -85,6 +93,7 @@ router.post('/', middleware.requireAuth, Activity.post);
  *     }
  * 
  * @apiUse ActivitySuccess
+ * @apiUse AdminError
  */
 router.put('/:activity_id', middleware.requireAdmin, Activity.update); //NOTE FOR CODE REVIEW: should we be able to edit logs in prod?
 
@@ -94,6 +103,8 @@ router.put('/:activity_id', middleware.requireAdmin, Activity.update); //NOTE FO
  * @apiDescription
  * Delete an activity.
  * @apiGroup Activities
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
 router.delete('/:activity_id', middleware.requireAdmin, Activity.delete);
 

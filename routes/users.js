@@ -10,6 +10,7 @@ const User = require('../controllers/users');
  * 
  * @apiGroup Users
  *
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} users List of users
  * @apiSuccess {String} users._id  UUID of the user for the system
  * @apiSuccess {String} users.email User's email
@@ -31,8 +32,9 @@ const User = require('../controllers/users');
  *          }
  *     ]
  * 
+ * @apiUse AdminError
  */
- router.get('/', User.getAll);
+ router.get('/', /* middleware.requireAdmin,*/ User.getAll);
 
 /**
  * @api {get} /api/users/:id  GetUser
@@ -41,10 +43,12 @@ const User = require('../controllers/users');
  * End point for user's to get a specific user's information.
  * 
  * @apiGroup Users
+ * @apiUse RequestHeaders
  * @apiUse UserSuccess
  * 
+ * @apiUse UserError
  */
- router.get('/:id', User.get);
+ router.get('/:id', /* middleware.requireAuth, */ User.get,  /* middleware.requireSameUser */);
 
  /**
  * @api {put} /api/users/:id  UpdateUser
@@ -54,6 +58,7 @@ const User = require('../controllers/users');
  * 
  * @apiGroup Users
  *
+ * @apiUse RequestHeaders
  * @apiParam {String} name The user's new name
  * @apiParam {String} email The user's new email
  * @apiParam {Boolean} isAdmin The user's new isAdmin state
@@ -67,9 +72,9 @@ const User = require('../controllers/users');
  *     }
  *
  * @apiUse UserSuccess
- * 
+ * @apiUse UserError
  */
- router.put('/:id', User.update);
+ router.put('/:id', /* middleware.requireAuth, */, User.update, /* middleware.requireSameUser */);
 
 /**
  * @api {delete} /api/users/:id  DeleteUser
@@ -77,8 +82,9 @@ const User = require('../controllers/users');
  * @apiDescription 
  * End point to delete a specific user.
  * @apiGroup Users
- * 
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
- router.delete('/:id', User.delete);
+ router.delete('/:id', /* middleware.requireAdmin, */, User.delete);
 
  module.exports = router;

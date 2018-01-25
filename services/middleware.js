@@ -12,7 +12,7 @@ const requireAdmin = function(req, res, next){
         //Checks if the user was found
         if(!req.user) { res.status(500).send("There was a problem with your session."); }
         //Checks if the user is an admin
-        else if(!req.user.isAdmin){ res.status(401).send("Permission denied."); }
+        else if(!req.user.isAdmin){ res.status(401).send("Unauthorized."); }
         else { next(); }
     });
 }
