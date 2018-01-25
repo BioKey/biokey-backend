@@ -1,6 +1,7 @@
 const Activity = require('../models/activity');
 const ActivityType = require('../models/activityType');
 const TypingProfile = require('../models/typingProfile');
+const User = require('../models/user');
 
 //RETURNS ALL THE ACTIVITIES FROM THE DATABASE
 exports.getAll = function (req, res) {
@@ -15,6 +16,16 @@ exports.get = function (req, res) {
     Activity.findById(req.params.activity_id, (err, activity) => {
         if (err) return res.status(500).send("There was a problem finding the activity.");
         if (!activity) return res.status(404).send({errors: [{errmsg: 'No activity was found.'}]});
+        
+        /* User check
+        TypingProfile.findById(activity.typingProfile, function(err, typingProfile){
+            User.findById(typingProfile.user, function(err, user){
+                console.log(err);
+                console.log("HE: "+user.email);
+            })
+        })
+        */
+
         return res.status(200).json({activity: activity});
     });
 }

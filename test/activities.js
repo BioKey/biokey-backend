@@ -59,6 +59,11 @@ describe('Activities', function(){
     .send(newUser)
     .end(function(err, res){
       testTypingProfile.accessToken = res.body.token;
+      User.findOne({email: testUser.email}, function(err, user){
+        if(err) console.log("User find error" + err);
+        testUser._id = user._id;
+        testTypingProfile.user = user._id
+      });
       var newTypingProfile = new TypingProfile(testTypingProfile);
       newTypingProfile.save(function(err, data){
           testTypingProfile._id = data.id;

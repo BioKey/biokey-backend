@@ -287,30 +287,36 @@ describe('Keystrokes', function(){
 
      
     it('PUT should not update the requested keystroke if the user is not an admin', function(done){
-      testUser.isAdmin = false;
+      
       chai.request(server)
-      .get('/api/users')
-      .end(function(error, response){
-        chai.request(server)
-        .put('/api/users/'+response.body[0]._id)
-        .send(testUser)
-        .end(function(error, response){
+        //Get keystroke to update
+        .get('/api/keystrokes')
+        .set('authorization', testTypingProfile.accessToken)
+        .end(function(err, response){
+          //Get user
           chai.request(server)
-          .get('/api/keystrokes')
+          .get('/api/users')
           .set('authorization', testTypingProfile.accessToken)
-          .end(function(err, res){
-          chai.request(server)
-            .put('/api/keystrokes/'+res.body[0]._id)
+          .end(function(error, response2){
+            //Update user to non-admin
+            testUser.isAdmin = false;
+            chai.request(server)
+            .put('/api/users/'+response2.body[0]._id)
             .set('authorization', testTypingProfile.accessToken)
-            .send({})
-            .end(function(error, response){
-              response.should.have.status(401);
-              done();
+            .send(testUser)
+            .end(function(error, response3){
+              //Attempt to update the keystroke
+              chai.request(server)
+              .put('/api/keystrokes/'+response.body[0]._id)
+              .set('authorization', testTypingProfile.accessToken)
+              .send({})
+              .end(function(error, response4){
+                response4.should.have.status(401);
+                done();
+              });
             });
           });
         });
-      });
     });
   });
-  
 });

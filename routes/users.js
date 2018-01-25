@@ -74,7 +74,7 @@ const User = require('../controllers/users');
  * @apiUse UserSuccess
  * @apiUse UserError
  */
- router.put('/:id', /* middleware.requireAuth, */, User.update, /* middleware.requireSameUser */);
+ router.put('/:id', /* middleware.requireAuth, */ User.update, /* middleware.requireSameUser */);
 
 /**
  * @api {delete} /api/users/:id  DeleteUser
@@ -85,6 +85,6 @@ const User = require('../controllers/users');
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
- router.delete('/:id', /* middleware.requireAdmin, */, User.delete);
+ router.delete('/:id', /* middleware.requireAdmin, */ User.delete);
 
  module.exports = router;
