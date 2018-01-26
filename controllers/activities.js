@@ -16,16 +16,6 @@ exports.get = function (req, res) {
     Activity.findById(req.params.activity_id, (err, activity) => {
         if (err) return res.status(500).send("There was a problem finding the activity.");
         if (!activity) return res.status(404).send({errors: [{errmsg: 'No activity was found.'}]});
-        
-        /* User check
-        TypingProfile.findById(activity.typingProfile, function(err, typingProfile){
-            User.findById(typingProfile.user, function(err, user){
-                console.log(err);
-                console.log("HE: "+user.email);
-            })
-        })
-        */
-
         return res.status(200).json({activity: activity});
     });
 }
@@ -41,12 +31,17 @@ exports.post = function (req, res) {
         TypingProfile.findById(activity.typingProfile, (err, typingProfile) => {
             if (err) return res.status(500).send('There was a problem finding the requested typing profile.');
             if (!typingProfile) return res.status(404).send('There was a problem finding the requested typing profile.');
-            //Save Activity
-            activity.save(err => {
-                if(err) return res.status(500).send("There was a problem saving the activity.");
-                return res.json({msg: "Activity saved!", activity: activity});
+            //Determine if the user requesting the post is the same one, or an admin
+            User.findById(req.user, (err, user) => {
+                if(err) return res.status(500).send('There was a problem with your session.');
+                if(!user.isAdmin && user._id!=typingProfile.user) return res.status(401).send('You are not authorized to perform this action.');
+                //Save Activity
+                activity.save(err => {
+                    if(err) return res.status(500).send("There was a problem saving the activity.");
+                    return res.json({msg: "Activity saved!", activity: activity});
+                });
             });
-        })
+        });
     });
 }
 

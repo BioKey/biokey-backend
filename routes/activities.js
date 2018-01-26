@@ -32,9 +32,9 @@ const middleware = require('../services/middleware');
  *          }
  *     ]
  * 
- * @apiUse UnauthorizedError
+ * @apiUse AdminError
  */
-router.get('/', middleware.requireAuth, Activity.getAll);
+router.get('/', middleware.requireAdmin, Activity.getAll);
 
 /**
  * @api {get} /api/activities/:id  GetActivity
@@ -45,9 +45,9 @@ router.get('/', middleware.requireAuth, Activity.getAll);
  * @apiGroup Activities
  * @apiUse RequestHeaders
  * @apiUse ActivitySuccess
- * @apiUse UnauthorizedError
+ * @apiUse AdminError
  */
-router.get('/:activity_id', middleware.requireAuth, Activity.get)
+router.get('/:activity_id', middleware.requireAdmin, Activity.get)
 
 /**
  * @api {post} /api/activities  PostActivity

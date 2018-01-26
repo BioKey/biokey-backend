@@ -32,11 +32,10 @@ describe('Activities', function(){
   };
 
   var testTypingProfile = {
-    user: mongoose.Types.ObjectId(),
-    machine: mongoose.Types.ObjectId(),
     authStatus: false,
     lockStatus: true,
-    tensorFlowModel: 'tfmodel'
+    tensorFlowModel: 'tfmodel',
+    machine: mongoose.Types.ObjectId()
   };
 
   var testActivityType = {
@@ -58,34 +57,43 @@ describe('Activities', function(){
     .post('/api/auth/register')
     .send(newUser)
     .end(function(err, res){
+
       testTypingProfile.accessToken = res.body.token;
+
       User.findOne({email: testUser.email}, function(err, user){
-        if(err) console.log("User find error" + err);
+
+        //Getting user id
         testUser._id = user._id;
-        testTypingProfile.user = user._id
-      });
-      var newTypingProfile = new TypingProfile(testTypingProfile);
-      newTypingProfile.save(function(err, data){
-          testTypingProfile._id = data.id;
+        testTypingProfile.user =  user._id
+        
+        var newTypingProfile = new TypingProfile(testTypingProfile);
+        newTypingProfile.save(function(err, data){
+          //Getting activity id
           testActivity.typingProfile = data.id;
-      });
-      var newActivityType = new ActivityType(testActivityType);
-      newActivityType.save(function(err, data){
-          testActivityType._id = data.id;
-          testActivity.activityType = data.id;
-      });
-      var newActivity = new Activity(testActivity);
-      newActivity.save(function(err, data){
-        testActivity._id = data.id;
-        done();
+          testTypingProfile._id = data.id
+
+          var newActivityType = new ActivityType(testActivityType);
+          newActivityType.save(function(err, data){
+              //Getting activity type id
+              testActivityType._id = data.id;
+              testActivity.activityType = data.id;
+
+              var newActivity = new Activity(testActivity);
+              newActivity.save(function(err, data){
+                //Getting activity id
+                testActivity._id = data.id;
+                done();
+             });
+          });
+        });
       });
     });
   });
 
   afterEach(function(done){
-    User.collection.drop();
     Activity.collection.drop();
     TypingProfile.collection.drop();
+    User.collection.drop();
     ActivityType.collection.drop();
     done();
   });

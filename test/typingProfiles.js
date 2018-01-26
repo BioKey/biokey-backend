@@ -60,25 +60,26 @@ describe('TypingProfiles', function(){
     .end(function(err, res){
       testTypingProfile.accessToken = res.body.token;
       User.findOne({email: testUser.email}, function(err, user){
+        testUser._id = user.id;
+        testTypingProfile.user = user.id;
+
         var newOrganization = new Organization(testOrganization);
         newOrganization.save(function(err, data){
             testMachine.organization = data.id;
             testUser.organization = data.id;
             testOrganization._id = data.id;
-        });
-
-            testUser._id = user.id;
-            testTypingProfile.user = user.id;
         
-        var newMachine = new Machine(testMachine);
-        newMachine.save(function(err, data){
-            testMachine._id = data.id;
-            testTypingProfile.machine = data.id;
-        });
-        var newTypingProfile = new TypingProfile(testTypingProfile);
-        newTypingProfile.save(function(err, data){
-          testTypingProfile._id = data.id;
-          done();
+            var newMachine = new Machine(testMachine);
+            newMachine.save(function(err, data){
+                testMachine._id = data.id;
+                testTypingProfile.machine = data.id;
+
+                var newTypingProfile = new TypingProfile(testTypingProfile);
+                newTypingProfile.save(function(err, data){
+                  testTypingProfile._id = data.id;
+                  done();
+                });
+            });
         });
       });
     });

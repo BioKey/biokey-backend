@@ -2,8 +2,6 @@ var TypingProfile = require('../models/typingProfile');
 var User = require('../models/user');
 var Machine = require('../models/machine');
 
-//TODO: interact with the ML server for all of this.
-
 exports.getAll = function (req, res) {
     TypingProfile.find((err, typingProfiles) => {
         if (err) return res.status(500).send({errors: [err]});
@@ -15,7 +13,12 @@ exports.get = function (req, res) {
     TypingProfile.findById(req.params.typingProfile_id, (err, typingProfile) => {
         if (err) return res.status(500).send({errors: [err]});
         if (!typingProfile) return res.status(404).send({errors: [{errmsg: 'TypingProfile not found'}]});
-        return res.json({typingProfile: typingProfile});
+        //Determine if the user requesting the get is the same one, or an admin
+        User.findById(req.user, (err, user) => {
+            if(err) return res.status(500).send('There was a problem with your session.');
+            if(!user.isAdmin && user._id!=typingProfile.user) return res.status(401).send('You are not authorized to perform this action.');
+            return res.json({typingProfile: typingProfile});
+        });
     });
 }
 
@@ -29,8 +32,10 @@ exports.post = function (req, res) {
         Machine.findById(typingProfile.machine, (err, machine) => {
             if (err) return res.status(500).send({errors: [err]});
             if (!machine) return res.status(404).send({errors: [{errmsg: 'Machine not found'}]});
-            //Save typingProfile
             //TODO: Hash typing profile once received
+            
+            //Determine if the user requesting the post is the same one, or an admin
+            if(!user.isAdmin && user._id!=typingProfile.user) return res.status(401).send('You are not authorized to perform this action.');
             typingProfile.save(err => {
                 if(err) return res.status(500).send({errors: [err]});
                 return res.json({typingProfile: typingProfile});

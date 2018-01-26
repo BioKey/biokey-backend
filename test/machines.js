@@ -59,11 +59,11 @@ describe('Machines', function(){
       newOrganization.save(function(err, data){
           testOrganization._id = data.id;
           testMachine.organization = data.id;
-      });
-      var newMachine = new Machine(testMachine);
-      newMachine.save(function(err, data){
-        testMachine._id = data.id;
-        done();
+          var newMachine = new Machine(testMachine);
+          newMachine.save(function(err, data){
+            testMachine._id = data.id;
+            done();
+          });
       });
     });
   });

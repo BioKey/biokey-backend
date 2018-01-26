@@ -57,11 +57,11 @@ describe('Keystrokes', function(){
       newTypingProfile.save(function(err, data){
           testTypingProfile._id = data.id;
           testKeystroke.typingProfile = data.id;
-      });
-      var newKeystroke = new Keystroke(testKeystroke);
-      newKeystroke.save(function(err, data){
-        testKeystroke._id = data.id;
-        done();
+          var newKeystroke = new Keystroke(testKeystroke);
+          newKeystroke.save(function(err, data){
+            testKeystroke._id = data.id;
+            done();
+          });
       });
     });
   });
@@ -103,7 +103,6 @@ describe('Keystrokes', function(){
       .set('authorization', testTypingProfile.accessToken)
       .send({keystroke: postKeystroke})
       .end(function(err, res){
-        console.log(err);
         res.should.have.status(200);
         res.should.be.json;
         postKeystroke._id = res.body.keystroke._id;
@@ -287,7 +286,6 @@ describe('Keystrokes', function(){
 
      
     it('PUT should not update the requested keystroke if the user is not an admin', function(done){
-      
       chai.request(server)
         //Get keystroke to update
         .get('/api/keystrokes')

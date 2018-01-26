@@ -48,7 +48,7 @@ const User = require('../controllers/users');
  * 
  * @apiUse UserError
  */
- router.get('/:id', /* middleware.requireAuth, */ User.get,  /* middleware.requireSameUser */);
+ router.get('/:id', /* middleware.requireAuth, */ User.get);
 
  /**
  * @api {put} /api/users/:id  UpdateUser
@@ -74,7 +74,7 @@ const User = require('../controllers/users');
  * @apiUse UserSuccess
  * @apiUse UserError
  */
- router.put('/:id', /* middleware.requireAuth, */ User.update, /* middleware.requireSameUser */);
+ router.put('/:id', /* middleware.requireAuth, */ User.update);
 
 /**
  * @api {delete} /api/users/:id  DeleteUser

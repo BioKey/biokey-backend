@@ -28,8 +28,10 @@ const middleware = require('../services/middleware');
  *              "__v": 0
  *          }
  *     ]
+ * 
+ * @apiUse UnauthorizedError
  */
-router.get('/', ActivityType.getAll);
+router.get('/', middleware.requireAuth, ActivityType.getAll);
 
 /**
  * @api {get} /api/activityTypes/:id  GetActivityType
@@ -39,8 +41,9 @@ router.get('/', ActivityType.getAll);
  * 
  * @apiGroup ActivityTypes
  * @apiUse ActivityTypeSuccess
+ * @apiUse UnauthorizedError
  */
-router.get('/:activityType_id', ActivityType.get)
+router.get('/:activityType_id', middleware.requireAuth, ActivityType.get)
 
 /**
  * @api {post} /api/activityTypes  PostActivityType

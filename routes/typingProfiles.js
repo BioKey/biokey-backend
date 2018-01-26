@@ -36,9 +36,9 @@ const middleware = require('../services/middleware');
  *              "__v": 0
  *          }
  *     ]
- * @apiUse UnauthorizedError
+ * @apiUse AdminError
  */
-router.get('/', middleware.requireAuth, TypingProfile.getAll);
+router.get('/', middleware.requireAdmin, TypingProfile.getAll);
 
 /**
  * @api {get} /api/typingProfiles/:id  GetTypingProfile
