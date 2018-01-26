@@ -17,7 +17,7 @@ const middleware = require('../services/middleware');
  * @apiSuccess {String} keystrokes._id UUID of the keystroke for the system.
  * @apiSuccess {String} keystrokes.character The key that was pressed/released.
  * @apiSuccess {Number} keystrokes.timestamp The time that the keystroke occurred.
- * @apiSuccess {String} keystrokes.upOrDown Specifies whether the key was pressed or released. One of {"U", "D"}
+ * @apiSuccess {Boolean} keystrokes.keyDown Specifies whether the key was pressed or released.
  * @apiSuccess {TypingProfile} typingProfile The typing profile that submitted the keystoke.
  * @apiSuccess {Number} keystrokes.__v Version code of the schema being used.
  * 
@@ -28,7 +28,7 @@ const middleware = require('../services/middleware');
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "character": "R",
  *              "timestamp": 3456732435432,
- *              "upOrDown": "D"
+ *              "keyDown": false
  *              "__v": 0
  *          }
  *     ]
@@ -62,13 +62,13 @@ router.get('/:keystroke_id', middleware.requireAdmin, Keystroke.get)
  * @apiUse RequestHeaders
  * @apiParam {String} character The key that was newly pressed/released.
  * @apiParam {Number} timestamp The time that the new keystroke occurred.
- * @apiParam {String} upOrDown Specifies whether the key was pressed or released. One of {"U", "D"}
+ * @apiParam {Boolean} keyDown Specifies whether the key was pressed or released.
  * @apiParam {TypingProfile} typingProfile The typing profile that submitted the new keystoke.
  * @apiParamExample {json} Request-Example
  *     {
  *          "character": "R",
  *          "timestamp": 3456732435432,
- *          "upOrDown": "D"
+ *          "keyDown": false
  *     }
  * 
  * @apiUse KeystrokeSuccess
@@ -87,13 +87,13 @@ router.post('/', middleware.requireAuth, Keystroke.post);
  * @apiUse RequestHeaders
  * @apiParam {String} character The new key that was pressed/released.
  * @apiParam {Number} timestamp The new time that the keystroke occurred.
- * @apiParam {String} upOrDown The new direction of the keystroke. One of {"U", "D"}
+ * @apiParam {Boolean} keyDown The new direction of the keystroke.
  * @apiParam {TypingProfile} typingProfile The updated typing profile that submitted the keystoke.
  * @apiParamExample {json} Request-Example
  *     {
  *          "character": "R",
  *          "timestamp": 3456732435432,
- *          "upOrDown": "D"
+ *          "keyDown": true
  *     }
  * 
  * @apiUse KeystrokeSuccess

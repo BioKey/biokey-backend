@@ -35,7 +35,7 @@ describe('Keystrokes', function(){
   var testKeystroke = {
     character: 'a',
     timestamp: 8008,
-    upOrDown: 'U'
+    keyDown: false
   };
 
   var testTypingProfile = {
@@ -78,12 +78,12 @@ describe('Keystrokes', function(){
     keystroke.should.have.property('_id');
     keystroke.should.have.property('character');
     keystroke.should.have.property('timestamp');
-    keystroke.should.have.property('upOrDown');
+    keystroke.should.have.property('keyDown');
     keystroke.should.have.property('typingProfile');
     keystroke._id.should.equal(val._id);
     keystroke.character.should.equal(val.character);
     keystroke.timestamp.should.equal(val.timestamp);
-    keystroke.upOrDown.should.equal(val.upOrDown);
+    keystroke.keyDown.should.equal(val.keyDown);
     keystroke.typingProfile.should.equal(val.typingProfile);
   };
 
@@ -92,7 +92,7 @@ describe('Keystrokes', function(){
     let postKeystroke = {
         character: 'b',
         timestamp: 8100,
-        upOrDown: 'D'
+        keyDown: true
     };
 
     //POST Testing
@@ -175,7 +175,7 @@ describe('Keystrokes', function(){
         .send({keystroke: {
           'character': 'c',
           'timestamp': 9000,
-          'upOrDown': 'U',
+          'keyDown': false,
           'typingProfile': res.body[0].typingProfile
         }})
         .end(function(error, response){
@@ -185,7 +185,7 @@ describe('Keystrokes', function(){
             _id: res.body[0]._id,
             'character': 'c',
             'timestamp': 9000,
-            'upOrDown': 'U',
+            'keyDown': false,
             'typingProfile': res.body[0].typingProfile
           });
           done();
@@ -215,7 +215,7 @@ describe('Keystrokes', function(){
           .send({keystroke: {
             'character': 'c',
             'timestamp': 9000,
-            'upOrDown': 'U',
+            'keyDown': false,
             'typingProfile': mongoose.Types.ObjectId()
           }})
           .end(function(error, response){

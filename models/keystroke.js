@@ -10,11 +10,9 @@ var keystrokeSchema = mongoose.Schema({
         type: Number,
         require: true
     },
-    upOrDown: {
-        type: String,
-        require: true,
-        trim: true,
-        enum: ['U', 'D']
+    keyDown: {
+        type: Boolean,
+        require: true
     },
     typingProfile: {type: mongoose.Schema.ObjectId, ref: ('TypingProfile')}
 });

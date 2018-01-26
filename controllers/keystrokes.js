@@ -42,7 +42,7 @@ exports.update = function (req, res) {
         if (!keystroke) return res.status(404).send({errors: [{errmsg: 'Keystroke not found'}]});
 
         keystroke.character = req.body.keystroke.character;
-        keystroke.upOrDown = req.body.keystroke.upOrDown;
+        keystroke.keyDown = req.body.keystroke.keyDown;
         keystroke.timestamp = req.body.keystroke.timestamp;
         keystroke.typingProfile = req.body.keystroke.typingProfile;
 
