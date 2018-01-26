@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../controllers/users');
+const middleware = require('../services/middleware');
 
 /**
  * @api {get} /api/users  ListUsers
@@ -34,7 +35,7 @@ const User = require('../controllers/users');
  * 
  * @apiUse AdminError
  */
- router.get('/', /* middleware.requireAdmin,*/ User.getAll);
+ router.get('/', middleware.requireAdmin, User.getAll);
 
 /**
  * @api {get} /api/users/:id  GetUser
@@ -48,7 +49,7 @@ const User = require('../controllers/users');
  * 
  * @apiUse UserError
  */
- router.get('/:id', /* middleware.requireAuth, */ User.get);
+ router.get('/:id', middleware.requireAuth, User.get);
 
  /**
  * @api {put} /api/users/:id  UpdateUser
@@ -74,7 +75,7 @@ const User = require('../controllers/users');
  * @apiUse UserSuccess
  * @apiUse UserError
  */
- router.put('/:id', /* middleware.requireAuth, */ User.update);
+ router.put('/:id', middleware.requireAuth, User.update);
 
 /**
  * @api {delete} /api/users/:id  DeleteUser
@@ -85,6 +86,6 @@ const User = require('../controllers/users');
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
- router.delete('/:id', /* middleware.requireAdmin, */ User.delete);
+ router.delete('/:id', middleware.requireAdmin, User.delete);
 
  module.exports = router;
