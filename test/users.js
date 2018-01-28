@@ -21,16 +21,27 @@ describe('Users', function() {
     name: 'Batman',
     email: 'batman@gotham.co',
     password: 'test',
-    isAdmin: false
+    isAdmin: true
   };
+
+  var testToken;
 
   beforeEach(function(done){
     var newUser = new User(testUser);
-    newUser.save(function(err, data) {
-      testUser._id = data.id;
-      done();
+    chai.request(server)
+    .post('/api/auth/register')
+    .send(newUser)
+    .end(function(err, res){
+      //Get token
+      testToken = res.body.token;
+      User.findOne({email: testUser.email}, function(err, user){
+        //Get user id
+        testUser._id = user.id;
+        done()
+      });
     });
   });
+
   afterEach(function(done){
     User.collection.drop();
     done();
@@ -55,6 +66,7 @@ describe('Users', function() {
     it('GET should list ALL users', function(done) {
       chai.request(server)
       .get('/api/users')
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -63,7 +75,6 @@ describe('Users', function() {
         done();
       });
     });
-
   });
 
   describe('/api/users/<id>', function() {
@@ -71,6 +82,7 @@ describe('Users', function() {
     it('GET should list a SINGLE user', function(done) {
       chai.request(server)
       .get('/api/users/'+testUser._id)
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -82,6 +94,7 @@ describe('Users', function() {
     it('GET should not find invalid user', function(done) {
       chai.request(server)
       .get('/api/users/' + mongoose.Types.ObjectId())
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();
@@ -91,9 +104,11 @@ describe('Users', function() {
     it('PUT should update a SINGLE user', function(done) {
       chai.request(server)
       .get('/api/users')
+      .set('authorization', testToken)
       .end(function(err, res){
         chai.request(server)
         .put('/api/users/'+res.body[0]._id)
+        .set('authorization', testToken)
         .send({'name': 'Superman'})
         .end(function(error, response){
           response.should.have.status(200);
@@ -110,33 +125,45 @@ describe('Users', function() {
     });
 
     it('DELETE should delete a SINGLE user', function(done) {
+      //Must save a second user
+      testUser.email = 'joker@anarchy.co';
+      delete testUser._id;
+
+      var newUser = new User(testUser);
       chai.request(server)
-      .get('/api/users')
+      .post('/api/auth/register')
+      .send(newUser)
       .end(function(err, res){
-
-        res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.equal(1);
-
         chai.request(server)
-        .delete('/api/users/'+res.body[0]._id)
-        .end(function(err2, res2){
+        .get('/api/users')
+        .set('authorization', testToken)
+        .end(function(err, res){
 
-          res2.should.have.status(200);
+          res.should.have.status(200);
+          res.body.should.be.a('array');
+          res.body.length.should.equal(2);
 
           chai.request(server)
-          .get('/api/users')
-          .end(function(err3, res3){
+          .delete('/api/users/'+res.body[1]._id)
+          .set('authorization', testToken)
+          .end(function(err2, res2){
 
-            res3.should.have.status(200);
-            res3.body.should.be.a('array');
-            res3.body.length.should.equal(0);
+            res2.should.have.status(200);
 
-            done();
+            chai.request(server)
+            .get('/api/users')
+            .set('authorization', testToken)
+            .end(function(err3, res3){
+
+              res3.should.have.status(200);
+              res3.body.should.be.a('array');
+              res3.body.length.should.equal(1);
+
+              done();
+            });
           });
         });
       });
     });
-    
   });
 });

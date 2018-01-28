@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var TypingProfile = require('../controllers/typingProfiles');
+const middleware = require('../services/middleware');
 
 /**
  * @api {get} /api/typingProfiles  ListTypingProfiles
@@ -10,6 +11,7 @@ var TypingProfile = require('../controllers/typingProfiles');
  * 
  * @apiGroup TypingProfiles
  * 
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} typingProfiles List of typingProfiles
  * @apiSuccess {String} typingProfiles._id UUID of the typing profile for the system.
  * @apiSuccess {User} typingProfiles.user The user that the typing profile is associated with.
@@ -34,8 +36,9 @@ var TypingProfile = require('../controllers/typingProfiles');
  *              "__v": 0
  *          }
  *     ]
+ * @apiUse AdminError
  */
-router.get('/', TypingProfile.getAll);
+router.get('/', middleware.requireAdmin, TypingProfile.getAll);
 
 /**
  * @api {get} /api/typingProfiles/:id  GetTypingProfile
@@ -44,9 +47,11 @@ router.get('/', TypingProfile.getAll);
  * Get a specific typing profile.
  * 
  * @apiGroup TypingProfiles
+ * @apiUse RequestHeaders
  * @apiUse TypingProfileSuccess
+ * @apiUse UnauthorizedError
  */
-router.get('/:typingProfile_id', TypingProfile.get)
+router.get('/:typingProfile_id', middleware.requireAuth, TypingProfile.get)
 
 /**
  * @api {post} /api/typingProfiles  PostTypingProfile
@@ -56,6 +61,7 @@ router.get('/:typingProfile_id', TypingProfile.get)
  * 
  * @apiGroup TypingProfiles
  * 
+ * @apiUse RequestHeaders
  * @apiParam {User} user The user that the typing profile is associated with.
  * @apiParam {Machine} machine The machine that the typing profile is assigned to.
  * @apiParam {Boolean} authStatus The authentication status of the typing profile.
@@ -73,8 +79,9 @@ router.get('/:typingProfile_id', TypingProfile.get)
  *     }
  * 
  * @apiUse TypingProfileSuccess
+ * @apiUse UnauthorizedError
  */
-router.post('/', TypingProfile.post);
+router.post('/', middleware.requireAuth, TypingProfile.post);
 
 /**
  * @api {put} /api/typingProfiles/:id  UpdateTypingProfile
@@ -84,6 +91,7 @@ router.post('/', TypingProfile.post);
  * 
  * @apiGroup TypingProfiles
  * 
+ * @apiUse RequestHeaders
  * @apiParam {User} user The user that the typing profile is associated with.
  * @apiParam {Machine} machine The machine that the typing profile is assigned to.
  * @apiParam {Boolean} authStatus The authentication status of the typing profile.
@@ -101,8 +109,9 @@ router.post('/', TypingProfile.post);
  *     }
  * 
  * @apiUse TypingProfileSuccess
+ * @apiUse UnauthorizedError
  */
-router.put('/:typingProfile_id', TypingProfile.update);
+router.put('/:typingProfile_id', middleware.requireAuth, TypingProfile.update);
 
 /**
  * @api {delete} /api/typingProfiles/:id  DeleteTypingProfile
@@ -110,7 +119,9 @@ router.put('/:typingProfile_id', TypingProfile.update);
  * @apiDescription
  * Delete a typing profile.
  * @apiGroup TypingProfiles
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
-router.delete('/:typingProfile_id', TypingProfile.delete);
+router.delete('/:typingProfile_id', middleware.requireAdmin, TypingProfile.delete);
 
 module.exports = router;

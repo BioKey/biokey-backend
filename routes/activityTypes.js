@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var ActivityType = require('../controllers/activityTypes');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/activityTypes  ListActivityTypes
  * @apiName ListActivityTypes
@@ -26,8 +28,10 @@ var ActivityType = require('../controllers/activityTypes');
  *              "__v": 0
  *          }
  *     ]
+ * 
+ * @apiUse UnauthorizedError
  */
-router.get('/', ActivityType.getAll);
+router.get('/', middleware.requireAuth, ActivityType.getAll);
 
 /**
  * @api {get} /api/activityTypes/:id  GetActivityType
@@ -37,8 +41,9 @@ router.get('/', ActivityType.getAll);
  * 
  * @apiGroup ActivityTypes
  * @apiUse ActivityTypeSuccess
+ * @apiUse UnauthorizedError
  */
-router.get('/:activityType_id', ActivityType.get)
+router.get('/:activityType_id', middleware.requireAuth, ActivityType.get)
 
 /**
  * @api {post} /api/activityTypes  PostActivityType
@@ -48,6 +53,7 @@ router.get('/:activityType_id', ActivityType.get)
  * 
  * @apiGroup ActivityTypes
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} description Unique description of the new activity type
  * @apiParam {String} importance Severity level. One of {"LOW", "MEDIUM", "HIGH"}
  * @apiParamExample {json} Request-Example
@@ -57,8 +63,9 @@ router.get('/:activityType_id', ActivityType.get)
  *     }
  * 
  * @apiUse ActivityTypeSuccess
+ * @apiUse AdminError
  */
-router.post('/', ActivityType.post);
+router.post('/', middleware.requireAdmin, ActivityType.post);
 
 /**
  * @api {put} /api/activityTypes  UpdateActivityType
@@ -68,6 +75,7 @@ router.post('/', ActivityType.post);
  * 
  * @apiGroup ActivityTypes
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} description The new unique description of the activity type
  * @apiParam {String} importance The new severity level. One of {"LOW", "MEDIUM", "HIGH"}
  * @apiParamExample {json} Request-Example
@@ -77,8 +85,9 @@ router.post('/', ActivityType.post);
  *     }
  * 
  * @apiUse ActivityTypeSuccess
+ * @apiUse AdminError
  */
-router.put('/:activityType_id', ActivityType.update);
+router.put('/:activityType_id', middleware.requireAdmin, ActivityType.update);
 
 /**
  * @api {delete} /api/activityTypes/:id  DeleteActivityType
@@ -86,8 +95,10 @@ router.put('/:activityType_id', ActivityType.update);
  * @apiDescription
  * Delete an activity type.
  * @apiGroup ActivityTypes
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
-router.delete('/:activityType_id', ActivityType.delete);
+router.delete('/:activityType_id', middleware.requireAdmin, ActivityType.delete);
 
 router.route('/')
 

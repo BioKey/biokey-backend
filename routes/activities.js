@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Activity = require('../controllers/activities');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/activities  ListActivities
  * @apiName ListActivities
@@ -10,6 +12,7 @@ var Activity = require('../controllers/activities');
  * 
  * @apiGroup Activities
  * 
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} activities List of activities
  * @apiSuccess {String} activities._id UUID of the activity for the system
  * @apiSuccess {Number} activities.timestamp Time that the activity occurred
@@ -28,8 +31,10 @@ var Activity = require('../controllers/activities');
  *              "__v": 0
  *          }
  *     ]
+ * 
+ * @apiUse AdminError
  */
-router.get('/', Activity.getAll);
+router.get('/', middleware.requireAdmin, Activity.getAll);
 
 /**
  * @api {get} /api/activities/:id  GetActivity
@@ -38,9 +43,11 @@ router.get('/', Activity.getAll);
  * Get a specific activity.
  * 
  * @apiGroup Activities
+ * @apiUse RequestHeaders
  * @apiUse ActivitySuccess
+ * @apiUse AdminError
  */
-router.get('/:activity_id', Activity.get)
+router.get('/:activity_id', middleware.requireAdmin, Activity.get)
 
 /**
  * @api {post} /api/activities  PostActivity
@@ -50,6 +57,7 @@ router.get('/:activity_id', Activity.get)
  * 
  * @apiGroup Activities
  * 
+ * @apiUse RequestHeaders
  * @apiParam {Number} timestamp The new activity's timestamp
  * @apiParam {TypingProfile} typingProfile The new activity's typing profile
  * @apiParam {ActivityType} activityType The new activity's type
@@ -61,8 +69,9 @@ router.get('/:activity_id', Activity.get)
  *     }
  * 
  * @apiUse ActivitySuccess
+ * @apiUse UnauthorizedError
  */
-router.post('/', Activity.post);
+router.post('/', middleware.requireAuth, Activity.post);
 
 /**
  * @api {put} /api/activities/:id  UpdateActivity
@@ -72,6 +81,7 @@ router.post('/', Activity.post);
  * 
  * @apiGroup Activities
  * 
+ * @apiUse RequestHeaders
  * @apiParam {Number} timestamp The activity's new timestamp
  * @apiParam {TypingProfile} typingProfile The activity's new typing profile
  * @apiParam {ActivityType} activityType The activity's new type
@@ -83,8 +93,9 @@ router.post('/', Activity.post);
  *     }
  * 
  * @apiUse ActivitySuccess
+ * @apiUse AdminError
  */
-router.put('/:activity_id', Activity.update); //NOTE FOR CODE REVIEW: should we be able to edit logs in prod?
+router.put('/:activity_id', middleware.requireAdmin, Activity.update); //NOTE FOR CODE REVIEW: should we be able to edit logs in prod?
 
 /**
  * @api {delete} /api/activities/:id  DeleteActivity
@@ -92,7 +103,9 @@ router.put('/:activity_id', Activity.update); //NOTE FOR CODE REVIEW: should we 
  * @apiDescription
  * Delete an activity.
  * @apiGroup Activities
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
-router.delete('/:activity_id', Activity.delete);
+router.delete('/:activity_id', middleware.requireAdmin, Activity.delete);
 
 module.exports = router;

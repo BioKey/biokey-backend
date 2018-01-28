@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Keystroke = require('../controllers/keystrokes');
+const middleware = require('../services/middleware');
 
 /**
  * @api {get} /api/keystrokes  ListKeystrokes
@@ -10,11 +11,13 @@ var Keystroke = require('../controllers/keystrokes');
  * 
  * @apiGroup Keystrokes
  * 
+ * @apiUse RequestHeaders
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} keystrokes List of keystrokes
  * @apiSuccess {String} keystrokes._id UUID of the keystroke for the system.
  * @apiSuccess {String} keystrokes.character The key that was pressed/released.
  * @apiSuccess {Number} keystrokes.timestamp The time that the keystroke occurred.
- * @apiSuccess {String} keystrokes.upOrDown Specifies whether the key was pressed or released. One of {"U", "D"}
+ * @apiSuccess {Boolean} keystrokes.keyDown Specifies whether the key was pressed or released.
  * @apiSuccess {TypingProfile} typingProfile The typing profile that submitted the keystoke.
  * @apiSuccess {Number} keystrokes.__v Version code of the schema being used.
  * 
@@ -25,12 +28,14 @@ var Keystroke = require('../controllers/keystrokes');
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "character": "R",
  *              "timestamp": 3456732435432,
- *              "upOrDown": "D"
+ *              "keyDown": false
  *              "__v": 0
  *          }
  *     ]
+ * 
+ * @apiUse AdminError
  */
-router.get('/', Keystroke.getAll);
+router.get('/', middleware.requireAdmin, Keystroke.getAll);
 
 /**
  * @api {get} /api/keystrokes/:id  GetKeystroke
@@ -39,9 +44,12 @@ router.get('/', Keystroke.getAll);
  * Get a specific keystroke.
  * 
  * @apiGroup Keystrokes
+ * @apiUse RequestHeaders
+ * @apiUse RequestHeaders
  * @apiUse KeystrokeSuccess
+ * @apiUse AdminError
  */
-router.get('/:keystroke_id', Keystroke.get)
+router.get('/:keystroke_id', middleware.requireAdmin, Keystroke.get)
 
 /**
  * @api {post} /api/keystrokes  PostKeystroke
@@ -51,51 +59,57 @@ router.get('/:keystroke_id', Keystroke.get)
  * 
  * @apiGroup Keystrokes
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} character The key that was newly pressed/released.
  * @apiParam {Number} timestamp The time that the new keystroke occurred.
- * @apiParam {String} upOrDown Specifies whether the key was pressed or released. One of {"U", "D"}
+ * @apiParam {Boolean} keyDown Specifies whether the key was pressed or released.
  * @apiParam {TypingProfile} typingProfile The typing profile that submitted the new keystoke.
  * @apiParamExample {json} Request-Example
  *     {
  *          "character": "R",
  *          "timestamp": 3456732435432,
- *          "upOrDown": "D"
+ *          "keyDown": false
  *     }
  * 
  * @apiUse KeystrokeSuccess
+ * @apiUse UnauthorizedError
  */
-router.post('/', Keystroke.post);
+router.post('/', middleware.requireAuth, Keystroke.post);
 
 /**
  * @api {put} /api/keystrokes/:id  UpdateKeystroke
  * @apiName UpdateKeystroke
  * @apiDescription
- * Update a keystroke.
+ * Update a keystroke. Requires admin permissions.
  * 
  * @apiGroup Keystrokes
- * 
+ *
+ * @apiUse RequestHeaders
  * @apiParam {String} character The new key that was pressed/released.
  * @apiParam {Number} timestamp The new time that the keystroke occurred.
- * @apiParam {String} upOrDown The new direction of the keystroke. One of {"U", "D"}
+ * @apiParam {Boolean} keyDown The new direction of the keystroke.
  * @apiParam {TypingProfile} typingProfile The updated typing profile that submitted the keystoke.
  * @apiParamExample {json} Request-Example
  *     {
  *          "character": "R",
  *          "timestamp": 3456732435432,
- *          "upOrDown": "D"
+ *          "keyDown": true
  *     }
  * 
  * @apiUse KeystrokeSuccess
+ * @apiUse AdminError
  */
-router.put('/:keystroke_id', Keystroke.update);
+router.put('/:keystroke_id', middleware.requireAdmin, Keystroke.update);
 
 /**
  * @api {delete} /api/keystrokes/:id  DeleteKeystroke
  * @apiName DeleteKeystroke
  * @apiDescription
- * Delete a keystroke.
+ * Delete a keystroke. Requires admin permissions.
  * @apiGroup Keystrokes
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
-router.delete('/:keystroke_id', Keystroke.delete);
+router.delete('/:keystroke_id', middleware.requireAdmin, Keystroke.delete);
 
 module.exports = router;

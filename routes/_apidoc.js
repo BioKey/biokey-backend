@@ -152,3 +152,20 @@
  *        "__v": 0
  *     }
  */
+
+ /**
+  * @apiDefine AdminError
+  * @apiError (Errors) {text} 401 Unauthorized. Only administrators can access.
+  * @apiError (Errors) {text} 500 Internal server error.
+  */
+
+ /**
+  * @apiDefine UserError
+  * @apiError (Errors) {text} 401 Unauthorized. You do not have permission to access this data.
+  * @apiError (Errors) {text} 500 Internal server error.
+  */
+
+ /**
+  * @apiDefine RequestHeaders
+  * @apiHeader {String} authorization A valid JSON web token
+  */

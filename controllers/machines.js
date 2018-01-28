@@ -4,7 +4,7 @@ var Organization = require('../models/organization');
 exports.getAll = function (req, res) {
     Machine.find((err, machines) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json({machines: machines});
+        return res.json(machines);
     });
 }
 
