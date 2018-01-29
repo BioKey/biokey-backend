@@ -5,6 +5,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Excel stupid files
+~$*.xlsx
+
 # Runtime data
 pids
 *.pid
