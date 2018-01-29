@@ -28,7 +28,8 @@ const middleware = require('../services/middleware');
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "character": "R",
  *              "timestamp": 3456732435432,
- *              "keyDown": false
+ *              "keyDown": false,
+ *              "typingProfile": "5a4c019629015e0c8b9c1737"
  *              "__v": 0
  *          }
  *     ]
@@ -69,6 +70,7 @@ router.get('/:keystroke_id', middleware.requireAdmin, Keystroke.get)
  *          "character": "R",
  *          "timestamp": 3456732435432,
  *          "keyDown": false
+ *          "typingProfile": "5a4c019629015e0c8b9c1737"
  *     }
  * 
  * @apiUse KeystrokeSuccess
@@ -94,6 +96,7 @@ router.post('/', middleware.requireAuth, Keystroke.post);
  *          "character": "R",
  *          "timestamp": 3456732435432,
  *          "keyDown": true
+ *          "typingProfile": "5a4c019629015e0c8b9c1737"
  *     }
  * 
  * @apiUse KeystrokeSuccess
