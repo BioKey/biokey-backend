@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Machine = require('../controllers/machines');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/machines  ListMachines
  * @apiName ListMachines
@@ -10,6 +12,7 @@ var Machine = require('../controllers/machines');
  * 
  * @apiGroup Machines
  * 
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} machines List of machines
  * @apiSuccess {String} machines._id UUID of the machine for the system.
  * @apiSuccess {String} machines.mac The machine's unique MAC address.
@@ -27,7 +30,7 @@ var Machine = require('../controllers/machines');
  *          }
  *     ]
  */
-router.get('/', Machine.getAll);
+router.get('/', middleware.requireAdmin, Machine.getAll);
 
 /**
  * @api {get} /api/machines/:id  GetMachine
@@ -36,9 +39,11 @@ router.get('/', Machine.getAll);
  * Get a specific machine.
  * 
  * @apiGroup Machines
+ * @apiUse RequestHeaders
  * @apiUse MachineSuccess
+ * @apiUse AdminError
  */
-router.get('/:machine_id', Machine.get)
+router.get('/:machine_id', middleware.requireAdmin, Machine.get)
 
 /**
  * @api {post} /api/machines  PostMachine
@@ -48,6 +53,7 @@ router.get('/:machine_id', Machine.get)
  * 
  * @apiGroup Machines
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} mac The new machine's unique MAC address.
  * @apiParam {String} organization The organization that the new machine is assigned to.
  * @apiParamExample {json} Request-Example
@@ -57,8 +63,9 @@ router.get('/:machine_id', Machine.get)
  *     }
  * 
  * @apiUse MachineSuccess
+ * @apiUse AdminError
  */
-router.post('/', Machine.post);
+router.post('/', middleware.requireAdmin, Machine.post);
 
 /**
  * @api {put} /api/machines/:id  UpdateMachine
@@ -68,6 +75,7 @@ router.post('/', Machine.post);
  * 
  * @apiGroup Machines
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} mac The machine's new unique MAC address.
  * @apiParam {String} organization The organization that the machine is newly assigned to.
  * @apiParamExample {json} Request-Example
@@ -77,8 +85,9 @@ router.post('/', Machine.post);
  *     }
  * 
  * @apiUse MachineSuccess
+ * @apiUse AdminError
  */
-router.put('/:machine_id', Machine.update);
+router.put('/:machine_id', middleware.requireAdmin, Machine.update);
 
 /**
  * @api {delete} /api/machines/:id  DeleteMachine
@@ -86,7 +95,9 @@ router.put('/:machine_id', Machine.update);
  * @apiDescription
  * Delete a machine.
  * @apiGroup Machines
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
-router.delete('/:machine_id', Machine.delete);
+router.delete('/:machine_id', middleware.requireAdmin, Machine.delete);
 
 module.exports = router;

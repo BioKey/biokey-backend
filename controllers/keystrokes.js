@@ -1,10 +1,11 @@
 var Keystroke = require('../models/keystroke');
 var TypingProfile = require('../models/typingProfile');
+var User = require('../models/user');
 
 exports.getAll = function (req, res) {
     Keystroke.find((err, keystrokes) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json({keystrokes: keystrokes});
+        return res.json(keystrokes);
     });
 }
 
@@ -22,10 +23,15 @@ exports.post = function (req, res) {
     TypingProfile.findById(keystroke.typingProfile, (err, typingProfile) => {
         if (err) return res.status(500).send({errors: [err]});
         if (!typingProfile) return res.status(404).send({errors: [{errmsg: 'TypingProfile not found'}]});
-        //Save keystroke
-        keystroke.save(err => {
-            if(err) return res.status(500).send({errors: [err]});
-            return res.json({keystroke: keystroke});
+        //Determine if the user requesting the post is the same one, or an admin
+        User.findById(req.user, (err, user) => {
+            if(err) return res.status(500).send('There was a problem with your session.');
+            if(!user.isAdmin && user._id!=typingProfile.user) return res.status(401).send('You are not authorized to perform this action.');
+            //Save keystroke
+            keystroke.save(err => {
+                if(err) return res.status(500).send({errors: [err]});
+                return res.json({keystroke: keystroke});
+            });
         });
     });
 }
@@ -36,7 +42,7 @@ exports.update = function (req, res) {
         if (!keystroke) return res.status(404).send({errors: [{errmsg: 'Keystroke not found'}]});
 
         keystroke.character = req.body.keystroke.character;
-        keystroke.upOrDown = req.body.keystroke.upOrDown;
+        keystroke.keyDown = req.body.keystroke.keyDown;
         keystroke.timestamp = req.body.keystroke.timestamp;
         keystroke.typingProfile = req.body.keystroke.typingProfile;
 

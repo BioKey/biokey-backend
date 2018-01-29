@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Organization = require('../controllers/organizations');
 
+const middleware = require('../services/middleware');
+
 /**
  * @api {get} /api/organizations  ListOrganizations
  * @apiName ListOrganizations
@@ -10,6 +12,7 @@ var Organization = require('../controllers/organizations');
  * 
  * @apiGroup Organizations
  * 
+ * @apiUse RequestHeaders
  * @apiSuccess {Array} organizations List of organizations
  * @apiSuccess {String} organizations._id UUID of the organization for the system.
  * @apiSuccess {String} organizations.name The organization's unique name.
@@ -30,8 +33,9 @@ var Organization = require('../controllers/organizations');
  *              "__v": 0
  *          }
  *     ]
+ * @apiUse AdminError
  */
-router.get('/', Organization.getAll);
+router.get('/', middleware.requireAdmin, Organization.getAll);
 
 /**
  * @api {get} /api/organizations/:id  GetOrganization
@@ -40,9 +44,11 @@ router.get('/', Organization.getAll);
  * Get a specific organization.
  * 
  * @apiGroup Organizations
+ * @apiUse RequestHeaders
  * @apiUse OrganizationSuccess
+ * @apiUse AdminError
  */
-router.get('/:organization_id', Organization.get)
+router.get('/:organization_id', middleware.requireAdmin, Organization.get)
 
 /**
  * @api {post} /api/organizations  PostOrganization
@@ -52,6 +58,7 @@ router.get('/:organization_id', Organization.get)
  * 
  * @apiGroup Organizations
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} name The new organization's unique name.
  * @apiParam {Number} maxUsers The number of users that the new organization may have.
  * @apiParam {[String]} challengeStrategies The authentication strategies that the new organization accepts.
@@ -65,8 +72,9 @@ router.get('/:organization_id', Organization.get)
  *     }
  * 
  * @apiUse OrganizationSuccess
+ * @apiUse AdminError
  */
-router.post('/', Organization.post);
+router.post('/', middleware.requireAdmin, Organization.post);
 
 /**
  * @api {put} /api/organizations/:id  UpdateOrganization
@@ -76,6 +84,7 @@ router.post('/', Organization.post);
  * 
  * @apiGroup Organizations
  * 
+ * @apiUse RequestHeaders
  * @apiParam {String} name The organization's new unique name.
  * @apiParam {Number} maxUsers The new number of users that the organization may have.
  * @apiParam {[String]} challengeStrategies The new set of authentication strategies that the organization accepts.
@@ -89,8 +98,9 @@ router.post('/', Organization.post);
  *     }
  * 
  * @apiUse OrganizationSuccess
+ * @apiUse AdminError
  */
-router.put('/:organization_id', Organization.update);
+router.put('/:organization_id', middleware.requireAdmin, Organization.update);
 
 /**
  * @api {delete} /api/organizations/:id  DeleteOrganization
@@ -98,7 +108,9 @@ router.put('/:organization_id', Organization.update);
  * @apiDescription
  * Delete a organization.
  * @apiGroup Organizations
+ * @apiUse RequestHeaders
+ * @apiUse AdminError
  */
-router.delete('/:organization_id', Organization.delete);
+router.delete('/:organization_id', middleware.requireAdmin, Organization.delete);
 
 module.exports = router;

@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 
 var server = require('../app');
 var Organization = require('../models/organization');
+var User = require('../models/user');
 
 var should = chai.should();
 chai.use(chaiHttp);
@@ -11,8 +12,10 @@ chai.use(chaiHttp);
 after(function() {
     //clear out db
     Organization.remove(function(err){
-      mongoose.connection.close();
-      done();    
+      User.remove(function(err){
+        mongoose.connection.close();
+        done();
+      });    
     });
 });
 
@@ -28,16 +31,34 @@ describe('Organizations', function(){
     defaultThreshold: 50
   };
 
+  var testUser = {
+    name: 'Batman',
+    email: 'batman@gotham.co',
+    password: 'test',
+    isAdmin: true,
+    organization: mongoose.Types.ObjectId()
+  };
+
+  var testToken;
+
   beforeEach(function(done){
-    var newOrganization = new Organization(testOrganization);
-    newOrganization.save(function(err, data){
-      testOrganization._id = data.id;
-      done();
+    var newUser = new User(testUser);
+    chai.request(server)
+    .post('/api/auth/register')
+    .send(newUser)
+    .end(function(err, res){
+      testToken = res.body.token;
+      var newOrganization = new Organization(testOrganization);
+      newOrganization.save(function(err, data){
+        testOrganization._id = data.id;
+        done();
+      });
     });
   });
 
   afterEach(function(done){
     Organization.collection.drop();
+    User.collection.drop();
     done();
   });
 
@@ -68,6 +89,7 @@ describe('Organizations', function(){
     it('POST should create a new organization', function(done){
       chai.request(server)
       .post('/api/organizations')
+      .set('authorization', testToken)
       .send({organization: postOrg})
       .end(function(err, res){
         res.should.have.status(200);
@@ -81,10 +103,12 @@ describe('Organizations', function(){
     it('POST should not create an organization with a duplicate name', function(done){
       chai.request(server)
       .post('/api/organizations')
+      .set('authorization', testToken)
       .send({organization: postOrg})
       .end(function(err, res){ });
       chai.request(server)
       .post('/api/organizations')
+      .set('authorization', testToken)
       .send({organization: postOrg})
       .end(function(err, res){
         res.should.have.status(500);
@@ -96,6 +120,7 @@ describe('Organizations', function(){
     it('GET should list all organizations', function(done){
       chai.request(server)
       .get('/api/organizations')
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -112,6 +137,7 @@ describe('Organizations', function(){
     it('GET should, when it exists, list one organization', function(done){
       chai.request(server)
       .get('/api/organizations/'+testOrganization._id)
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
@@ -123,6 +149,7 @@ describe('Organizations', function(){
     it('GET should not list the requested organization if it does not exist', function(done){
       chai.request(server)
       .get('/api/organizations/' + mongoose.Types.ObjectId())
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();
@@ -133,9 +160,11 @@ describe('Organizations', function(){
     it('PUT should update a single organization', function(done){
       chai.request(server)
       .get('/api/organizations')
+      .set('authorization', testToken)
       .end(function(err, res){
         chai.request(server)
         .put('/api/organizations/'+res.body[0]._id)
+        .set('authorization', testToken)
         .send({organization: {
           'name': 'BK Inc.',
           maxUsers: res.body[0].maxUsers,
@@ -160,6 +189,7 @@ describe('Organizations', function(){
     it('PUT should not update the requested organization if it does not exist', function(done){
       chai.request(server)
       .put('/api/organizations/' + mongoose.Types.ObjectId())
+      .set('authorization', testToken)
       .send({})
       .end(function(err, res){
         res.should.have.status(404);
@@ -171,6 +201,7 @@ describe('Organizations', function(){
     it('DELETE should delete a single organization', function(done){
       chai.request(server)
       .get('/api/organizations')
+      .set('authorization', testToken)
       .end(function(err, res){
 
         res.should.have.status(200);
@@ -179,12 +210,14 @@ describe('Organizations', function(){
 
         chai.request(server)
         .delete('/api/organizations/'+res.body[0]._id)
+        .set('authorization', testToken)
         .end(function(err2, res2){
 
           res2.should.have.status(200);
 
           chai.request(server)
           .get('/api/organizations')
+          .set('authorization', testToken)
           .end(function(err3, res3){
 
             res3.should.have.status(200);
@@ -200,6 +233,7 @@ describe('Organizations', function(){
     it('DELETE should not delete the requested organization if it does not exist', function(done){
       chai.request(server)
       .delete('/api/organizations/' + mongoose.Types.ObjectId())
+      .set('authorization', testToken)
       .end(function(err, res){
         res.should.have.status(404);
         done();

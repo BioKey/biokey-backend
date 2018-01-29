@@ -1,12 +1,13 @@
 const Activity = require('../models/activity');
 const ActivityType = require('../models/activityType');
 const TypingProfile = require('../models/typingProfile');
+const User = require('../models/user');
 
 //RETURNS ALL THE ACTIVITIES FROM THE DATABASE
 exports.getAll = function (req, res) {
     Activity.find((err, activities) => {
         if (err) return res.status(500).send("There was a problem finding the activities.");
-        return res.status(200).json({activities: activities});
+        return res.status(200).json(activities);
     });
 }
 
@@ -30,12 +31,17 @@ exports.post = function (req, res) {
         TypingProfile.findById(activity.typingProfile, (err, typingProfile) => {
             if (err) return res.status(500).send('There was a problem finding the requested typing profile.');
             if (!typingProfile) return res.status(404).send('There was a problem finding the requested typing profile.');
-            //Save Activity
-            activity.save(err => {
-                if(err) return res.status(500).send("There was a problem saving the activity.");
-                return res.json({msg: "Activity saved!", activity: activity});
+            //Determine if the user requesting the post is the same one, or an admin
+            User.findById(req.user, (err, user) => {
+                if(err) return res.status(500).send('There was a problem with your session.');
+                if(!user.isAdmin && user._id!=typingProfile.user) return res.status(401).send('You are not authorized to perform this action.');
+                //Save Activity
+                activity.save(err => {
+                    if(err) return res.status(500).send("There was a problem saving the activity.");
+                    return res.json({msg: "Activity saved!", activity: activity});
+                });
             });
-        })
+        });
     });
 }
 

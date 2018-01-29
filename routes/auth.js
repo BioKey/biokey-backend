@@ -60,7 +60,7 @@ router.post('/register', Authentication.register);
  * 
  * @apiGroup Auth
  *
- * @apiHeader {String} authorization A valid JSON web token
+ * @apiUse RequestHeaders
  * @apiHeaderExample {json} Header-Example:
  *     {
  *       "authorization": "123456789..."
