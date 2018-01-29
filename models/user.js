@@ -23,10 +23,18 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  phoneNumber: {
+    type: String,
+    required: true
+  },
+  endpoint: {
+    type: String,
+    required: true
+  },
   organization: {
     type: mongoose.Schema.ObjectId, 
     ref: ('Organization'),
-    require: true
+    required: true
   }
 });
 
