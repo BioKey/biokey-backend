@@ -97,6 +97,12 @@ describe('Keystrokes', function(){
         keyDown: true
     };
 
+    let otherPostKeystroke = {
+        character: 'c',
+        timestamp: 8101,
+        keyDown: true
+    };
+
     //POST Testing
     it('POST should create a new keystroke', function(done){
       postKeystroke.typingProfile = testKeystroke.typingProfile;
@@ -107,8 +113,35 @@ describe('Keystrokes', function(){
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        postKeystroke._id = res.body.keystroke._id;
-        confirmKeystroke(res.body.keystroke, postKeystroke);
+        postKeystroke._id = res.body.keystrokes[0]._id;
+        confirmKeystroke(res.body.keystrokes[0], postKeystroke);
+        done();
+      });
+    });
+
+    it('POST should create many new keystrokes', function(done){
+      postKeystroke.typingProfile = testKeystroke.typingProfile;
+      otherPostKeystroke.typingProfile = testKeystroke.typingProfile;
+      chai.request(server)
+      .post('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
+      .send({keystrokes: [postKeystroke, otherPostKeystroke]})
+      .end(function(err, res){
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.keystrokes.length.should.equal(2);
+        done();
+      });
+    });
+
+    it('POST should not create many new keystrokes if any is bad', function(done){
+      postKeystroke.typingProfile = testKeystroke.typingProfile;
+      chai.request(server)
+      .post('/api/keystrokes')
+      .set('authorization', testTypingProfile.accessToken)
+      .send({keystroke: [postKeystroke, {}, postKeystroke]})
+      .end(function(err, res){
+        res.should.have.status(404);
         done();
       });
     });
