@@ -7,8 +7,8 @@
     "watch": "node_modules/.bin/nodemon ./bin/www",
     "test": "NODE_ENV=test node_modules/.bin/_mocha ./test --recursive",
     "cover": "NODE_ENV=test node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha ./test --recursive",
-    "testWin": "SET NODE_ENV=test & node_modules\\.bin\\_mocha .\\test --recursive",
-    "coverWin": "SET NODE_ENV=test & node_modules\\istanbul\\lib\\cli.js cover node_modules\\mocha\\bin\\_mocha .\\test --recursive",
+    "testWin": "SET NODE_ENV=test& node_modules\\.bin\\_mocha .\\test --recursive",
+    "coverWin": "SET NODE_ENV=test& node_modules\\istanbul\\lib\\cli.js cover node_modules\\mocha\\bin\\_mocha .\\test --recursive",
     "docs": "node_modules/.bin/apidoc -i routes -o docs",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
@@ -24,7 +24,8 @@
     "nodemon": "^1.9.1",
     "passport": "^0.3.2",
     "passport-jwt": "^2.0.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "q": "^1.5.1"
   },
   "devDependencies": {
     "apidoc": "^0.17.6",
