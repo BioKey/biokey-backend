@@ -54,6 +54,19 @@ router.get('/', middleware.requireAdmin, TypingProfile.getAll);
 router.get('/:typingProfile_id', middleware.requireAuth, TypingProfile.get)
 
 /**
+ * @api {get} /api/typingProfiles/machine/:machine_mac  GetTypingProfile
+ * @apiName GetMachineUserTypingProfile
+ * @apiDescription
+ * Get a the typing profile given a user's token and machine id.
+ * 
+ * @apiGroup TypingProfiles
+ * @apiUse RequestHeaders
+ * @apiUse TypingProfileSuccess
+ * @apiUse UnauthorizedError
+ */
+router.get('/machine/:machine_mac', middleware.requireAuth, TypingProfile.getTypingProfileFromMachine)
+
+/**
  * @api {post} /api/typingProfiles  PostTypingProfile
  * @apiName PostTypingProfile
  * @apiDescription

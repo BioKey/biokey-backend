@@ -22,6 +22,18 @@ exports.get = function (req, res) {
     });
 }
 
+exports.getTypingProfileFromMachine = function (req, res) {
+    Machine.findOne({mac: req.params.machine_mac}, (err, machine) => {
+        if (err) return res.status(500).send({errors: [err]});
+        if (!machine) return res.status(404).send({errors: [{errmsg: 'Machine not found'}]});
+        TypingProfile.findOne({user: req.user._id, machine: machine._id}, (err, typingProfile) => {
+            if (err) return res.status(500).send({errors: [err]});
+            if (!typingProfile) return res.status(404).send({errors: [{errmsg: 'TypingProfile not found'}]});
+            return res.json({typingProfile: typingProfile});
+        });
+    })
+}
+
 exports.post = function (req, res) {
     var typingProfile = new TypingProfile(req.body.typingProfile);
     //Try to find the user
