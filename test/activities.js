@@ -48,6 +48,8 @@ describe('Activities', function(){
     email: 'batman@gotham.co',
     password: 'test',
     isAdmin: true,
+    phoneNumber: '555-555-555',
+    endpoint: 'example.com',
     organization: mongoose.Types.ObjectId()
   };
 

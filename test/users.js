@@ -21,6 +21,8 @@ describe('Users', function() {
     name: 'Batman',
     email: 'batman@gotham.co',
     password: 'test',
+    phoneNumber: '555-555-555',
+    endpoint: 'example.com/api/6b3b015129015e0a8b9c1649',
     isAdmin: true
   };
 
@@ -53,12 +55,16 @@ describe('Users', function() {
     user.should.have.property('name');
     user.should.have.property('email');
     user.should.have.property('isAdmin');
+    user.should.have.property('phoneNumber');
+    user.should.have.property('endpoint');
     user.should.not.have.property('password');
     // Check properties
     user._id.should.equal(val._id);
     user.name.should.equal(val.name);
     user.email.should.equal(val.email);
     user.isAdmin.should.equal(val.isAdmin);
+    user.phoneNumber.should.equal(val.phoneNumber);
+    user.endpoint.should.equal(val.endpoint);
   }
 
   describe('/api/users', function() {
@@ -117,7 +123,9 @@ describe('Users', function() {
             _id: res.body[0]._id,
             name: 'Superman',
             email: res.body[0].email,
-            isAdmin: res.body[0].isAdmin
+            isAdmin: res.body[0].isAdmin,
+            phoneNumber: res.body[0].phoneNumber,
+            endpoint: res.body[0].endpoint
           });
           done();
         });

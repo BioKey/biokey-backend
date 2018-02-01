@@ -31,6 +31,8 @@ describe('ActivityTypes', function(){
     email: 'batman@gotham.co',
     password: 'test',
     isAdmin: true,
+    phoneNumber: '555-555-555',
+    endpoint: 'example.com/api/6b3b015129015e0a8b9c1649',
     organization: mongoose.Types.ObjectId()
   };
 

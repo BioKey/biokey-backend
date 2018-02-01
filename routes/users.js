@@ -16,6 +16,8 @@ const middleware = require('../services/middleware');
  * @apiSuccess {String} users._id  UUID of the user for the system
  * @apiSuccess {String} users.email User's email
  * @apiSuccess {String} users.name User's name
+ * @apiSuccess {String} users.phoneNumber User's phone number
+ * @apiSuccess {String} users.endpoint User's endpoint for updating the client
  * @apiSuccess {Organization} users.organization User's organization
  * @apiSuccess {Number} users.__v Version code of the schema being used
  * @apiSuccess {Boolean} users.isAdmin  Whether user is a system administrator
@@ -63,12 +65,16 @@ const middleware = require('../services/middleware');
  * @apiParam {String} name The user's new name
  * @apiParam {String} email The user's new email
  * @apiParam {Boolean} isAdmin The user's new isAdmin state
+ * @apiParam {String} phoneNumber The user's new phone number
+ * @apiParam {String} endpoint The user's new endpoint
  * @apiParam {Organization} organization The user's new organization
  * @apiParamExample {json} Request-Example:
  *     {
  *       "name": "Hosh Weinstein",
  *       "email": "test@example.com",
  *       "isadmin": false,
+ *       "phoneNumber": "555-555-5555"
+ *       "endpoint": "example.com/api/6b3b015129015e0a8b9c1649"
  *       "organization": "5a4c019629015e0c8b9c1737"
  *     }
  *
