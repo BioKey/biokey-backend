@@ -11,7 +11,7 @@ exports.login = function(req, res, next){
   // user has already had thier email and password auth'd
   // we just need to give them a token
   // req.user is assigned by passport done function
-  res.send({token: tokenForUser(req.user), user: req.user});
+  res.send({token: tokenForUser(req.user)});
 }
 
 exports.register = function(req, res, next){
@@ -46,7 +46,7 @@ exports.register = function(req, res, next){
     user.save(function(err){
       if(err) { return next(err); }
 
-      res.json({token: tokenForUser(user), user: user});
+      res.json({token: tokenForUser(user)});
     });
 
   });
