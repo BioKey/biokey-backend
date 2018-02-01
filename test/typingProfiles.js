@@ -23,14 +23,13 @@ after(function() {
         });
       });   
     });
-});
+  });
 
 describe('TypingProfiles', function(){
 
   var testTypingProfile = {
     authStatus: false,
     lockStatus: false,
-    accessToken: 'token',
     tensorFlowModel: 'tfmodel'
   };
 
@@ -50,11 +49,11 @@ describe('TypingProfiles', function(){
   };
 
   var testOrganization = {
-      name: 'BK Inc.',
-      maxUsers: 100
+    name: 'BK Inc.',
+    maxUsers: 100
   }
 
-  beforeEach(function(done){
+  before(done => {
     var newUser = new User(testUser);
     chai.request(server)
     .post('/api/auth/register')
@@ -67,32 +66,44 @@ describe('TypingProfiles', function(){
 
         var newOrganization = new Organization(testOrganization);
         newOrganization.save(function(err, data){
-            testMachine.organization = data.id;
-            testUser.organization = data.id;
-            testOrganization._id = data.id;
-        
-            var newMachine = new Machine(testMachine);
-            newMachine.save(function(err, data){
-                testMachine._id = data.id;
-                testTypingProfile.machine = data.id;
+          testMachine.organization = data.id;
+          testUser.organization = data.id;
+          testOrganization._id = data.id;
 
-                var newTypingProfile = new TypingProfile(testTypingProfile);
-                newTypingProfile.save(function(err, data){
-                  testTypingProfile._id = data.id;
-                  done();
-                });
-            });
+          var newMachine = new Machine(testMachine);
+          newMachine.save(function(err, data){
+            testMachine._id = data.id;
+            testTypingProfile.machine = data.id;
+            done();
+          });
         });
       });
     });
+  })
+
+  beforeEach(function(done){
+    var newTypingProfile = new TypingProfile(testTypingProfile);
+    newTypingProfile.save(function(err, data){
+      testTypingProfile._id = data.id;
+      done();
+    });
   });
 
-  afterEach(function(done){
-    TypingProfile.collection.drop();
-    User.collection.drop();
-    Machine.collection.drop();
-    Organization.collection.drop();
-    done();
+  afterEach(done => {
+    TypingProfile.remove(err => {
+      done();
+    });
+  });
+
+  after(function(done) {
+    //clear out db
+    User.remove(function(err){
+      Machine.remove(function(err){
+        Organization.remove(function(err){
+          done(); 
+        });
+      });
+    });
   });
 
   let confirmTypingProfile = (typingProfile, val) => {
@@ -100,26 +111,24 @@ describe('TypingProfiles', function(){
     typingProfile.should.have.property('_id');
     typingProfile.should.have.property('authStatus');
     typingProfile.should.have.property('lockStatus');
-    typingProfile.should.have.property('accessToken');
     typingProfile.should.have.property('tensorFlowModel');
     typingProfile.should.have.property('machine');
     typingProfile.should.have.property('user');
     typingProfile._id.should.equal(val._id);
     typingProfile.authStatus.should.equal(val.authStatus);
     typingProfile.lockStatus.should.equal(val.lockStatus);
-    typingProfile.accessToken.should.equal(val.accessToken);
     typingProfile.tensorFlowModel.should.equal(val.tensorFlowModel);
     typingProfile.machine.should.equal(val.machine);
     typingProfile.user.should.equal(val.user);
   };
 
   describe('/api/typingProfiles', function(){
-    
+
     let postTypingProfile = {
-        authStatus: true,
-        lockStatus: true,
-        accessToken: 'anothertoken',
-        tensorFlowModel: 'anothertfmodel'
+      authStatus: true,
+      lockStatus: true,
+      accessToken: 'anothertoken',
+      tensorFlowModel: 'anothertfmodel'
     };
 
     //POST Testing
@@ -129,25 +138,25 @@ describe('TypingProfiles', function(){
         testUser._id = mongoose.Types.ObjectId();
         var newUser = new User(testUser);
         newUser.save(function(err, data){
-            testUser._id = data.id;
-            testTypingProfile.user = data.id;
-            postTypingProfile.user = testTypingProfile.user;
-            postTypingProfile.machine = testTypingProfile.machine;
-            
-            chai.request(server)
-            .post('/api/typingProfiles')
-            .set('authorization', testTypingProfile.accessToken)
-            .send({typingProfile: postTypingProfile})
-            .end(function(err, res){
-                res.should.have.status(200);
-                res.should.be.json;
-                postTypingProfile._id = res.body.typingProfile._id;
-                confirmTypingProfile(res.body.typingProfile, postTypingProfile);
-                done();
-            });
+          testUser._id = data.id;
+          testTypingProfile.user = data.id;
+          postTypingProfile.user = testTypingProfile.user;
+          postTypingProfile.machine = testTypingProfile.machine;
+
+          chai.request(server)
+          .post('/api/typingProfiles')
+          .set('authorization', testTypingProfile.accessToken)
+          .send({typingProfile: postTypingProfile})
+          .end(function(err, res){
+            res.should.have.status(200);
+            res.should.be.json;
+            postTypingProfile._id = res.body.typingProfile._id;
+            confirmTypingProfile(res.body.typingProfile, postTypingProfile);
+            done();
+          });
         });
-      
-    });
+
+      });
 
     it('POST should not create a typingProfile when the user cannot be found ', function(done){
       postTypingProfile.user = mongoose.Types.ObjectId();
@@ -163,16 +172,16 @@ describe('TypingProfiles', function(){
     });
 
     it('POST should not create a typingProfile when the machine cannot be found ', function(done){
-        postTypingProfile.user = testTypingProfile.user;
-        postTypingProfile.machine = mongoose.Types.ObjectId();
-        chai.request(server)
-        .post('/api/typingProfiles')
-        .set('authorization', testTypingProfile.accessToken)
-        .send({typingProfile: postTypingProfile})
-        .end(function(err, res){
-          res.should.have.status(404);
-          done();
-        });
+      postTypingProfile.user = testTypingProfile.user;
+      postTypingProfile.machine = mongoose.Types.ObjectId();
+      chai.request(server)
+      .post('/api/typingProfiles')
+      .set('authorization', testTypingProfile.accessToken)
+      .send({typingProfile: postTypingProfile})
+      .end(function(err, res){
+        res.should.have.status(404);
+        done();
+      });
     });
 
     //GET Testing
@@ -191,7 +200,7 @@ describe('TypingProfiles', function(){
   });
 
   describe('/api/typingProfiles/<id>', function(){
-    
+
     //GET Testing
     it('GET should, when it exists, list one typingProfile', function(done){
       chai.request(server)
@@ -262,48 +271,48 @@ describe('TypingProfiles', function(){
     });
 
     it('PUT should not update the typingProfile if the user cannot be found', function(done){
+      chai.request(server)
+      .get('/api/typingProfiles')
+      .set('authorization', testTypingProfile.accessToken)
+      .end(function(err, res){
         chai.request(server)
-        .get('/api/typingProfiles')
+        .put('/api/typingProfiles/'+res.body[0]._id)
         .set('authorization', testTypingProfile.accessToken)
-        .end(function(err, res){
-          chai.request(server)
-          .put('/api/typingProfiles/'+res.body[0]._id)
-          .set('authorization', testTypingProfile.accessToken)
-          .send({typingProfile: {
-            'character': 'c',
-            'timestamp': 9000,
-            'upOrDown': 'U',
-            'user': mongoose.Types.ObjectId(),
-            'machine': res.body[0].machine
-          }})
-          .end(function(error, response){
-            response.should.have.status(404);
-            done();
-          });
+        .send({typingProfile: {
+          'character': 'c',
+          'timestamp': 9000,
+          'upOrDown': 'U',
+          'user': mongoose.Types.ObjectId(),
+          'machine': res.body[0].machine
+        }})
+        .end(function(error, response){
+          response.should.have.status(404);
+          done();
         });
       });
+    });
 
-      it('PUT should not update the typingProfile if the machine cannot be found', function(done){
+    it('PUT should not update the typingProfile if the machine cannot be found', function(done){
+      chai.request(server)
+      .get('/api/typingProfiles')
+      .set('authorization', testTypingProfile.accessToken)
+      .end(function(err, res){
         chai.request(server)
-        .get('/api/typingProfiles')
+        .put('/api/typingProfiles/'+res.body[0]._id)
         .set('authorization', testTypingProfile.accessToken)
-        .end(function(err, res){
-          chai.request(server)
-          .put('/api/typingProfiles/'+res.body[0]._id)
-          .set('authorization', testTypingProfile.accessToken)
-          .send({typingProfile: {
-            'character': 'c',
-            'timestamp': 9000,
-            'upOrDown': 'U',
-            'user': res.body[0].user,
-            'machine': mongoose.Types.ObjectId()
-          }})
-          .end(function(error, response){
-            response.should.have.status(404);
-            done();
-          });
+        .send({typingProfile: {
+          'character': 'c',
+          'timestamp': 9000,
+          'upOrDown': 'U',
+          'user': res.body[0].user,
+          'machine': mongoose.Types.ObjectId()
+        }})
+        .end(function(error, response){
+          response.should.have.status(404);
+          done();
         });
       });
+    });
 
     //DELETE Testing
     it('DELETE should delete a single typingProfile', function(done){

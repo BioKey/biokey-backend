@@ -8,6 +8,7 @@ var keystrokeSchema = mongoose.Schema({
     },
     timestamp: {
         type: Number,
+        min: 0,
         require: true
     },
     keyDown: {

@@ -21,20 +21,13 @@ var typingProfileSchema = mongoose.Schema({
         require: true,
         default: false
     },
-    accessToken: {
-        type: String,
-        trim: true,
-        require: true
-    },
     tensorFlowModel: {
         type: String,
-        trim: true,
-        require: true
+        trim: true
     },
     endpoint: {
-        type: String,
-        required: true
-      }
+        type: String
+    }
 });
 
 typingProfileSchema.index({user: 1, machine: 1}, {unique: true});   // ASSUMPTION: user-machine pairs should be unique

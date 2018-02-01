@@ -23,8 +23,8 @@ describe('Auth', function() {
     email: 'batman@gotham.co',
     password: 'test',
     phoneNumber: '555-555-555',
-    endpoint: 'example.com/api/6b3b015129015e0a8b9c1649',
-    isAdmin: false
+    organization: mongoose.Types.ObjectId().toString(),
+    isAdmin: true
   };
 
   describe('/api/auth/register', function() {
@@ -152,8 +152,8 @@ describe('Auth', function() {
       user.should.have.property('name');
       user.should.have.property('email');
       user.should.have.property('isAdmin');
-      user.should.not.have.property('password');
-      user.should.have.property('endpoint');
+      user.should.have.property('phoneNumber');
+      user.should.have.property('organization');
       user.should.not.have.property('password');
       // Check properties
       user._id.should.equal(val._id);
@@ -161,7 +161,7 @@ describe('Auth', function() {
       user.email.should.equal(val.email);
       user.isAdmin.should.equal(val.isAdmin);
       user.phoneNumber.should.equal(val.phoneNumber);
-      user.endpoint.should.equal(val.endpoint);
+      user.organization.should.equal(val.organization);
     }
 
     beforeEach(function(done){

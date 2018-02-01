@@ -24,8 +24,7 @@ const userSchema = new mongoose.Schema({
     default: false
   },
   phoneNumber: {
-    type: String,
-    required: true
+    type: String
   },
   organization: {
     type: mongoose.Schema.ObjectId, 
