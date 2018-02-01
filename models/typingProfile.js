@@ -30,7 +30,11 @@ var typingProfileSchema = mongoose.Schema({
         type: String,
         trim: true,
         require: true
-    }
+    },
+    endpoint: {
+        type: String,
+        required: true
+      }
 });
 
 typingProfileSchema.index({user: 1, machine: 1}, {unique: true});   // ASSUMPTION: user-machine pairs should be unique

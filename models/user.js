@@ -27,10 +27,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  endpoint: {
-    type: String,
-    required: true
-  },
   organization: {
     type: mongoose.Schema.ObjectId, 
     ref: ('Organization'),
