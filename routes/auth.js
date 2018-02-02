@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Authentication = require('../controllers/authentication');
+const Auth = require('../controllers/auth');
 const middleware = require('../services/middleware');
 
 /**
@@ -24,7 +24,7 @@ const middleware = require('../services/middleware');
  * @apiUse GrantTokenSuccess
  * @apiUse UnauthorizedError
  */
-router.post('/login', middleware.requireSignin, Authentication.login);
+router.post('/login', middleware.requireSignin, Auth.login);
 
 /**
  * @api {post} /api/auth/register Register
@@ -48,7 +48,7 @@ router.post('/login', middleware.requireSignin, Authentication.login);
  * @apiUse GrantTokenSuccess
  * @apiUse UnauthorizedError
  */
-router.post('/register', Authentication.register);
+router.post('/register', Auth.register);
 
 /**
  * @api {get} /api/auth/me Me
@@ -69,6 +69,6 @@ router.post('/register', Authentication.register);
  * @apiUse UserSuccess
  * @apiUse UnauthorizedError
  */
-router.get('/me', middleware.requireAuth, Authentication.me);
+router.get('/me', middleware.requireAuth, Auth.me);
 
 module.exports = router;

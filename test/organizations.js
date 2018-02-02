@@ -9,14 +9,14 @@ var User = require('../models/user');
 var should = chai.should();
 chai.use(chaiHttp);
 
-after(function() {
-    //clear out db
-    Organization.remove(function(err){
-      User.remove(function(err){
-        mongoose.connection.close();
-        done();
-      });    
-    });
+after(function(done) {
+  //clear out db
+  Organization.remove(function(err){
+    User.remove(function(err){
+      mongoose.connection.close();
+      done();
+    });    
+  });
 });
 
 describe('Organizations', function(){
@@ -25,8 +25,8 @@ describe('Organizations', function(){
     name: "Wayne Enterprises",
     maxUsers: 100,
     challengeStrategies: [
-      "test1",
-      "test2"
+    "test1",
+    "test2"
     ],
     defaultThreshold: 50
   };
@@ -36,33 +36,38 @@ describe('Organizations', function(){
     email: 'batman@gotham.co',
     password: 'test',
     isAdmin: true,
-    phoneNumber: '555-555-555',
-    endpoint: 'example.com/api/6b3b015129015e0a8b9c1649',
-    organization: mongoose.Types.ObjectId()
+    phoneNumber: '555-555-555'
   };
 
   var testToken;
 
+
   beforeEach(function(done){
-    var newUser = new User(testUser);
-    chai.request(server)
-    .post('/api/auth/register')
-    .send(newUser)
-    .end(function(err, res){
-      testToken = res.body.token;
-      var newOrganization = new Organization(testOrganization);
-      newOrganization.save(function(err, data){
-        testOrganization._id = data.id;
+    var newOrganization = new Organization(testOrganization);
+    newOrganization.save(function(err, data){
+
+      testOrganization._id = data.id;
+      testUser.organization = data.id;
+
+      var newUser = new User(testUser);
+      newUser.save(err => {
+        testUser._id = newUser.id;
+        testToken = newUser.getToken();
         done();
       });
+
     });
   });
 
   afterEach(function(done){
-    Organization.collection.drop();
-    User.collection.drop();
-    done();
+    //clear out db
+    Organization.remove(function(err){
+      User.remove(function(err){
+        done();
+      });    
+    });
   });
+
 
   let confirmOrganization = (organization, val) => {
     organization.should.be.a('object');
@@ -79,13 +84,27 @@ describe('Organizations', function(){
   };
 
   describe('/api/organizations', function(){
-    
+
     let postOrg = {
       name: "HW Inc.",
       maxUsers: 100,
       challengeStrategies: [],
       defaultThreshold: 1
     }
+
+    //GET Testing
+    it('GET should list all organizations', function(done){
+      chai.request(server)
+      .get('/api/organizations')
+      .set('authorization', testToken)
+      .end(function(err, res){
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.be.a('array');
+        confirmOrganization(res.body[0], testOrganization);
+        done();
+      });
+    });
 
     //POST Testing
     it('POST should create a new organization', function(done){
@@ -118,23 +137,10 @@ describe('Organizations', function(){
       });
     });
 
-    //GET Testing
-    it('GET should list all organizations', function(done){
-      chai.request(server)
-      .get('/api/organizations')
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        res.body.should.be.a('array');
-        confirmOrganization(res.body[0], testOrganization);
-        done();
-      });
-    });
   });
 
   describe('/api/organizations/<id>', function(){
-    
+
     //GET Testing
     it('GET should, when it exists, list one organization', function(done){
       chai.request(server)

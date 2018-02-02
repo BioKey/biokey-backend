@@ -6,22 +6,24 @@ var server = require('../app');
 var Keystroke = require('../models/keystroke');
 var TypingProfile = require('../models/typingProfile');
 var User = require('../models/user');
+const Organization = require('../models/organization');
 
 var should = chai.should();
 chai.use(chaiHttp);
 
-after(function() {
-    //clear out db
-    Keystroke.remove(function(err){
-      TypingProfile.remove(function(err){
+after(function(done) {
+  //clear out db
+  Keystroke.remove(function(err){
+    TypingProfile.remove(function(err){
+      Organization.remove(function(err) {
         User.remove(function(err){
           mongoose.connection.close();
           done(); 
         });
-      });   
-    });
+      })
+    });   
+  });
 });
-
 describe('Keystrokes', function(){
 
   var testUser = {
@@ -56,8 +58,8 @@ describe('Keystrokes', function(){
 
       var newTypingProfile = new TypingProfile(testTypingProfile);
       newTypingProfile.save(function(err, data){
-          testKeystroke.typingProfile = data._id;
-          done();
+        testKeystroke.typingProfile = data._id;
+        done();
       });
     });
   });
@@ -101,17 +103,17 @@ describe('Keystrokes', function(){
   };
 
   describe('/api/keystrokes', function(){
-    
+
     let postKeystroke = {
-        character: 'b',
-        timestamp: 8100,
-        keyDown: true
+      character: 'b',
+      timestamp: 8100,
+      keyDown: true
     };
 
     let otherPostKeystroke = {
-        character: 'c',
-        timestamp: 8101,
-        keyDown: true
+      character: 'c',
+      timestamp: 8101,
+      keyDown: true
     };
 
     //POST Testing
@@ -185,7 +187,7 @@ describe('Keystrokes', function(){
   });
 
   describe('/api/keystrokes/<id>', function(){
-    
+
     //GET Testing
     it('GET should, when it exists, list one keystroke', function(done){
       chai.request(server)
@@ -251,25 +253,25 @@ describe('Keystrokes', function(){
     });
 
     it('PUT should not update the keystroke if the typingProfile cannot be found', function(done){
+      chai.request(server)
+      .get('/api/keystrokes')
+      .set('authorization', testUser.accessToken)
+      .end(function(err, res){
         chai.request(server)
-        .get('/api/keystrokes')
+        .put('/api/keystrokes/'+res.body[0]._id)
         .set('authorization', testUser.accessToken)
-        .end(function(err, res){
-          chai.request(server)
-          .put('/api/keystrokes/'+res.body[0]._id)
-          .set('authorization', testUser.accessToken)
-          .send({keystroke: {
-            'character': 'c',
-            'timestamp': 9000,
-            'keyDown': false,
-            'typingProfile': mongoose.Types.ObjectId()
-          }})
-          .end(function(error, response){
-            response.should.have.status(404);
-            done();
-          });
+        .send({keystroke: {
+          'character': 'c',
+          'timestamp': 9000,
+          'keyDown': false,
+          'typingProfile': mongoose.Types.ObjectId()
+        }})
+        .end(function(error, response){
+          response.should.have.status(404);
+          done();
         });
       });
+    });
     
     it('PUT should not update the requested keystroke if the auth header is invalid', function(done){
       chai.request(server)
@@ -330,7 +332,7 @@ describe('Keystrokes', function(){
       });
     });
 
-     
+
     it('PUT should not update the requested keystroke if the user is not an admin', function(done){
       chai.request(server)
         //Get keystroke to update
@@ -361,6 +363,6 @@ describe('Keystrokes', function(){
             });
           });
         });
-    });
+      });
   });
 });

@@ -4,50 +4,61 @@ var mongoose = require('mongoose');
 
 var server = require('../app');
 var User = require('../models/user');
+var Organization = require('../models/organization');
 
 var should = chai.should();
 chai.use(chaiHttp);
 
-after(function() {
+let testOrg;
+let testUser;
+
+after(function(done) {
   //clear out db
-  User.remove(function(err){
-    mongoose.connection.close();
-    done();    
-  });
+  User.remove(err => {
+    Organization.remove(err => {
+      mongoose.connection.close();
+      done();
+    })
+  })
 });
 
 describe('Users', function() {
-  var testUser = {
-    name: 'Batman',
-    email: 'batman@gotham.co',
-    password: 'test',
-    phoneNumber: '555-555-555',
-    organization: mongoose.Types.ObjectId().toString(),
-    isAdmin: true
-  };
 
   var testToken;
 
+  before(function(done) {
+    let testOrg = new Organization({
+      name: 'Test Org'
+    });
+    testOrg.save(err => {
+      testUser = {
+        name: 'Batman',
+        email: 'batman@gotham.co',
+        password: 'test',
+        phoneNumber: '555-555-555',
+        organization: testOrg.id.toString(),
+        isAdmin: true
+      };
+      done();
+    });
+  })
+
   beforeEach(function(done){
     var newUser = new User(testUser);
-    chai.request(server)
-    .post('/api/auth/register')
-    .send(newUser)
-    .end(function(err, res){
-      //Get token
-      testToken = res.body.token;
-      User.findOne({email: testUser.email}, function(err, user){
-        //Get user id
-        testUser._id = user.id;
-        done()
-      });
+    newUser.save(err => {
+      testUser._id = newUser.id;
+      testToken = newUser.getToken();
+      done();
     });
   });
 
   afterEach(function(done){
-    User.collection.drop();
-    done();
+    User.remove(err => {
+      done()
+    })
   });
+
+
 
   let confirmUser = (user, val) => {
     user.should.be.a('object');
@@ -135,42 +146,18 @@ describe('Users', function() {
     it('DELETE should delete a SINGLE user', function(done) {
       //Must save a second user
       testUser.email = 'joker@anarchy.co';
-      delete testUser._id;
-
       var newUser = new User(testUser);
-      chai.request(server)
-      .post('/api/auth/register')
-      .send(newUser)
-      .end(function(err, res){
+      newUser.save(err => {
         chai.request(server)
-        .get('/api/users')
+        .delete('/api/users/'+newUser.id)
         .set('authorization', testToken)
-        .end(function(err, res){
-
-          res.should.have.status(200);
-          res.body.should.be.a('array');
-          res.body.length.should.equal(2);
-
-          chai.request(server)
-          .delete('/api/users/'+res.body[1]._id)
-          .set('authorization', testToken)
-          .end(function(err2, res2){
-
-            res2.should.have.status(200);
-
-            chai.request(server)
-            .get('/api/users')
-            .set('authorization', testToken)
-            .end(function(err3, res3){
-
-              res3.should.have.status(200);
-              res3.body.should.be.a('array');
-              res3.body.length.should.equal(1);
-
-              done();
-            });
-          });
-        });
+        .end(function(err2, res2) {
+          res2.should.have.status(200);
+          User.findById(newUser.id, function(err, user) {
+            chai.should(user, null);
+            done()
+          })
+        })
       });
     });
   });

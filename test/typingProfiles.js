@@ -11,19 +11,19 @@ var Organization = require('../models/organization');
 var should = chai.should();
 chai.use(chaiHttp);
 
-after(function() {
-    //clear out db
-    TypingProfile.remove(function(err){
-      User.remove(function(err){
-        Machine.remove(function(err){
-          Organization.remove(function(err){
-            mongoose.connection.close();
-            done(); 
-          });
+after(function(done) {
+  //clear out db
+  TypingProfile.remove(function(err){
+    User.remove(function(err){
+      Machine.remove(function(err){
+        Organization.remove(function(err){
+          mongoose.connection.close();
+          done(); 
         });
-      });   
-    });
+      });
+    });   
   });
+});
 
 describe('TypingProfiles', function(){
 

@@ -5,18 +5,22 @@ var mongoose = require('mongoose');
 var server = require('../app');
 var ActivityType = require('../models/activityType');
 var User = require('../models/user');
+var Organization = require('../models/organization');
 
 var should = chai.should();
 chai.use(chaiHttp);
 
-after(function() {
-    //clear out db
+
+after(function(done) {
+  //clear out db
+  Organization.remove(function(err) {
     ActivityType.remove(function(err){
       User.remove(function(err){
         mongoose.connection.close();
         done(); 
       });   
     });
+  });
 });
 
 describe('ActivityTypes', function(){
@@ -38,25 +42,28 @@ describe('ActivityTypes', function(){
 
   var testToken;
 
-  beforeEach(function(done){
+  before(function(done) {
     var newUser = new User(testUser);
-    chai.request(server)
-    .post('/api/auth/register')
-    .send(newUser)
-    .end(function(err, res){
-      testToken = res.body.token;
-      var newActivityType = new ActivityType(testActivityType);
-      newActivityType.save(function(err, data){
-        testActivityType._id = data.id;
-        done();
-      });
+    newUser.save(err => {
+      testUser._id = newUser.id;
+      testToken = newUser.getToken();
+      done();
+    });
+  })
+  
+  beforeEach(function(done){
+    var newActivityType = new ActivityType(testActivityType);
+    newActivityType.save(function(err, data){
+      testActivityType._id = data.id;
+      done();
     });
   });
 
   afterEach(function(done){
-    ActivityType.collection.drop();
-    User.collection.drop();
-    done();
+    //clear out db
+    ActivityType.remove(err => {
+      done();
+    });
   });
 
   let confirmActivityType = (activityType, val) => {
@@ -70,11 +77,11 @@ describe('ActivityTypes', function(){
   };
 
   describe('/api/activityTypes', function(){
-    
+
     let postActivityType = {
-        description: 'Unlocked by admin',
-        importance: 'LOW'
-      };
+      description: 'Unlocked by admin',
+      importance: 'LOW'
+    };
 
     //POST Testing
     it('POST should create a new activityType', function(done){
@@ -123,7 +130,7 @@ describe('ActivityTypes', function(){
   });
 
   describe('/api/activityTypes/<id>', function(){
-    
+
     //GET Testing
     it('GET should, when it exists, list one activityType', function(done){
       chai.request(server)

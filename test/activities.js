@@ -7,22 +7,25 @@ var User = require('../models/user');
 var Activity = require('../models/activity');
 var TypingProfile = require('../models/typingProfile');
 var ActivityType = require('../models/activityType');
+const Organization = require('../models/organization');
 
 var should = chai.should();
 chai.use(chaiHttp);
 
-after(function() {
-    //clear out db
-    Activity.remove(function(err){
-      TypingProfile.remove(function(err){
-        ActivityType.remove(function(err){
+after(function(done) {
+  //clear out db
+  Activity.remove(function(err){
+    TypingProfile.remove(function(err){
+      ActivityType.remove(function(err){
+        Organization.remove(function(err) {
           User.remove(function(err){
             mongoose.connection.close();
             done(); 
           });
-        });  
-      }); 
-    });
+        })
+      });  
+    }); 
+  });
 });
 
 describe('Activities', function(){
@@ -85,19 +88,25 @@ describe('Activities', function(){
                 //Getting activity id
                 testActivity._id = data.id;
                 done();
-             });
-          });
+              });
+            });
         });
       });
     });
   });
 
   afterEach(function(done){
-    Activity.collection.drop();
-    TypingProfile.collection.drop();
-    User.collection.drop();
-    ActivityType.collection.drop();
-    done();
+    Activity.remove(function(err){
+      TypingProfile.remove(function(err){
+        ActivityType.remove(function(err){
+          Organization.remove(function(err) {
+            User.remove(function(err){
+              done(); 
+            });
+          })
+        });  
+      }); 
+    });
   });
 
   let confirmActivity = (activity, val) => {
@@ -113,9 +122,9 @@ describe('Activities', function(){
   };
 
   describe('/api/activities', function(){
-    
+
     let postActivity = {
-        timestamp: 8100
+      timestamp: 8100
     };
 
     //POST Testing
@@ -149,16 +158,16 @@ describe('Activities', function(){
     });
 
     it('POST should not create a activity when the activityType cannot be found ', function(done){
-        postActivity.typingProfile = testActivity.typingProfile;
-        postActivity.activityType = mongoose.Types.ObjectId();
-        chai.request(server)
-        .post('/api/activities')
-        .set('authorization', testTypingProfile.accessToken)
-        .send({activity: postActivity})
-        .end(function(err, res){
-          res.should.have.status(404);
-          done();
-        });
+      postActivity.typingProfile = testActivity.typingProfile;
+      postActivity.activityType = mongoose.Types.ObjectId();
+      chai.request(server)
+      .post('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
+      .send({activity: postActivity})
+      .end(function(err, res){
+        res.should.have.status(404);
+        done();
+      });
     });
 
     //GET Testing
@@ -177,7 +186,7 @@ describe('Activities', function(){
   });
 
   describe('/api/activities/<id>', function(){
-    
+
     //GET Testing
     it('GET should, when it exists, list one activity', function(done){
       chai.request(server)
@@ -241,48 +250,48 @@ describe('Activities', function(){
     });
 
     it('PUT should not update the activity if the typingProfile cannot be found', function(done){
+      chai.request(server)
+      .get('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
+      .end(function(err, res){
         chai.request(server)
-        .get('/api/activities')
+        .put('/api/activities/'+res.body[0]._id)
         .set('authorization', testTypingProfile.accessToken)
-        .end(function(err, res){
-          chai.request(server)
-          .put('/api/activities/'+res.body[0]._id)
-          .set('authorization', testTypingProfile.accessToken)
-          .send({activity: {
-            'character': 'c',
-            'timestamp': 9000,
-            'upOrDown': 'U',
-            'typingProfile': mongoose.Types.ObjectId(),
-            'activityType': res.body[0].activityType
-          }})
-          .end(function(error, response){
-            response.should.have.status(404);
-            done();
-          });
+        .send({activity: {
+          'character': 'c',
+          'timestamp': 9000,
+          'upOrDown': 'U',
+          'typingProfile': mongoose.Types.ObjectId(),
+          'activityType': res.body[0].activityType
+        }})
+        .end(function(error, response){
+          response.should.have.status(404);
+          done();
         });
       });
+    });
 
-      it('PUT should not update the activity if the activityType cannot be found', function(done){
+    it('PUT should not update the activity if the activityType cannot be found', function(done){
+      chai.request(server)
+      .get('/api/activities')
+      .set('authorization', testTypingProfile.accessToken)
+      .end(function(err, res){
         chai.request(server)
-        .get('/api/activities')
+        .put('/api/activities/'+res.body[0]._id)
         .set('authorization', testTypingProfile.accessToken)
-        .end(function(err, res){
-          chai.request(server)
-          .put('/api/activities/'+res.body[0]._id)
-          .set('authorization', testTypingProfile.accessToken)
-          .send({activity: {
-            'character': 'c',
-            'timestamp': 9000,
-            'upOrDown': 'U',
-            'typingProfile': res.body[0].typingProfile,
-            'activityType': mongoose.Types.ObjectId()
-          }})
-          .end(function(error, response){
-            response.should.have.status(404);
-            done();
-          });
+        .send({activity: {
+          'character': 'c',
+          'timestamp': 9000,
+          'upOrDown': 'U',
+          'typingProfile': res.body[0].typingProfile,
+          'activityType': mongoose.Types.ObjectId()
+        }})
+        .end(function(error, response){
+          response.should.have.status(404);
+          done();
         });
       });
+    });
 
     //DELETE Testing
     it('DELETE should delete a single activity', function(done){

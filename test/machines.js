@@ -10,16 +10,16 @@ var User = require('../models/user');
 var should = chai.should();
 chai.use(chaiHttp);
 
-after(function() {
-    //clear out db
-    Machine.remove(function(err){
-      Organization.remove(function(err){
-        User.remove(function(err){
-          mongoose.connection.close();
-          done(); 
-        });
-      });   
-    });
+after(function(done) {
+  //clear out db
+  Machine.remove(function(err){
+    Organization.remove(function(err){
+      User.remove(function(err){
+        mongoose.connection.close();
+        done(); 
+      });
+    });   
+  });
 });
 
 describe('Machines', function(){
@@ -71,10 +71,13 @@ describe('Machines', function(){
   });
 
   afterEach(function(done){
-    Machine.collection.drop();
-    Organization.collection.drop();
-    User.collection.drop();
-    done();
+    Machine.remove(function(err){
+      Organization.remove(function(err){
+        User.remove(function(err){
+          done(); 
+        });
+      });   
+    });
   });
 
   let confirmMachine = (machine, val) => {

@@ -1,18 +1,20 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt-nodejs');
+const jwt = require('jwt-simple');
+const config = require('../config');
 
 const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
   email: {
     type: String,
     unique: true,
     required: true,
     trim: true,
     lowercase: true
-  },
-  name: {
-    type: String,
-    required: true,
-    trim: true
   },
   password: {
     type: String,
@@ -61,6 +63,12 @@ userSchema.methods.comparePassword = function(candidatePassword, callback){
       callback(null, isMatch);
     });
   });
+}
+
+userSchema.methods.getToken = function () {
+  return jwt.encode({
+    sub: this._id, iat: new Date().getTime()
+  }, config.secret);
 }
 
 const User = mongoose.model('User', userSchema);

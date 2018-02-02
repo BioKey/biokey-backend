@@ -2,14 +2,14 @@ var mongoose = require('mongoose');
 
 var organizationSchema = mongoose.Schema({
     name: {
-        type: String, 
-        unique: true,
+        type: String,
         trim: true,
         require: true
     },
     maxUsers: {
         type: Number,
-        require: true
+        require: true,
+        default: 100
     },
     challengeStrategies: [String],
     defaultThreshold: Number

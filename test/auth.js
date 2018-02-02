@@ -4,27 +4,29 @@ const mongoose = require('mongoose');
 
 const server = require('../app');
 const User = require('../models/user');
+const Organization = require('../models/organization')
 
 const should = chai.should();
 chai.use(chaiHttp);
 
 
-after(function() {
+after(function(done) {
   //clear out db
-  User.remove(function(err){
-    mongoose.connection.close();
-    done();    
-  });
+  User.remove(err => {
+    Organization.remove(err => {
+      mongoose.connection.close();
+      done();
+    })
+  })
 });
 
 describe('Auth', function() {
   var testUser = {
     name: 'Batman',
-    email: 'batman@gotham.co',
+    email: 'batman2@gotham.co',
     password: 'test',
     phoneNumber: '555-555-555',
-    organization: mongoose.Types.ObjectId().toString(),
-    isAdmin: true
+    isAdmin: false
   };
 
   describe('/api/auth/register', function() {
@@ -35,7 +37,21 @@ describe('Auth', function() {
       });
     });
 
-    it('POST should register user', function(done) {
+    it('POST should register user without org', function(done) {
+      chai.request(server)
+      .post('/api/auth/register')
+      .send(testUser)
+      .end(function(err, res){
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.have.property('token');
+        done();
+      });
+    });
+
+    it('POST should register user with org', function(done) {
+      testUser.organization = mongoose.Types.ObjectId().toString()
+      testUser.email = 'email2@gmail.com';
       chai.request(server)
       .post('/api/auth/register')
       .send(testUser)
@@ -69,17 +85,17 @@ describe('Auth', function() {
 
   });
 
+
+
   describe('/api/auth/login', function() {
 
-    beforeEach(function(done){
+    before(function(done){
       var newUser = new User(testUser);
-      newUser.save(done);
+      newUser.save(err => done());
     });
 
-    afterEach(function(done){
-      User.remove(function(err){
-        done();
-      });
+    after(function(done){
+      User.remove(err => done());
     });
 
     it('POST should login valid user', function(done) {
@@ -144,7 +160,13 @@ describe('Auth', function() {
 
   });
 
+
+
+
+
   describe('/api/auth/me', function() {
+
+    let newUser;
 
     let confirmUser = (user, val) => {
       user.should.be.a('object');
@@ -164,40 +186,30 @@ describe('Auth', function() {
       user.organization.should.equal(val.organization);
     }
 
-    beforeEach(function(done){
-      var newUser = new User(testUser);
+    before(function(done){
+      newUser = new User(testUser);
       newUser.save(function(err, data) {
         testUser._id = data.id;
         done();
       });
     });
 
-    afterEach(function(done){
+    after(function(done){
       User.remove(function(err){
         done();
       });
     });
 
     it('GET should return user for valid user', function(done) {
-      chai.request(server)
-      .post('/api/auth/login')
-      .send(testUser)
-      .end(function(err, res){
-
-        res.should.have.status(200);
-        res.should.be.json;
-        res.body.should.have.property('token');
-
-        chai.request(server)
+     chai.request(server)
         .get('/api/auth/me')
-        .set('authorization', res.body.token)
+        .set('authorization', newUser.getToken())
         .end(function(err1, res1){
           res1.should.have.status(200);
           res1.should.be.json;
           confirmUser(res1.body, testUser);
           done();
         });
-      });
     });
 
     it('GET should deny unauthenticated user', function(done) {
