@@ -50,25 +50,5 @@ router.post('/login', middleware.requireSignin, Auth.login);
  */
 router.post('/register', Auth.register);
 
-/**
- * @api {get} /api/auth/me Me
- * @apiName Me
- * @apiDescription 
- * End point for user's to get their user information. This endpoint
- * requires user's to be authenticated and to provide their access token
- * in the request header.
- * 
- * @apiGroup Auth
- *
- * @apiUse RequestHeaders
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "authorization": "123456789..."
- *     }
- *
- * @apiUse UserSuccess
- * @apiUse UnauthorizedError
- */
-router.get('/me', middleware.requireAuth, Auth.me);
 
 module.exports = router;

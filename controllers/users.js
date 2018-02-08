@@ -1,5 +1,9 @@
 const User = require('../models/user');
 
+exports.me = function(req, res, next){
+  res.status(200).send(req.user);
+}
+
 // RETURNS ALL THE USERS IN THE DATABASE
 exports.getAll = function (req, res) {
   User.find({}, function (err, users) {

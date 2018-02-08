@@ -4,6 +4,27 @@ const User = require('../controllers/users');
 const middleware = require('../services/middleware');
 
 /**
+ * @api {get} /api/users/me Me
+ * @apiName Me
+ * @apiDescription 
+ * End point for user's to get their user information. This endpoint
+ * requires user's to be authenticated and to provide their access token
+ * in the request header.
+ * 
+ * @apiGroup Users
+ *
+ * @apiUse RequestHeaders
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "123456789..."
+ *     }
+ *
+ * @apiUse UserSuccess
+ * @apiUse UnauthorizedError
+ */
+router.get('/me', middleware.requireAuth, User.me);
+
+/**
  * @api {get} /api/users  ListUsers
  * @apiName ListUsers
  * @apiDescription 

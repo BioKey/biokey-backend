@@ -65,7 +65,3 @@ exports.register = function(req, res, next){
   });
 
 }
-
-exports.me = function(req, res, next){
-  res.status(200).send(req.user);
-}
