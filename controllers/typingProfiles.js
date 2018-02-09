@@ -67,7 +67,11 @@ exports.post = function (req, res) {
 }
 
 exports.update = function (req, res) {
-	let updatedProfile = req.body.typingProfile; 
+	let updatedProfile = req.body.typingProfile;
+	// Assert admin or self made post
+	if(!req.user.isAdmin && req.user._id!=typingProfile.user) {
+		return res.status(401).send(util.norm.errors({message: 'Invalid Permissions'}));
+	} 
 
 	// TODO: Verify changes before updating
 	
@@ -89,8 +93,9 @@ exports.update = function (req, res) {
 }
 
 exports.delete = function (req, res) {
-	TypingProfile.findByIdAndRemove(req.params.id, err => {
-		if (err) return res.status(500).send({errors: [err]});
-		res.sendStatus(200)
+	TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) =>{
+		if (err) return res.status(500).send(util.norm.errors(err));
+		if(!deleted) return res.status(404).send(util.norm.errors({message: 'Record not found'}))
+			res.sendStatus(200);
 	});
 }

@@ -187,19 +187,19 @@ describe('Machines', function(){
       .set('authorization', testToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/machines/'+res.body[0]._id)
+        .put('/api/machines/'+res.body.machines[0]._id)
         .set('authorization', testToken)
         .send({machine: {
           'mac': 'Updated mac',
-          'organization': res.body[0].organization
+          'organization': res.body.machines[0].organization
         }})
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
           confirmMachine(response.body.machine, {
-            _id: res.body[0]._id,
+            _id: res.body.machines[0]._id,
             'mac': 'Updated mac',
-            'organization': res.body[0].organization
+            'organization': res.body.machines[0].organization
           });
           done();
         });
@@ -223,7 +223,7 @@ describe('Machines', function(){
         .set('authorization', testToken)
         .end(function(err, res){
           chai.request(server)
-          .put('/api/machines/'+res.body[0]._id)
+          .put('/api/machines/'+res.body.machines[0]._id)
           .set('authorization', testToken)
           .send({machine: {
             'mac': 'Updated mac',
@@ -244,11 +244,11 @@ describe('Machines', function(){
       .end(function(err, res){
 
         res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.equal(1);
+        res.body.machines.should.be.a('array');
+        res.body.machines.length.should.equal(1);
 
         chai.request(server)
-        .delete('/api/machines/'+res.body[0]._id)
+        .delete('/api/machines/'+res.body.machines[0]._id)
         .set('authorization', testToken)
         .end(function(err2, res2){
 

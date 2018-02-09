@@ -82,8 +82,9 @@ exports.update = function (req, res) {
 }
 
 exports.delete = function (req, res) {
-	Keystroke.findByIdAndRemove(req.params.id, err => {
+	Keystroke.findByIdAndRemove(req.params.id, (err, deleted) =>{
 		if (err) return res.status(500).send(util.norm.errors(err));
-		res.sendStatus(200)
+		if(!deleted) return res.status(404).send(util.norm.errors({message: 'Record not found'}))
+		res.sendStatus(200);
 	});
 }

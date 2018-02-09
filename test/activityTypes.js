@@ -161,19 +161,19 @@ describe('ActivityTypes', function(){
       .set('authorization', testToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/activityTypes/'+res.body[0]._id)
+        .put('/api/activityTypes/'+res.body.activityTypes[0]._id)
         .set('authorization', testToken)
         .send({activityType: {
           'description': 'Updated lockout',
-          'importance': res.body[0].importance
+          'importance': res.body.activityTypes[0].importance
         }})
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
-          confirmActivityType(response.body.updated, {
-            _id: res.body[0]._id,
+          confirmActivityType(response.body.activityType, {
+            _id: res.body.activityTypes[0]._id,
             'description': 'Updated lockout',
-            'importance': res.body[0].importance
+            'importance': res.body.activityTypes[0].importance
           });
           done();
         });
@@ -199,11 +199,11 @@ describe('ActivityTypes', function(){
       .end(function(err, res){
 
         res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.equal(1);
+        res.body.activityTypes.should.be.a('array');
+        res.body.activityTypes.length.should.equal(1);
 
         chai.request(server)
-        .delete('/api/activityTypes/'+res.body[0]._id)
+        .delete('/api/activityTypes/'+res.body.activityTypes[0]._id)
         .set('authorization', testToken)
         .end(function(err2, res2){
 
@@ -215,8 +215,8 @@ describe('ActivityTypes', function(){
           .end(function(err3, res3){
 
             res3.should.have.status(200);
-            res3.body.should.be.a('array');
-            res3.body.length.should.equal(0);
+            res3.body.activityTypes.should.be.a('array');
+            res3.body.activityTypes.length.should.equal(0);
 
             done();
           });

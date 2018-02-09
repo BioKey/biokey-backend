@@ -39,8 +39,9 @@ exports.update = function (req, res) {
 }
 
 exports.delete = function (req, res) {
-	Organization.findByIdAndRemove(req.params.id, (err) => {
-		if (err) return res.status(500).send(util.norm.errors(err));
-		res.sendStatus(200);
-	});
+	Organization.findByIdAndRemove(req.params.id, (err, deleted) =>{
+    if (err) return res.status(500).send(util.norm.errors(err));
+    if(!deleted) return res.status(404).send(util.norm.errors({message: 'Record not found'}))
+    res.sendStatus(200);
+  });
 }

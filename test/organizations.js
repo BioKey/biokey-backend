@@ -166,7 +166,7 @@ describe('Organizations', function(){
       .get('/api/organizations')
       .set('authorization', testToken)
       .end(function(err, res){
-        let orgToUpdate = res.body[0];
+        let orgToUpdate = res.body.organizations[0];
         chai.request(server)
         .put('/api/organizations/'+orgToUpdate._id)
         .set('authorization', testToken)
@@ -177,7 +177,7 @@ describe('Organizations', function(){
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
-          confirmOrganization(response.body.updated, {
+          confirmOrganization(response.body.organization, {
             _id: orgToUpdate._id,
             name: 'BK Inc.',
             maxUsers: orgToUpdate.maxUsers
@@ -206,11 +206,11 @@ describe('Organizations', function(){
       .end(function(err, res){
 
         res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.equal(1);
+        res.body.organizations.should.be.a('array');
+        res.body.organizations.length.should.equal(1);
 
         chai.request(server)
-        .delete('/api/organizations/'+res.body[0]._id)
+        .delete('/api/organizations/'+res.body.organizations[0]._id)
         .set('authorization', testToken)
         .end(function(err2, res2){
 
@@ -222,8 +222,8 @@ describe('Organizations', function(){
           .end(function(err3, res3){
 
             res3.should.have.status(200);
-            res3.body.should.be.a('array');
-            res3.body.length.should.equal(0);
+            res3.body.organizations.should.be.a('array');
+            res3.body.organizations.length.should.equal(0);
 
             done();
           });

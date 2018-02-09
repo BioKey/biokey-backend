@@ -218,23 +218,23 @@ describe('Keystrokes', function(){
       .set('authorization', testUser.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/keystrokes/'+res.body[0]._id)
+        .put('/api/keystrokes/'+res.body.keystrokes[0]._id)
         .set('authorization', testUser.accessToken)
         .send({keystroke: {
           'character': 'c',
           'timestamp': 9000,
           'keyDown': false,
-          'typingProfile': res.body[0].typingProfile
+          'typingProfile': res.body.keystrokes[0].typingProfile
         }})
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
-          confirmKeystroke(response.body.updated, {
-            _id: res.body[0]._id,
+          confirmKeystroke(response.body.keystroke, {
+            _id: res.body.keystrokes[0]._id,
             'character': 'c',
             'timestamp': 9000,
             'keyDown': false,
-            'typingProfile': res.body[0].typingProfile
+            'typingProfile': res.body.keystrokes[0].typingProfile
           });
           done();
         });
@@ -258,7 +258,7 @@ describe('Keystrokes', function(){
       .set('authorization', testUser.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/keystrokes/'+res.body[0]._id)
+        .put('/api/keystrokes/'+res.body.keystrokes[0]._id)
         .set('authorization', testUser.accessToken)
         .send({keystroke: {
           'character': 'c',
@@ -279,7 +279,7 @@ describe('Keystrokes', function(){
       .set('authorization', testUser.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/keystrokes/'+res.body[0]._id)
+        .put('/api/keystrokes/'+res.body.keystrokes[0]._id)
         .set('authorization', testUser.accessToken+"a")
         .send({})
         .end(function(error, response){
@@ -297,11 +297,11 @@ describe('Keystrokes', function(){
       .end(function(err, res){
 
         res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.equal(1);
+        res.body.keystrokes.should.be.a('array');
+        res.body.keystrokes.length.should.equal(1);
 
         chai.request(server)
-        .delete('/api/keystrokes/'+res.body[0]._id)
+        .delete('/api/keystrokes/'+res.body.keystrokes[0]._id)
         .set('authorization', testUser.accessToken)
         .end(function(err2, res2){
 
@@ -313,8 +313,8 @@ describe('Keystrokes', function(){
           .end(function(err3, res3){
 
             res3.should.have.status(200);
-            res3.body.should.be.a('array');
-            res3.body.length.should.equal(0);
+            res3.body.keystrokes.should.be.a('array');
+            res3.body.keystrokes.length.should.equal(0);
 
             done();
           });

@@ -216,22 +216,23 @@ describe('Activities', function(){
       .get('/api/activities')
       .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
+        let selectedActivity = res.body.activities[0];
         chai.request(server)
-        .put('/api/activities/'+res.body[0]._id)
+        .put('/api/activities/'+selectedActivity._id)
         .set('authorization', testTypingProfile.accessToken)
         .send({activity: {
           'timestamp': 9000,
-          'typingProfile': res.body[0].typingProfile,
-          'activityType': res.body[0].activityType
+          'typingProfile': selectedActivity.typingProfile,
+          'activityType': selectedActivity.activityType
         }})
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
           confirmActivity(response.body.activity, {
-            _id: res.body[0]._id,
+            _id: res.body.activities[0]._id,
             'timestamp': 9000,
-            'typingProfile': res.body[0].typingProfile,
-            'activityType': res.body[0].activityType
+            'typingProfile': selectedActivity.typingProfile,
+            'activityType': selectedActivity.activityType
           });
           done();
         });
@@ -255,14 +256,14 @@ describe('Activities', function(){
       .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/activities/'+res.body[0]._id)
+        .put('/api/activities/'+res.body.activities[0]._id)
         .set('authorization', testTypingProfile.accessToken)
         .send({activity: {
           'character': 'c',
           'timestamp': 9000,
           'upOrDown': 'U',
           'typingProfile': mongoose.Types.ObjectId(),
-          'activityType': res.body[0].activityType
+          'activityType': res.body.activities[0].activityType
         }})
         .end(function(error, response){
           response.should.have.status(404);
@@ -277,13 +278,13 @@ describe('Activities', function(){
       .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/activities/'+res.body[0]._id)
+        .put('/api/activities/'+res.body.activities[0]._id)
         .set('authorization', testTypingProfile.accessToken)
         .send({activity: {
           'character': 'c',
           'timestamp': 9000,
           'upOrDown': 'U',
-          'typingProfile': res.body[0].typingProfile,
+          'typingProfile': res.body.activities[0].typingProfile,
           'activityType': mongoose.Types.ObjectId()
         }})
         .end(function(error, response){
@@ -301,11 +302,11 @@ describe('Activities', function(){
       .end(function(err, res){
 
         res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.equal(1);
+        res.body.activities.should.be.a('array');
+        res.body.activities.length.should.equal(1);
 
         chai.request(server)
-        .delete('/api/activities/'+res.body[0]._id)
+        .delete('/api/activities/'+res.body.activities[0]._id)
         .set('authorization', testTypingProfile.accessToken)
         .end(function(err2, res2){
 
@@ -317,8 +318,8 @@ describe('Activities', function(){
           .end(function(err3, res3){
 
             res3.should.have.status(200);
-            res3.body.should.be.a('array');
-            res3.body.length.should.equal(0);
+            res3.body.activities.should.be.a('array');
+            res3.body.activities.length.should.equal(0);
 
             done();
           });

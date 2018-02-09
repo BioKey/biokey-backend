@@ -28,8 +28,7 @@ after(function(done) {
 describe('TypingProfiles', function(){
 
   var testTypingProfile = {
-    authStatus: false,
-    lockStatus: false,
+    isLocked: false,
     tensorFlowModel: 'tfmodel'
   };
 
@@ -109,14 +108,12 @@ describe('TypingProfiles', function(){
   let confirmTypingProfile = (typingProfile, val) => {
     typingProfile.should.be.a('object');
     typingProfile.should.have.property('_id');
-    typingProfile.should.have.property('authStatus');
-    typingProfile.should.have.property('lockStatus');
+    typingProfile.should.have.property('isLocked');
     typingProfile.should.have.property('tensorFlowModel');
     typingProfile.should.have.property('machine');
     typingProfile.should.have.property('user');
     typingProfile._id.should.equal(val._id);
-    typingProfile.authStatus.should.equal(val.authStatus);
-    typingProfile.lockStatus.should.equal(val.lockStatus);
+    typingProfile.isLocked.should.equal(val.isLocked);
     typingProfile.tensorFlowModel.should.equal(val.tensorFlowModel);
     typingProfile.machine.should.equal(val.machine);
     typingProfile.user.should.equal(val.user);
@@ -125,9 +122,7 @@ describe('TypingProfiles', function(){
   describe('/api/typingProfiles', function(){
 
     let postTypingProfile = {
-      authStatus: true,
-      lockStatus: true,
-      accessToken: 'anothertoken',
+      isLocked: true,
       tensorFlowModel: 'anothertfmodel'
     };
 
@@ -231,28 +226,24 @@ describe('TypingProfiles', function(){
       .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/typingProfiles/'+res.body[0]._id)
+        .put('/api/typingProfiles/'+res.body.typingProfiles[0]._id)
         .set('authorization', testTypingProfile.accessToken)
         .send({typingProfile: {
-          authStatus: true,
-          lockStatus: true,
-          accessToken: 'anothertoken',
+          isLocked: true,
           tensorFlowModel: 'anothertfmodel',
-          'user': res.body[0].user,
-          'machine': res.body[0].machine
+          'user': res.body.typingProfiles[0].user,
+          'machine': res.body.typingProfiles[0].machine
         }})
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
-          confirmTypingProfile(response.body.updated, {
-            _id: res.body[0]._id,
-            authStatus: true,
-            lockStatus: true,
-            accessToken: 'anothertoken',
+          confirmTypingProfile(response.body.typingProfile, {
+            _id: res.body.typingProfiles[0]._id,
+            isLocked: true,
             tensorFlowModel: 'anothertfmodel',
             'timestamp': 9000,
-            'user': res.body[0].user,
-            'machine': res.body[0].machine
+            'user': res.body.typingProfiles[0].user,
+            'machine': res.body.typingProfiles[0].machine
           });
           done();
         });
@@ -263,7 +254,7 @@ describe('TypingProfiles', function(){
       chai.request(server)
       .put('/api/typingProfiles/' + mongoose.Types.ObjectId())
       .set('authorization', testTypingProfile.accessToken)
-      .send({})
+      .send({user: mongoose.Types.ObjectId(), machine: mongoose.Types.ObjectId()})
       .end(function(err, res){
         res.should.have.status(404);
         done();
@@ -276,14 +267,14 @@ describe('TypingProfiles', function(){
       .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/typingProfiles/'+res.body[0]._id)
+        .put('/api/typingProfiles/'+res.body.typingProfiles[0]._id)
         .set('authorization', testTypingProfile.accessToken)
         .send({typingProfile: {
           'character': 'c',
           'timestamp': 9000,
           'upOrDown': 'U',
           'user': mongoose.Types.ObjectId(),
-          'machine': res.body[0].machine
+          'machine': res.body.typingProfiles[0].machine
         }})
         .end(function(error, response){
           response.should.have.status(404);
@@ -298,13 +289,13 @@ describe('TypingProfiles', function(){
       .set('authorization', testTypingProfile.accessToken)
       .end(function(err, res){
         chai.request(server)
-        .put('/api/typingProfiles/'+res.body[0]._id)
+        .put('/api/typingProfiles/'+res.body.typingProfiles[0]._id)
         .set('authorization', testTypingProfile.accessToken)
         .send({typingProfile: {
           'character': 'c',
           'timestamp': 9000,
           'upOrDown': 'U',
-          'user': res.body[0].user,
+          'user': res.body.typingProfiles[0].user,
           'machine': mongoose.Types.ObjectId()
         }})
         .end(function(error, response){
@@ -322,11 +313,11 @@ describe('TypingProfiles', function(){
       .end(function(err, res){
 
         res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.equal(1);
+        res.body.typingProfiles.should.be.a('array');
+        res.body.typingProfiles.length.should.equal(1);
 
         chai.request(server)
-        .delete('/api/typingProfiles/'+res.body[0]._id)
+        .delete('/api/typingProfiles/'+res.body.typingProfiles[0]._id)
         .set('authorization', testTypingProfile.accessToken)
         .end(function(err2, res2){
 
@@ -338,8 +329,8 @@ describe('TypingProfiles', function(){
           .end(function(err3, res3){
 
             res3.should.have.status(200);
-            res3.body.should.be.a('array');
-            res3.body.length.should.equal(0);
+            res3.body.typingProfiles.should.be.a('array');
+            res3.body.typingProfiles.length.should.equal(0);
 
             done();
           });

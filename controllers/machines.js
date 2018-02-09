@@ -56,8 +56,9 @@ exports.update = function (req, res) {
 }
 
 exports.delete = function (req, res) {
-	Machine.findByIdAndRemove(req.params.id, err =>{
+	Machine.findByIdAndRemove(req.params.id, (err, deleted) =>{
 		if (err) return res.status(500).send(util.norm.errors(err));
+		if(!deleted) return res.status(404).send(util.norm.errors({message: 'Record not found'}))
 		res.sendStatus(200);
 	});
 }
