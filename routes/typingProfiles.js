@@ -53,6 +53,21 @@ router.get('/', middleware.requireAdmin, TypingProfile.getAll);
  */
 router.get('/:id', middleware.requireAuth, TypingProfile.get)
 
+
+/**
+ * @api {post} /api/typingProfiles/:machine_mac/heartbeat Send HeartBeat
+ * @apiName PostHeartbeat
+ * @apiDescription
+ * Recieves a hearbeat request from the client to verify client is online and secure.
+ * 
+ * @apiGroup TypingProfiles
+ * 
+ * @apiUse RequestHeaders
+ * @apiUse UnauthorizedError
+ * 
+ */
+router.post('/:machine_mac/heartbeat',middleware.requireAuth,TypingProfile.heartbeat)
+
 /**
  * @api {get} /api/typingProfiles/machine/:machine_mac  GetMachineTypingProfile
  * @apiName GetMachineTypingProfile
