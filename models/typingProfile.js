@@ -11,11 +11,6 @@ var typingProfileSchema = mongoose.Schema({
         ref: ('Machine'),
         require: true
     },
-    authStatus: {
-        type: Boolean,
-        require: true,
-        default: false
-    },
     lockStatus: {
         type: Boolean,
         require: true,
