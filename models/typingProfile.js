@@ -11,7 +11,7 @@ var typingProfileSchema = mongoose.Schema({
         ref: ('Machine'),
         require: true
     },
-    lockStatus: {
+    isLocked: {
         type: Boolean,
         require: true,
         default: false
@@ -22,7 +22,9 @@ var typingProfileSchema = mongoose.Schema({
     },
     endpoint: {
         type: String
-    }
+    },
+    challengeStrategies: [String],
+    threshold: [Number]
 });
 
 typingProfileSchema.index({user: 1, machine: 1}, {unique: true});   // ASSUMPTION: user-machine pairs should be unique
