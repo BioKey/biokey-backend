@@ -13,6 +13,24 @@
  */
 
 /**
+ * @apiDefine UserRequestBody
+ * @apiParam {String} name The user's new name
+ * @apiParam {String} email The user's new email
+ * @apiParam {Boolean} isAdmin The user's new isAdmin state
+ * @apiParam {String} phoneNumber The user's new phone number
+ * @apiParam {Organization} organization The user's new organization
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       user: {
+ *         "email": "test@example.com",
+ *         "name": "Hosh Weinstein",
+ *         "organization": "5a4c019629015e0c8b9c1737"
+ *         "isAdmin": false
+ *       }
+ *     }
+ */
+
+/**
  * @apiDefine UserSuccess
  * @apiSuccess {String} _id  UUID of the user for the system
  * @apiSuccess {String} email User's email
@@ -24,12 +42,14 @@
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *       "_id": "5a2c87d5f8de982a759cedf0",
- *       "email": "test@example.com",
- *       "name": "Hosh Weinstein",
- *       "organization": "5a4c019629015e0c8b9c1737"
- *       "__v": 0,
- *       "isAdmin": false
+ *       user: {
+ *         "_id": "5a2c87d5f8de982a759cedf0",
+ *         "email": "test@example.com",
+ *         "name": "Hosh Weinstein",
+ *         "organization": "5a4c019629015e0c8b9c1737"
+ *         "__v": 0,
+ *         "isAdmin": false
+ *       }
  *     }
  */
 

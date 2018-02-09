@@ -3,9 +3,14 @@ var User = require('../models/user');
 var Machine = require('../models/machine');
 
 exports.getAll = function (req, res) {
-    TypingProfile.find((err, typingProfiles) => {
+    let query = {};
+    // Allow the client to query the list
+    if(req.query.user) query.user = req.query.user
+    if(req.query.machine) query.machine = req.query.machine
+
+    TypingProfile.find(query, (err, typingProfiles) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json(typingProfiles);
+        return res.json({typingProfiles});
     });
 }
 

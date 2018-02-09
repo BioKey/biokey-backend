@@ -3,7 +3,7 @@ var Organization = require('../models/organization');
 exports.getAll = function (req, res) {
     Organization.find((err, organizations) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json(organizations);
+        return res.json({organizations});
     });
 }
 
@@ -11,7 +11,7 @@ exports.get = function (req, res) {
     Organization.findById(req.params.organization_id, (err, organization) => {
         if (err) return res.status(500).send({errors: [err]});
         if (!organization) return res.status(404).send({errors: [{errmsg: 'Organization not found'}]});
-        return res.json({organization: organization});
+        return res.json({organization});
     });
 }
 
@@ -19,7 +19,7 @@ exports.post = function (req, res) {
     var organization = new Organization(req.body.organization);
     organization.save(err => {
         if(err) return res.status(500).send({errors: [err]});
-        return res.json({organization: organization});
+        return res.json({ organization});
     });
 }
 

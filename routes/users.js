@@ -75,29 +75,29 @@ router.get('/me', middleware.requireAuth, User.me);
  router.get('/:id', middleware.requireAuth, User.get);
 
  /**
+ * @api {post} /api/users  PostUser
+ * @apiName PostUser
+ * @apiDescription 
+ * Create a user
+ * 
+ * @apiGroup Users
+ * @apiUse RequestHeaders
+ * @apiUse UserRequestBody
+ *
+ * @apiUse UserSuccess
+ * @apiUse UserError
+ */
+router.post('/', middleware.requireAdmin, User.post);
+
+ /**
  * @api {put} /api/users/:id  UpdateUser
  * @apiName UpdateUser
  * @apiDescription 
  * Update a user excluding password. Returns the updated user.
  * 
  * @apiGroup Users
- *
  * @apiUse RequestHeaders
- * @apiParam {String} name The user's new name
- * @apiParam {String} email The user's new email
- * @apiParam {Boolean} isAdmin The user's new isAdmin state
- * @apiParam {String} phoneNumber The user's new phone number
- * @apiParam {String} endpoint The user's new endpoint
- * @apiParam {Organization} organization The user's new organization
- * @apiParamExample {json} Request-Example:
- *     {
- *       "name": "Hosh Weinstein",
- *       "email": "test@example.com",
- *       "isadmin": false,
- *       "phoneNumber": "555-555-5555"
- *       "endpoint": "example.com/api/6b3b015129015e0a8b9c1649"
- *       "organization": "5a4c019629015e0c8b9c1737"
- *     }
+ * @apiUse UserRequestBody
  *
  * @apiUse UserSuccess
  * @apiUse UserError

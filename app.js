@@ -18,13 +18,9 @@ mongoose.connect(config.mongoURI[app.get('env')], { useMongoClient: true })
 });
 
 // App setup
-if(app.get('env') !== 'test') app.use(morgan('combined'));
+if(app.get('env') !== 'test') app.use(morgan('dev'));
 app.use(cors());
 app.use(bodyParser.json({ type: '*/*' }));
-
-app.get('/', function(req, res) {
-  res.send('Hello world');
-});
 
 // Routes setup
 var auth = require('./routes/auth');

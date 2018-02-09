@@ -4,7 +4,7 @@ var Organization = require('../models/organization');
 exports.getAll = function (req, res) {
     Machine.find((err, machines) => {
         if (err) return res.status(500).send({errors: [err]});
-        return res.json(machines);
+        return res.json({machines});
     });
 }
 
@@ -12,12 +12,13 @@ exports.get = function (req, res) {
     Machine.findById(req.params.machine_id, (err, machine) => {
         if (err) return res.status(500).send({errors: [err]});
         if (!machine) return res.status(404).send({errors: [{errmsg: 'Machine not found'}]});
-        return res.json({machine: machine});
+        return res.json({machine});
     });
 }
 
 exports.post = function (req, res) {
     var machine = new Machine(req.body.machine);
+    if (!machine.organization) machine.organization = req.user.organization;
     //Try to find the organization
     Organization.findById(machine.organization, (err, organization) => {
         if (err) return res.status(500).send({errors: [err]});
@@ -25,7 +26,7 @@ exports.post = function (req, res) {
         //Save machine
         machine.save(err => {
             if(err) return res.status(500).send({errors: [err]});
-            return res.json({machine: machine});
+            return res.json({machine});
         });
     });
 }
@@ -45,7 +46,7 @@ exports.update = function (req, res) {
             //Save machine
             machine.save(err => {
                 if (err) return res.status(500).send({errors: [err]});
-                return res.json({updated: machine});
+                return res.json({machine});
             });
         });
     });
