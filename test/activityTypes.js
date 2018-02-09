@@ -122,8 +122,8 @@ describe('ActivityTypes', function(){
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
-        confirmActivityType(res.body[0], testActivityType);
+        res.body.activityTypes.should.be.a('array');
+        confirmActivityType(res.body.activityTypes[0], testActivityType);
         done();
       });
     });

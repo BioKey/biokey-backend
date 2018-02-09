@@ -179,8 +179,8 @@ describe('Keystrokes', function(){
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
-        confirmKeystroke(res.body[0], testKeystroke);
+        res.body.keystrokes.should.be.a('array');
+        confirmKeystroke(res.body.keystrokes[0], testKeystroke);
         done();
       });
     });

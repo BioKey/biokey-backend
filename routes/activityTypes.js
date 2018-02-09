@@ -43,7 +43,7 @@ router.get('/', middleware.requireAuth, ActivityType.getAll);
  * @apiUse ActivityTypeSuccess
  * @apiUse UnauthorizedError
  */
-router.get('/:activityType_id', middleware.requireAuth, ActivityType.get)
+router.get('/:id', middleware.requireAuth, ActivityType.get)
 
 /**
  * @api {post} /api/activityTypes  PostActivityType
@@ -87,7 +87,7 @@ router.post('/', middleware.requireAdmin, ActivityType.post);
  * @apiUse ActivityTypeSuccess
  * @apiUse AdminError
  */
-router.put('/:activityType_id', middleware.requireAdmin, ActivityType.update);
+router.put('/:id', middleware.requireAdmin, ActivityType.update);
 
 /**
  * @api {delete} /api/activityTypes/:id  DeleteActivityType
@@ -98,7 +98,7 @@ router.put('/:activityType_id', middleware.requireAdmin, ActivityType.update);
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
-router.delete('/:activityType_id', middleware.requireAdmin, ActivityType.delete);
+router.delete('/:id', middleware.requireAdmin, ActivityType.delete);
 
 router.route('/')
 

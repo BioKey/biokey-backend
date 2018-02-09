@@ -48,7 +48,7 @@ router.get('/', middleware.requireAdmin, Organization.getAll);
  * @apiUse OrganizationSuccess
  * @apiUse AdminError
  */
-router.get('/:organization_id', middleware.requireAdmin, Organization.get)
+router.get('/:id', middleware.requireAdmin, Organization.get)
 
 /**
  * @api {post} /api/organizations  PostOrganization
@@ -100,7 +100,7 @@ router.post('/', middleware.requireAdmin, Organization.post);
  * @apiUse OrganizationSuccess
  * @apiUse AdminError
  */
-router.put('/:organization_id', middleware.requireAdmin, Organization.update);
+router.put('/:id', middleware.requireAdmin, Organization.update);
 
 /**
  * @api {delete} /api/organizations/:id  DeleteOrganization
@@ -111,6 +111,6 @@ router.put('/:organization_id', middleware.requireAdmin, Organization.update);
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
-router.delete('/:organization_id', middleware.requireAdmin, Organization.delete);
+router.delete('/:id', middleware.requireAdmin, Organization.delete);
 
 module.exports = router;

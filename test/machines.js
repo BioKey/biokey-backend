@@ -148,8 +148,8 @@ describe('Machines', function(){
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
-        confirmMachine(res.body[0], testMachine);
+        res.body.machines.should.be.a('array');
+        confirmMachine(res.body.machines[0], testMachine);
         done();
       });
     });
@@ -196,7 +196,7 @@ describe('Machines', function(){
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
-          confirmMachine(response.body.updated, {
+          confirmMachine(response.body.machine, {
             _id: res.body[0]._id,
             'mac': 'Updated mac',
             'organization': res.body[0].organization
@@ -260,8 +260,6 @@ describe('Machines', function(){
           .end(function(err3, res3){
 
             res3.should.have.status(200);
-            res3.body.should.be.a('array');
-            res3.body.length.should.equal(0);
 
             done();
           });

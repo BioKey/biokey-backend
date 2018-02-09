@@ -43,7 +43,7 @@ router.get('/', middleware.requireAdmin, Machine.getAll);
  * @apiUse MachineSuccess
  * @apiUse AdminError
  */
-router.get('/:machine_id', middleware.requireAdmin, Machine.get)
+router.get('/:id', middleware.requireAdmin, Machine.get)
 
 /**
  * @api {post} /api/machines  PostMachine
@@ -87,7 +87,7 @@ router.post('/', middleware.requireAdmin, Machine.post);
  * @apiUse MachineSuccess
  * @apiUse AdminError
  */
-router.put('/:machine_id', middleware.requireAdmin, Machine.update);
+router.put('/:id', middleware.requireAdmin, Machine.update);
 
 /**
  * @api {delete} /api/machines/:id  DeleteMachine
@@ -98,6 +98,6 @@ router.put('/:machine_id', middleware.requireAdmin, Machine.update);
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
-router.delete('/:machine_id', middleware.requireAdmin, Machine.delete);
+router.delete('/:id', middleware.requireAdmin, Machine.delete);
 
 module.exports = router;

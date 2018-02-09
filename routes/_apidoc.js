@@ -1,10 +1,13 @@
 /**
  * @apiDefine UnauthorizedError
+ * 
  * @apiError (Error 401) Unauthorized Only authenticated users can access.
  */
 /**
  * @apiDefine GrantTokenSuccess
+ * 
  * @apiSuccess {String} token  A JSON web token to be used on following requests.
+ * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
@@ -14,17 +17,23 @@
 
 /**
  * @apiDefine UserRequestBody
- * @apiParam {String} name The user's new name
- * @apiParam {String} email The user's new email
- * @apiParam {Boolean} isAdmin The user's new isAdmin state
- * @apiParam {String} phoneNumber The user's new phone number
- * @apiParam {Organization} organization The user's new organization
+ * 
+ * @apiParam {Object} user The user object being created/updated.
+ * @apiParam {String} user.name The user's new name
+ * @apiParam {String} user.email The user's new email
+
+ * @apiParam {Organization} user.organization The user's new organization
+ * @apiParam {String} user.password (Optional) The password to set for the user. Optional on put.
+ * @apiParam {Boolean} user.isAdmin The user's new isAdmin state
+ * 
  * @apiParamExample {json} Request-Example:
  *     {
  *       user: {
- *         "email": "test@example.com",
  *         "name": "Hosh Weinstein",
- *         "organization": "5a4c019629015e0c8b9c1737"
+ *         "email": "test@example.com",
+ *         "phoneNumber": "519-493-4342",
+ *         "organization": "5a4c019629015e0c8b9c1737",
+ *         "password": "test123",
  *         "isAdmin": false
  *       }
  *     }
@@ -32,22 +41,24 @@
 
 /**
  * @apiDefine UserSuccess
- * @apiSuccess {String} _id  UUID of the user for the system
- * @apiSuccess {String} email User's email
- * @apiSuccess {String} name User's name
- * @apiSuccess {Organization} organization User's organization
- * @apiSuccess {Number} __v Version code of the schema being used
- * @apiSuccess {Boolean} isAdmin  Whether user is a system administrator
+ *
+ * @apiSuccess {Object} user The user that was referenced
+ * @apiSuccess {String} user._id  UUID of the user for the system
+ * @apiSuccess {String} user.name User's name
+ * @apiSuccess {String} user.email User's email
+ * @apiSuccess {String} user.phoneNumber The user's new phone number
+ * @apiSuccess {Organization} user.organization User's organization
+ * @apiSuccess {Boolean} user.isAdmin  Whether user is a system administrator
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
  *       user: {
  *         "_id": "5a2c87d5f8de982a759cedf0",
- *         "email": "test@example.com",
  *         "name": "Hosh Weinstein",
+ *         "email": "test@example.com",
+ *         "phoneNumber": "519-493-4342",
  *         "organization": "5a4c019629015e0c8b9c1737"
- *         "__v": 0,
  *         "isAdmin": false
  *       }
  *     }

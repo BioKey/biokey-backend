@@ -14,15 +14,11 @@ const middleware = require('../services/middleware');
  * @apiGroup Users
  *
  * @apiUse RequestHeaders
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "authorization": "123456789..."
- *     }
  *
  * @apiUse UserSuccess
  * @apiUse UnauthorizedError
  */
-router.get('/me', middleware.requireAuth, User.me);
+ router.get('/me', middleware.requireAuth, User.me);
 
 /**
  * @api {get} /api/users  ListUsers
@@ -38,23 +34,22 @@ router.get('/me', middleware.requireAuth, User.me);
  * @apiSuccess {String} users.email User's email
  * @apiSuccess {String} users.name User's name
  * @apiSuccess {String} users.phoneNumber User's phone number
- * @apiSuccess {String} users.endpoint User's endpoint for updating the client
  * @apiSuccess {Organization} users.organization User's organization
- * @apiSuccess {Number} users.__v Version code of the schema being used
  * @apiSuccess {Boolean} users.isAdmin  Whether user is a system administrator
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
- *     [
+ *     { 
+ *       users: [
  *          {
  *            "_id": "5a2c87d5f8de982a759cedf0",
  *            "email": "test@example.com",
  *            "name": "Hosh Weinstein",
  *            "organization": "5a4c019629015e0c8b9c1737"
- *            "__v": 0,
  *            "isAdmin": false
  *          }
- *     ]
+ *       ]
+ *     }
  * 
  * @apiUse AdminError
  */
@@ -78,7 +73,7 @@ router.get('/me', middleware.requireAuth, User.me);
  * @api {post} /api/users  PostUser
  * @apiName PostUser
  * @apiDescription 
- * Create a user
+ * Creates a user and returns the newly created user.
  * 
  * @apiGroup Users
  * @apiUse RequestHeaders
@@ -87,13 +82,13 @@ router.get('/me', middleware.requireAuth, User.me);
  * @apiUse UserSuccess
  * @apiUse UserError
  */
-router.post('/', middleware.requireAdmin, User.post);
+ router.post('/', middleware.requireAdmin, User.post);
 
  /**
  * @api {put} /api/users/:id  UpdateUser
  * @apiName UpdateUser
  * @apiDescription 
- * Update a user excluding password. Returns the updated user.
+ * Update a user with optional password update. Returns the updated user. Include "password" in body to change password.
  * 
  * @apiGroup Users
  * @apiUse RequestHeaders

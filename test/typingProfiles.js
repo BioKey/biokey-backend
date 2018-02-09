@@ -192,8 +192,8 @@ describe('TypingProfiles', function(){
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
-        confirmTypingProfile(res.body[0], testTypingProfile);
+        res.body.typingProfiles.should.be.a('array');
+        confirmTypingProfile(res.body.typingProfiles[0], testTypingProfile);
         done();
       });
     });

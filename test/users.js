@@ -87,8 +87,8 @@ describe('Users', function() {
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
-        confirmUser(res.body[0], testUser);
+        res.body.users.should.be.a('array');
+        confirmUser(res.body.users[0], testUser);
         done();
       });
     });
@@ -103,7 +103,7 @@ describe('Users', function() {
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        confirmUser(res.body, testUser);
+        confirmUser(res.body.user, testUser);
         done();
       });
     });
@@ -123,20 +123,21 @@ describe('Users', function() {
       .get('/api/users')
       .set('authorization', testToken)
       .end(function(err, res){
+        let userToUpdate = res.body.users[0];
         chai.request(server)
-        .put('/api/users/'+res.body[0]._id)
+        .put('/api/users/'+userToUpdate._id)
         .set('authorization', testToken)
-        .send({'name': 'Superman'})
+        .send({user: {'name': 'Superman'}})
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
-          confirmUser(response.body, {
-            _id: res.body[0]._id,
+          confirmUser(response.body.user, {
+            _id: userToUpdate._id,
             name: 'Superman',
-            email: res.body[0].email,
-            isAdmin: res.body[0].isAdmin,
-            phoneNumber: res.body[0].phoneNumber,
-            organization: res.body[0].organization
+            email: userToUpdate.email,
+            isAdmin: userToUpdate.isAdmin,
+            phoneNumber: userToUpdate.phoneNumber,
+            organization: userToUpdate.organization
           });
           done();
         });
@@ -162,7 +163,7 @@ describe('Users', function() {
     });
   });
 
-  describe('/api/auth/me', function() {
+  describe('/api/users/me', function() {
 
     let newUser;
 
@@ -205,7 +206,7 @@ describe('Users', function() {
         .end(function(err1, res1){
           res1.should.have.status(200);
           res1.should.be.json;
-          confirmUser(res1.body, testUser);
+          confirmUser(res1.body.user, testUser);
           done();
         });
     });

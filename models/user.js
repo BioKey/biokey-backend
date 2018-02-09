@@ -52,10 +52,8 @@ userSchema.pre('save', function(next){
 });
 
 userSchema.pre('findOneAndUpdate', function(next) {
-  const user = this.getUpdate();
-  if(user.password) {
-    console.log('changed password')
-
+  let user = this.getUpdate();
+  if(user && user.password) {
     bcrypt.genSalt(10, function(err, salt){
       if(err) { return next(err); }
 

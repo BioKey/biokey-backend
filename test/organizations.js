@@ -74,13 +74,9 @@ describe('Organizations', function(){
     organization.should.have.property('_id');
     organization.should.have.property('name');
     organization.should.have.property('maxUsers');
-    organization.should.have.property('challengeStrategies');
-    organization.should.have.property('defaultThreshold');
     organization._id.should.equal(val._id);
     organization.name.should.equal(val.name);
     organization.maxUsers.should.equal(val.maxUsers);
-    organization.challengeStrategies.should.deep.equal(val.challengeStrategies);
-    organization.defaultThreshold.should.equal(val.defaultThreshold);
   };
 
   describe('/api/organizations', function(){
@@ -100,8 +96,8 @@ describe('Organizations', function(){
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
-        confirmOrganization(res.body[0], testOrganization);
+        res.body.organizations.should.be.a('array');
+        confirmOrganization(res.body.organizations[0], testOrganization);
         done();
       });
     });
@@ -170,24 +166,21 @@ describe('Organizations', function(){
       .get('/api/organizations')
       .set('authorization', testToken)
       .end(function(err, res){
+        let orgToUpdate = res.body[0];
         chai.request(server)
-        .put('/api/organizations/'+res.body[0]._id)
+        .put('/api/organizations/'+orgToUpdate._id)
         .set('authorization', testToken)
         .send({organization: {
           'name': 'BK Inc.',
-          maxUsers: res.body[0].maxUsers,
-          challengeStrategies: res.body[0].challengeStrategies,
-          defaultThreshold: res.body[0].defaultThreshold
+          maxUsers: orgToUpdate.maxUsers
         }})
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
           confirmOrganization(response.body.updated, {
-            _id: res.body[0]._id,
+            _id: orgToUpdate._id,
             name: 'BK Inc.',
-            maxUsers: res.body[0].maxUsers,
-            challengeStrategies: res.body[0].challengeStrategies,
-            defaultThreshold: res.body[0].defaultThreshold
+            maxUsers: orgToUpdate.maxUsers
           });
           done();
         });

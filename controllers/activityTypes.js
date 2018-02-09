@@ -1,48 +1,43 @@
-var ActivityType = require('../models/activityType');
+const ActivityType = require('../models/activityType');
+const util = require('../services/util');
 
 exports.getAll = function (req, res) {
-    ActivityType.find((err, activityTypes) => {
-        if (err) return res.status(500).send({errors: [err]});
-        return res.json(activityTypes);
-    });
+	ActivityType.find((err, activityTypes) => {
+		if (err) return res.status(500).send(util.norm.errors(err));
+		return res.send({ activityTypes });
+	});
 }
 
 exports.get = function (req, res) {
-    ActivityType.findById(req.params.activityType_id, (err, activityType) => {
-        if (err) return res.status(500).send({errors: [err]});
-        if (!activityType) return res.status(404).send({errors: [{errmsg: 'ActivityType not found'}]});
-        return res.json({activityType: activityType});
-    });
+	ActivityType.findById(req.params.id, (err, activityType) => {
+		if (err) return res.status(500).send(util.norm.errors(err));
+		if (!activityType) return res.status(404).send(util.norm.errors({message: 'ActivityType not found'}));
+		return res.send({ activityType });
+	});
 }
 
 exports.post = function (req, res) {
-    var activityType = new ActivityType(req.body.activityType);
-    activityType.save(err => {
-        if(err) return res.status(500).send({errors: [err]});
-        return res.json({activityType: activityType});
-    });
+	var activityType = new ActivityType(req.body.activityType);
+	activityType.save(err => {
+		if(err) return res.status(500).send(util.norm.errors(err));
+		return res.send({ activityType });
+	});
 }
 
 exports.update = function (req, res) {
-    ActivityType.findById(req.params.activityType_id, (err, activityType) => {
-        if (err) return res.status(500).send({errors: [err]});
-        if (!activityType) return res.status(404).send({errors: [{errmsg: 'ActivityType not found'}]});
+  let updatedActivityType = req.body.activityType; 
 
-        activityType.description = req.body.activityType.description;
-        activityType.importance = req.body.activityType.importance;
-
-        activityType.save(err => {
-            if (err) return res.status(500).send({errors: [err]});
-            return res.json({updated: activityType});
-        });
-    });
+  // TODO: Verify changes before updating
+  
+  ActivityType.findByIdAndUpdate(req.params.id, updatedActivityType, {new: true}, (err, activityType) => {
+    if (err) return res.status(500).send(util.norm.errors(err));
+    res.send({ activityType });
+  });
 }
 
 exports.delete = function (req, res) {
-    ActivityType.findByIdAndRemove(req.params.activityType_id, (err, deleted) => {
-        if (err) return res.status(500).send({errors: [err]});
-        if (!deleted) return res.status(404).send({errors: [{errmsg: 'ActivityType not found'}]});
-        deleted.remove();
-        return res.json({deleted: deleted});
-    });
+	ActivityType.findByIdAndRemove(req.params.id, err => {
+		if (err) return res.status(500).send(util.norm.errors(err));
+		res.sendStatus(200);
+	});
 }

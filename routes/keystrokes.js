@@ -50,7 +50,7 @@ router.get('/', middleware.requireAdmin, Keystroke.getAll);
  * @apiUse KeystrokeSuccess
  * @apiUse AdminError
  */
-router.get('/:keystroke_id', middleware.requireAdmin, Keystroke.get)
+router.get('/:id', middleware.requireAdmin, Keystroke.get)
 
 /**
  * @api {post} /api/keystrokes  PostKeystroke
@@ -102,7 +102,7 @@ router.post('/', middleware.requireAuth, Keystroke.post);
  * @apiUse KeystrokeSuccess
  * @apiUse AdminError
  */
-router.put('/:keystroke_id', middleware.requireAdmin, Keystroke.update);
+router.put('/:id', middleware.requireAdmin, Keystroke.update);
 
 /**
  * @api {delete} /api/keystrokes/:id  DeleteKeystroke
@@ -113,6 +113,6 @@ router.put('/:keystroke_id', middleware.requireAdmin, Keystroke.update);
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
-router.delete('/:keystroke_id', middleware.requireAdmin, Keystroke.delete);
+router.delete('/:id', middleware.requireAdmin, Keystroke.delete);
 
 module.exports = router;

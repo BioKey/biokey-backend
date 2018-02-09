@@ -178,8 +178,8 @@ describe('Activities', function(){
       .end(function(err, res){
         res.should.have.status(200);
         res.should.be.json;
-        res.body.should.be.a('array');
-        confirmActivity(res.body[0], testActivity);
+        res.body.activities.should.be.a('array');
+        confirmActivity(res.body.activities[0], testActivity);
         done();
       });
     });
@@ -227,7 +227,7 @@ describe('Activities', function(){
         .end(function(error, response){
           response.should.have.status(200);
           response.should.be.json;
-          confirmActivity(response.body.updated, {
+          confirmActivity(response.body.activity, {
             _id: res.body[0]._id,
             'timestamp': 9000,
             'typingProfile': res.body[0].typingProfile,

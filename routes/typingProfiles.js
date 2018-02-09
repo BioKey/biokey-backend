@@ -51,7 +51,7 @@ router.get('/', middleware.requireAdmin, TypingProfile.getAll);
  * @apiUse TypingProfileSuccess
  * @apiUse UnauthorizedError
  */
-router.get('/:typingProfile_id', middleware.requireAuth, TypingProfile.get)
+router.get('/:id', middleware.requireAuth, TypingProfile.get)
 
 /**
  * @api {get} /api/typingProfiles/machine/:machine_mac  GetTypingProfile
@@ -124,7 +124,7 @@ router.post('/', middleware.requireAuth, TypingProfile.post);
  * @apiUse TypingProfileSuccess
  * @apiUse UnauthorizedError
  */
-router.put('/:typingProfile_id', middleware.requireAuth, TypingProfile.update);
+router.put('/:id', middleware.requireAuth, TypingProfile.update);
 
 /**
  * @api {delete} /api/typingProfiles/:id  DeleteTypingProfile
@@ -135,6 +135,6 @@ router.put('/:typingProfile_id', middleware.requireAuth, TypingProfile.update);
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
-router.delete('/:typingProfile_id', middleware.requireAdmin, TypingProfile.delete);
+router.delete('/:id', middleware.requireAdmin, TypingProfile.delete);
 
 module.exports = router;

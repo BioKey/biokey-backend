@@ -15,7 +15,11 @@ var keystrokeSchema = mongoose.Schema({
         type: Boolean,
         require: true
     },
-    typingProfile: {type: mongoose.Schema.ObjectId, ref: ('TypingProfile')}
+    typingProfile: {
+        type: mongoose.Schema.ObjectId, 
+        ref: ('TypingProfile'),
+        require: true
+    }
 });
 
 module.exports = mongoose.model('Keystroke', keystrokeSchema);

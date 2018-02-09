@@ -47,7 +47,7 @@ router.get('/', middleware.requireAdmin, Activity.getAll);
  * @apiUse ActivitySuccess
  * @apiUse AdminError
  */
-router.get('/:activity_id', middleware.requireAdmin, Activity.get)
+router.get('/:id', middleware.requireAdmin, Activity.get)
 
 /**
  * @api {post} /api/activities  PostActivity
@@ -95,7 +95,7 @@ router.post('/', middleware.requireAuth, Activity.post);
  * @apiUse ActivitySuccess
  * @apiUse AdminError
  */
-router.put('/:activity_id', middleware.requireAdmin, Activity.update); //NOTE FOR CODE REVIEW: should we be able to edit logs in prod?
+router.put('/:id', middleware.requireAdmin, Activity.update); //NOTE FOR CODE REVIEW: should we be able to edit logs in prod?
 
 /**
  * @api {delete} /api/activities/:id  DeleteActivity
@@ -106,6 +106,6 @@ router.put('/:activity_id', middleware.requireAdmin, Activity.update); //NOTE FO
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
-router.delete('/:activity_id', middleware.requireAdmin, Activity.delete);
+router.delete('/:id', middleware.requireAdmin, Activity.delete);
 
 module.exports = router;
