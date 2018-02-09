@@ -29,6 +29,7 @@ const middleware = require('../services/middleware');
  * @apiGroup Users
  *
  * @apiUse RequestHeaders
+ * 
  * @apiSuccess {Array} users List of users
  * @apiSuccess {String} users._id  UUID of the user for the system
  * @apiSuccess {String} users.email User's email
@@ -40,7 +41,7 @@ const middleware = require('../services/middleware');
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     { 
- *       users: [
+ *       "users": [
  *          {
  *            "_id": "5a2c87d5f8de982a759cedf0",
  *            "email": "test@example.com",

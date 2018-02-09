@@ -20,11 +20,11 @@ const middleware = require('../services/middleware');
  * @apiSuccess {Boolean} typingProfiles.lockStatus The lock status of the typing profile.
  * @apiSuccess {String} typingProfiles.accessToken The access token for the typing profile's session.
  * @apiSuccess {String} typingProfiles.tensorFlowModel The tensor flow model of the typing profile.
- * @apiSuccess {Number} typingProfiles.__v Version code of the schema being used.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
- *     [
+ *     {
+ *       "typingProfiles": [
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "user": "bb4fd2d5aa0f2f041258e517",
@@ -32,10 +32,10 @@ const middleware = require('../services/middleware');
  *              "authStatus": "false",
  *              "lockStatus": "false",
  *              "accessToken": "bb4fd2d5aa0f2aa4123e517a",
- *              "tensorFlowModel: "testModelString",
- *              "__v": 0
+ *              "tensorFlowModel": "testModelString"
  *          }
- *     ]
+ *        ]
+ *      }
  * @apiUse AdminError
  */
 router.get('/', middleware.requireAdmin, TypingProfile.getAll);
@@ -54,8 +54,8 @@ router.get('/', middleware.requireAdmin, TypingProfile.getAll);
 router.get('/:id', middleware.requireAuth, TypingProfile.get)
 
 /**
- * @api {get} /api/typingProfiles/machine/:machine_mac  GetTypingProfile
- * @apiName GetMachineUserTypingProfile
+ * @api {get} /api/typingProfiles/machine/:machine_mac  GetMachineTypingProfile
+ * @apiName GetMachineTypingProfile
  * @apiDescription
  * Get a the typing profile given a user's token and machine id.
  * 
@@ -75,21 +75,7 @@ router.get('/machine/:machine_mac', middleware.requireAuth, TypingProfile.getTyp
  * @apiGroup TypingProfiles
  * 
  * @apiUse RequestHeaders
- * @apiParam {User} user The user that the typing profile is associated with.
- * @apiParam {Machine} machine The machine that the typing profile is assigned to.
- * @apiParam {Boolean} authStatus The authentication status of the typing profile.
- * @apiParam {Boolean} lockStatus The lock status of the typing profile.
- * @apiParam {String} accessToken The access token for the typing profile's session.
- * @apiParam {String} tensorFlowModel The tensor flow model of the typing profile.
- * @apiParamExample {json} Request-Example
- *     {
- *          "user": "bb4fd2d5aa0f2f041258e517",
- *          "machine": "bb4fd2d5aa0f2f041258e517",
- *          "authStatus": "false",
- *          "lockStatus": "false",
- *          "accessToken": "bb4fd2d5aa0f2aa4123e517a",
- *          "tensorFlowModel: "testModelString",
- *     }
+ * @apiUse TypingProfileRequest
  * 
  * @apiUse TypingProfileSuccess
  * @apiUse UnauthorizedError
@@ -105,21 +91,7 @@ router.post('/', middleware.requireAuth, TypingProfile.post);
  * @apiGroup TypingProfiles
  * 
  * @apiUse RequestHeaders
- * @apiParam {User} user The user that the typing profile is associated with.
- * @apiParam {Machine} machine The machine that the typing profile is assigned to.
- * @apiParam {Boolean} authStatus The authentication status of the typing profile.
- * @apiParam {Boolean} lockStatus The lock status of the typing profile.
- * @apiParam {String} accessToken The access token for the typing profile's session.
- * @apiParam {String} tensorFlowModel The tensor flow model of the typing profile.
- * @apiParamExample {json} Request-Example
- *     {
- *          "user": "bb4fd2d5aa0f2f041258e517",
- *          "machine": "bb4fd2d5aa0f2f041258e517",
- *          "authStatus": "false",
- *          "lockStatus": "false",
- *          "accessToken": "bb4fd2d5aa0f2aa4123e517a",
- *          "tensorFlowModel: "testModelString",
- *     }
+ * @apiUse TypingProfileRequest
  * 
  * @apiUse TypingProfileSuccess
  * @apiUse UnauthorizedError

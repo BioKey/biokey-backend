@@ -16,18 +16,18 @@ const middleware = require('../services/middleware');
  * @apiSuccess {String} activityTypes._id UUID of the activity type for the system
  * @apiSuccess {String} activityTypes.description Unique description of the activity type
  * @apiSuccess {String} activityTypes.importance Severity level. One of {"LOW", "MEDIUM", "HIGH"}
- * @apiSuccess {Number} activityTypes.__v Version code of the schema being used
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
- *     [
+ *     {
+ *       "activityTypes": [
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "description": "Lockout",
- *              "importance": "MEDIUM",
- *              "__v": 0
+ *              "importance": "MEDIUM"
  *          }
- *     ]
+ *       ]
+ *     }
  * 
  * @apiUse UnauthorizedError
  */
@@ -53,13 +53,14 @@ router.get('/:id', middleware.requireAuth, ActivityType.get)
  * 
  * @apiGroup ActivityTypes
  * 
- * @apiUse RequestHeaders
  * @apiParam {String} description Unique description of the new activity type
  * @apiParam {String} importance Severity level. One of {"LOW", "MEDIUM", "HIGH"}
  * @apiParamExample {json} Request-Example
  *     {
+ *       "activityType": {
  *          "description": "Lockout",
- *		    "importance": "MEDIUM"
+ *          "importance": "MEDIUM"
+ *        }
  *     }
  * 
  * @apiUse ActivityTypeSuccess
@@ -75,13 +76,14 @@ router.post('/', middleware.requireAdmin, ActivityType.post);
  * 
  * @apiGroup ActivityTypes
  * 
- * @apiUse RequestHeaders
  * @apiParam {String} description The new unique description of the activity type
  * @apiParam {String} importance The new severity level. One of {"LOW", "MEDIUM", "HIGH"}
  * @apiParamExample {json} Request-Example
  *     {
+ *       "activityType": {
  *          "description": "Lockout",
- *		    "importance": "MEDIUM"
+ *          "importance": "MEDIUM"
+ *        }
  *     }
  * 
  * @apiUse ActivityTypeSuccess
@@ -95,7 +97,6 @@ router.put('/:id', middleware.requireAdmin, ActivityType.update);
  * @apiDescription
  * Delete an activity type.
  * @apiGroup ActivityTypes
- * @apiUse RequestHeaders
  * @apiUse AdminError
  */
 router.delete('/:id', middleware.requireAdmin, ActivityType.delete);

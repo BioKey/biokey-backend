@@ -21,14 +21,15 @@ const middleware = require('../services/middleware');
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
- *     [
+ *     {
+ *       "machines": [
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "mac": "00:0a:95:9d:68:16",
- *              "organization": "testOrganization",
- *              "__v": 0
+ *              "organization": "5a4fd2d5fb0f2f041278e510"
  *          }
- *     ]
+ *        ]
+ *      }
  */
 router.get('/', middleware.requireAdmin, Machine.getAll);
 
@@ -54,12 +55,15 @@ router.get('/:id', middleware.requireAdmin, Machine.get)
  * @apiGroup Machines
  * 
  * @apiUse RequestHeaders
- * @apiParam {String} mac The new machine's unique MAC address.
- * @apiParam {String} organization The organization that the new machine is assigned to.
+* @apiParam {Object} machine The machine being created
+ * @apiParam {String} machine.mac The new machine's unique MAC address.
+ * @apiParam {String} machine.organization The organization that the new machine is assigned to.
  * @apiParamExample {json} Request-Example
  *     {
+ *       "machine": {
  *          "mac": "00:0a:95:9d:68:16",
- *          "organization": "testOrganization"
+ *          "organization": "5a4fd2d5fb0f2f041278e510"
+ *        }
  *     }
  * 
  * @apiUse MachineSuccess
@@ -76,12 +80,15 @@ router.post('/', middleware.requireAdmin, Machine.post);
  * @apiGroup Machines
  * 
  * @apiUse RequestHeaders
- * @apiParam {String} mac The machine's new unique MAC address.
- * @apiParam {String} organization The organization that the machine is newly assigned to.
+ * @apiParam {Object} machine The machine being updated
+ * @apiParam {String} machine.mac The machine's new unique MAC address.
+ * @apiParam {String} machine.organization The organization that the machine is newly assigned to.
  * @apiParamExample {json} Request-Example
  *     {
- *          "mac": "00:0a:95:9d:68:16"
- *          "organization": "testOrganization"
+ *       "machine": {
+ *          "mac": "00:0a:95:9d:68:16",
+ *          "organization": "5a4fd2d5fb0f2f041278e510"
+ *        }
  *     }
  * 
  * @apiUse MachineSuccess

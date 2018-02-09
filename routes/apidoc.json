@@ -8,41 +8,60 @@
 		"withGenerator": true
 	},
 	"order": [
+		
+		"Auth",
+		"Users",
+		"Organizations",
+		"Machines",
+		"TypingProfiles",
+		"Keystrokes",
+		"ActivityTypes",
+		"Activities",
+
+
 		"Register",
 		"Login",
+		
 		"Me",
 		"ListUsers",
 		"GetUser",
 		"PostUser",
 		"UpdateUser",
 		"DeleteUser",
+		
 		"ListActivities",
 		"GetActivity",
 		"PostActivity",
 		"UpdateActivity",
 		"DeleteActivity",
+		
 		"ListActivityTypes",
 		"GetActivityType",
 		"PostActivityType",
 		"UpdateActivityType",
 		"DeleteActivityType",
+		
 		"ListKeystrokes",
 		"GetKeystroke",
 		"PostKeystroke",
 		"UpdateKeystroke",
 		"DeleteKeystroke",
+		
 		"ListMachines",
 		"GetMachine",
 		"PostMachine",
 		"UpdateMachine",
 		"DeleteMachine",
+		
 		"ListOrganizations",
 		"GetOrganization",
 		"PostOrganization",
 		"UpdateOrganization",
 		"DeleteOrganization",
+
 		"ListTypingProfiles",
 		"GetTypingProfile",
+		"GetMachineTypingProfile",
 		"PostTypingProfile",
 		"UpdateTypingProfile",
 		"DeleteTypingProfile"

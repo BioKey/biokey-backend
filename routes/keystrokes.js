@@ -18,12 +18,12 @@ const middleware = require('../services/middleware');
  * @apiSuccess {String} keystrokes.character The key that was pressed/released.
  * @apiSuccess {Number} keystrokes.timestamp The time that the keystroke occurred.
  * @apiSuccess {Boolean} keystrokes.keyDown Specifies whether the key was pressed or released.
- * @apiSuccess {TypingProfile} typingProfile The typing profile that submitted the keystoke.
- * @apiSuccess {Number} keystrokes.__v Version code of the schema being used.
+ * @apiSuccess {TypingProfile} keystrokes.typingProfile The typing profile that submitted the keystoke.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
- *     [
+ *     {
+ *       "keystrokes": [
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "character": "R",
@@ -32,7 +32,8 @@ const middleware = require('../services/middleware');
  *              "typingProfile": "5a4c019629015e0c8b9c1737"
  *              "__v": 0
  *          }
- *     ]
+ *        ]
+ *      }
  * 
  * @apiUse AdminError
  */
@@ -61,18 +62,20 @@ router.get('/:id', middleware.requireAdmin, Keystroke.get)
  * @apiGroup Keystrokes
  * 
  * @apiUse RequestHeaders
- * @apiParam {String} character The key that was newly pressed/released.
- * @apiParam {Number} timestamp The time that the new keystroke occurred.
- * @apiParam {Boolean} keyDown Specifies whether the key was pressed or released.
- * @apiParam {TypingProfile} typingProfile The typing profile that submitted the new keystoke.
+ * @apiParam {Object} keystroke The being created
+ * @apiParam {String} keystroke.character The key that was newly pressed/released.
+ * @apiParam {Number} keystroke.timestamp The time that the new keystroke occurred.
+ * @apiParam {Boolean} keystroke.keyDown Specifies whether the key was pressed or released.
+ * @apiParam {TypingProfile} keystroke.typingProfile The typing profile that submitted the new keystoke.
  * @apiParamExample {json} Request-Example
- *     {
+ *     {  
+ *       "keystroke": {
  *          "character": "R",
  *          "timestamp": 3456732435432,
  *          "keyDown": false
  *          "typingProfile": "5a4c019629015e0c8b9c1737"
- *     }
- * 
+ *        }
+ *      }
  * @apiUse KeystrokeSuccess
  * @apiUse UnauthorizedError
  */
@@ -87,17 +90,20 @@ router.post('/', middleware.requireAuth, Keystroke.post);
  * @apiGroup Keystrokes
  *
  * @apiUse RequestHeaders
- * @apiParam {String} character The new key that was pressed/released.
- * @apiParam {Number} timestamp The new time that the keystroke occurred.
- * @apiParam {Boolean} keyDown The new direction of the keystroke.
- * @apiParam {TypingProfile} typingProfile The updated typing profile that submitted the keystoke.
+ * @apiParam {Object} keystroke The being updated
+ * @apiParam {String} keystroke.character The key that was newly pressed/released.
+ * @apiParam {Number} keystroke.timestamp The time that the new keystroke occurred.
+ * @apiParam {Boolean} keystroke.keyDown Specifies whether the key was pressed or released.
+ * @apiParam {TypingProfile} keystroke.typingProfile The typing profile that submitted the new keystoke.
  * @apiParamExample {json} Request-Example
- *     {
+ *     {  
+ *       "keystroke": {
  *          "character": "R",
  *          "timestamp": 3456732435432,
- *          "keyDown": true
+ *          "keyDown": false
  *          "typingProfile": "5a4c019629015e0c8b9c1737"
- *     }
+ *        }
+ *      }
  * 
  * @apiUse KeystrokeSuccess
  * @apiUse AdminError

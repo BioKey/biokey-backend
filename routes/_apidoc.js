@@ -1,4 +1,31 @@
 /**
+ * @api /api/activityTypes  ListActivityTypes
+ * @apiName ListActivityTypes
+ * @apiDescription
+ * Get a list of all activity types
+ * 
+ * @apiGroup ActivityTypes
+ * 
+ * @apiSuccess {Array} activityTypes List of activityTypes
+ * @apiSuccess {String} activityTypes._id UUID of the activity type for the system
+ * @apiSuccess {String} activityTypes.description Unique description of the activity type
+ * @apiSuccess {String} activityTypes.importance Severity level. One of {"LOW", "MEDIUM", "HIGH"}
+ * 
+ * @apiSuccessExample Response (example):
+ *     HTTP/1.1 200 Success
+ *     {
+ *       "activityTypes": [
+ *          {
+ *              "_id": "5a4fd2d5fb0f2f041278e510",
+ *              "description": "Lockout",
+ *              "importance": "MEDIUM"
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiUse UnauthorizedError
+ */
+/**
  * @apiDefine UnauthorizedError
  * 
  * @apiError (Error 401) Unauthorized Only authenticated users can access.
@@ -21,14 +48,14 @@
  * @apiParam {Object} user The user object being created/updated.
  * @apiParam {String} user.name The user's new name
  * @apiParam {String} user.email The user's new email
-
+ * @apiParam {String} user.phoneNumber The user's new phone number
  * @apiParam {Organization} user.organization The user's new organization
  * @apiParam {String} user.password (Optional) The password to set for the user. Optional on put.
  * @apiParam {Boolean} user.isAdmin The user's new isAdmin state
  * 
  * @apiParamExample {json} Request-Example:
  *     {
- *       user: {
+ *       "user": {
  *         "name": "Hosh Weinstein",
  *         "email": "test@example.com",
  *         "phoneNumber": "519-493-4342",
@@ -53,7 +80,7 @@
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *       user: {
+ *       "user": {
  *         "_id": "5a2c87d5f8de982a759cedf0",
  *         "name": "Hosh Weinstein",
  *         "email": "test@example.com",
@@ -66,97 +93,116 @@
 
 /**
  * @apiDefine ActivitySuccess
- * @apiSuccess {String} _id UUID of the activity for the system
- * @apiSuccess {Number} timestamp Time that the activity occurred
- * @apiSuccess {TypingProfile} typingProfile The typing profile associated with the activity
- * @apiSuccess {ActivityType} activityType The type of the activity
- * @apiSuccess {Number} __v Version code of the schema being used
+ * @apiSuccess {Object} activity The requested activity
+ * @apiSuccess {String} activity._id UUID of the activity for the system
+ * @apiSuccess {Number} activity.timestamp Time that the activity occurred
+ * @apiSuccess {TypingProfile} activity.typingProfile The typing profile associated with the activity
+ * @apiSuccess {ActivityType} activity.activityType The type of the activity
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *        "_id": "5a4fd2d5fb0f2f041278e510",
- *        "typingProfile": "5a4c08cd19d0a40d9c051653",
- *        "activityType": "5a4c019629015e0c8b9c1737",
- *        "timestamp": 234567
- *        "__v": 0
+ *       "activity": {
+ *          "_id": "5a4fd2d5fb0f2f041278e510",
+ *          "typingProfile": "5a4c08cd19d0a40d9c051653",
+ *          "activityType": "5a4c019629015e0c8b9c1737",
+ *          "timestamp": 234567
+ *        }
  *     }
  */
 
 /**
  * @apiDefine ActivityTypeSuccess
- * @apiSuccess {String} _id UUID of the activity type for the system
- * @apiSuccess {String} description Unique description of the activity type
- * @apiSuccess {String} importance Severity level. One of {"LOW", "MEDIUM", "HIGH"}
- * @apiSuccess {Number} __v Version code of the schema being used
+ * @apiSuccess {Object} activityType The requested activity type
+ * @apiSuccess {String} activityType._id UUID of the activity type for the system
+ * @apiSuccess {String} activityType.description Unique description of the activity type
+ * @apiSuccess {String} activityType.importance Severity level. One of {"LOW", "MEDIUM", "HIGH"}
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *        "_id": "5a4fd2d5fb0f2f041278e510",
- *        "description": "Lockout",
- *        "importance": "MEDIUM",
- *        "__v": 0
+ *       "activityType": {
+ *          "_id": "5a4fd2d5fb0f2f041278e510",
+ *          "description": "Lockout",
+ *          "importance": "MEDIUM"
+ *        }
  *     }
  */
 
 /**
  * @apiDefine KeystrokeSuccess
- * @apiSuccess {String} _id UUID of the keystroke for the system.
- * @apiSuccess {String} character The key that was pressed/released.
- * @apiSuccess {Number} timestamp The time that the keystroke occurred.
- * @apiSuccess {String} upOrDown Specifies whether the key was pressed or released. One of {"U", "D"}
- * @apiSuccess {TypingProfile} typingProfile The typing profile that submitted the keystoke.
- * @apiSuccess {Number} __v Version code of the schema being used.
+ * @apiSuccess {Object} keystroke The requested keystroke
+ * @apiSuccess {String} keystroke._id UUID of the keystroke for the system.
+ * @apiSuccess {String} keystroke.character The key that was pressed/released.
+ * @apiSuccess {Number} keystroke.timestamp The time that the keystroke occurred.
+ * @apiSuccess {String} keystroke.upOrDown Specifies whether the key was pressed or released. One of {"U", "D"}
+ * @apiSuccess {TypingProfile} keystroke.typingProfile The typing profile that submitted the keystoke.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *        "_id": "5a4fd2d5fb0f2f041278e510",
- *        "character": "R",
- *        "timestamp": 3456732435432,
- *        "upOrDown": "D",
- *        "typingProfile": "bb4fd2d5aa0f2f041258e517",
- *        "__v": 0
- *     }
+ *       "keystroke": {
+ *          "_id": "5a4fd2d5fb0f2f041278e510",
+ *          "character": "R",
+ *          "timestamp": 3456732435432,
+ *          "upOrDown": "D",
+ *          "typingProfile": "bb4fd2d5aa0f2f041258e517"
+ *        }
+ *      }
  */
 
 /**
  * @apiDefine MachineSuccess
- * @apiSuccess {String} _id UUID of the machine for the system.
- * @apiSuccess {String} mac The machine's unique MAC address.
- * @apiSuccess {Organization} organization The organization that the machine is assigned to.
- * @apiSuccess {Number} __v Version code of the schema being used.
+ * @apiSuccess {Object} machine The requested machine
+ * @apiSuccess {String} machine._id UUID of the machine for the system.
+ * @apiSuccess {String} machine.mac The machine's unique MAC address.
+ * @apiSuccess {Organization} machine.organization The organization that the machine is assigned to.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *        "_id": "5a4fd2d5fb0f2f041278e510",
- *        "mac": "00:0a:95:9d:68:16",
- *        "organization": "testOrganization",
- *        "__v": 0
- *     }
+ *       "machine": {
+ *          "_id": "5a4fd2d5fb0f2f041278e510",
+ *          "mac": "00:0a:95:9d:68:16",
+ *          "organization": "5a4fd2d5fb0f2f041278e510"
+ *        }
+ *      }
  */
 
 /**
  * @apiDefine OrganizationSuccess
- * @apiSuccess {String} _id UUID of the organization for the system.
- * @apiSuccess {String} name The organization's unique name.
- * @apiSuccess {Number} maxUsers The number of users that the organization may have.
- * @apiSuccess {[String]} challengeStrategies The authentication strategies that the organization accepts.
- * @apiSuccess {Number} defaultThreshold The certainty threshold for users' continuous authentication.
- * @apiSuccess {Number} __v Version code of the schema being used.
+ * @apiSuccess {Object} organization The requested organization
+ * @apiSuccess {String} organization._id UUID of the organization for the system.
+ * @apiSuccess {String} organization.name The organization's unique name.
+ * @apiSuccess {Number} organization.maxUsers The number of users that the organization may have.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *        "_id": "5a4fd2d5fb0f2f041278e510",
- *        "name": "testOrganization",
- *        "maxUsers": "100",
- *        "challengeStrategies": "["Password", "Google Auth"]",
- *        "defaultThreshold": "100",
- *        "__v": 0
+ *       "organization": {
+ *          "_id": "5a4fd2d5fb0f2f041278e510",
+ *          "name": "testOrganization",
+ *          "maxUsers": "100"
+ *        }
  *     }
+ */
+
+/**
+ * @apiDefine TypingProfileRequest
+ * @apiParam {User} user The user that the typing profile is associated with.
+ * @apiParam {Machine} machine The machine that the typing profile is assigned to.
+ * @apiParam {Boolean} isLocked The lock status of the typing profile.
+ * @apiParam {String} tensorFlowModel The tensor flow model of the typing profile.
+ * 
+ * @apiParamExample Request (example):
+ *     {
+ *       "typingProfile": {
+ *          "user": "bb4fd2d5aa0f2f041258e517",
+ *          "machine": "bb4fd2d5aa0f2f041258e517",
+ *          "isLocked": "false",
+ *          "tensorFlowModel": "testModelString"
+ *        }
+ *      }
  */
 
 /**
@@ -164,24 +210,20 @@
  * @apiSuccess {String} _id UUID of the typing profile for the system.
  * @apiSuccess {User} user The user that the typing profile is associated with.
  * @apiSuccess {Machine} machine The machine that the typing profile is assigned to.
- * @apiSuccess {Boolean} authStatus The authentication status of the typing profile.
- * @apiSuccess {Boolean} lockStatus The lock status of the typing profile.
- * @apiSuccess {String} accessToken The access token for the typing profile's session.
+ * @apiSuccess {Boolean} isLocked The lock status of the typing profile.
  * @apiSuccess {String} tensorFlowModel The tensor flow model of the typing profile.
- * @apiSuccess {Number} __v Version code of the schema being used.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *        "_id": "5a4fd2d5fb0f2f041278e510",
- *        "user": "bb4fd2d5aa0f2f041258e517",
- *        "machine": "bb4fd2d5aa0f2f041258e517",
- *        "authStatus": "false",
- *        "lockStatus": "false",
- *        "accessToken": "bb4fd2d5aa0f2aa4123e517a",
- *        "tensorFlowModel: "testModelString",
- *        "__v": 0
- *     }
+ *       "typingProfile": {
+ *          "_id": "5a4fd2d5fb0f2f041278e510",
+ *          "user": "bb4fd2d5aa0f2f041258e517",
+ *          "machine": "bb4fd2d5aa0f2f041258e517",
+ *          "isLocked": "false",
+ *          "tensorFlowModel": "testModelString"
+ *        }
+ *      }
  */
 
  /**

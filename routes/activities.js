@@ -12,7 +12,6 @@ const middleware = require('../services/middleware');
  * 
  * @apiGroup Activities
  * 
- * @apiUse RequestHeaders
  * @apiSuccess {Array} activities List of activities
  * @apiSuccess {String} activities._id UUID of the activity for the system
  * @apiSuccess {Number} activities.timestamp Time that the activity occurred
@@ -22,7 +21,8 @@ const middleware = require('../services/middleware');
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
- *     [
+ *     {
+ *       "activities": [
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "typingProfile": "5a4c08cd19d0a40d9c051653",
@@ -30,7 +30,8 @@ const middleware = require('../services/middleware');
  *              "timestamp": 234567
  *              "__v": 0
  *          }
- *     ]
+ *        ]
+ *      }
  * 
  * @apiUse AdminError
  */
@@ -43,7 +44,6 @@ router.get('/', middleware.requireAdmin, Activity.getAll);
  * Get a specific activity.
  * 
  * @apiGroup Activities
- * @apiUse RequestHeaders
  * @apiUse ActivitySuccess
  * @apiUse AdminError
  */
@@ -57,16 +57,17 @@ router.get('/:id', middleware.requireAdmin, Activity.get)
  * 
  * @apiGroup Activities
  * 
- * @apiUse RequestHeaders
  * @apiParam {Number} timestamp The new activity's timestamp
  * @apiParam {TypingProfile} typingProfile The new activity's typing profile
  * @apiParam {ActivityType} activityType The new activity's type
  * @apiParamExample {json} Request-Example
- *     {
- *          "typingProfile": "5a4c08cd19d0a40d9c051653",
- *		    "activityType": "5a4c019629015e0c8b9c1737",
- *		    "timestamp": 234567
- *     }
+ *      {
+ *         "activity": {
+ *            "typingProfile": "5a4c08cd19d0a40d9c051653",
+ *		        "activityType": "5a4c019629015e0c8b9c1737",
+ *		        "timestamp": 234567
+ *          }
+ *       }
  * 
  * @apiUse ActivitySuccess
  * @apiUse UnauthorizedError
@@ -81,16 +82,17 @@ router.post('/', middleware.requireAuth, Activity.post);
  * 
  * @apiGroup Activities
  * 
- * @apiUse RequestHeaders
  * @apiParam {Number} timestamp The activity's new timestamp
  * @apiParam {TypingProfile} typingProfile The activity's new typing profile
  * @apiParam {ActivityType} activityType The activity's new type
  * @apiParamExample {json} Request-Example
- *     {
- *          "typingProfile": "5a4c08cd19d0a40d9c051653",
- *		    "activityType": "5a4c019629015e0c8b9c1737",
- *		    "timestamp": 234567
- *     }
+ *      {
+ *         "activity": {
+ *            "typingProfile": "5a4c08cd19d0a40d9c051653",
+ *            "activityType": "5a4c019629015e0c8b9c1737",
+ *            "timestamp": 234567
+ *          }
+ *       }
  * 
  * @apiUse ActivitySuccess
  * @apiUse AdminError
@@ -103,7 +105,6 @@ router.put('/:id', middleware.requireAdmin, Activity.update); //NOTE FOR CODE RE
  * @apiDescription
  * Delete an activity.
  * @apiGroup Activities
- * @apiUse RequestHeaders
  * @apiUse AdminError
  */
 router.delete('/:id', middleware.requireAdmin, Activity.delete);
