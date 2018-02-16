@@ -29,10 +29,12 @@ const middleware = require('../services/middleware');
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "user": "bb4fd2d5aa0f2f041258e517",
  *              "machine": "bb4fd2d5aa0f2f041258e517",
- *              "authStatus": "false",
- *              "lockStatus": "false",
- *              "accessToken": "bb4fd2d5aa0f2aa4123e517a",
- *              "tensorFlowModel": "testModelString"
+ *              "isLocked": "false",
+ *				"lastHeartbeat": "2020-04-24T11:41:47.280Z",
+ *				"tensorFlowModel": "testModelString"	
+ *              "endpoint": "https://aws.amazon.com",
+ *              "challengeStrategies": [],
+ *				"threshold": []
  *          }
  *        ]
  *      }
@@ -55,7 +57,7 @@ router.get('/:id', middleware.requireAuth, TypingProfile.get)
 
 
 /**
- * @api {post} /api/typingProfiles/:machine_mac/heartbeat Send HeartBeat
+ * @api {post} /api/typingProfiles/:mac/heartbeat  PostHeartBeat
  * @apiName PostHeartbeat
  * @apiDescription
  * Recieves a hearbeat request from the client to verify client is online and secure.
@@ -66,20 +68,20 @@ router.get('/:id', middleware.requireAuth, TypingProfile.get)
  * @apiUse UnauthorizedError
  * 
  */
-router.post('/:machine_mac/heartbeat',middleware.requireAuth,TypingProfile.heartbeat)
+router.post('/:mac/heartbeat',middleware.requireAuth,TypingProfile.heartbeat)
 
 /**
- * @api {get} /api/typingProfiles/machine/:machine_mac  GetMachineTypingProfile
- * @apiName GetMachineTypingProfile
+ * @api {post} /api/typingProfiles/machine/:mac  PostMachineTypingProfile
+ * @apiName PostMachineTypingProfile
  * @apiDescription
- * Get a the typing profile given a user's token and machine id.
+ * Create a new machine and/or typing profile if they do not exist. If they do, then get the typing profile given a user's token and machine mac.
  * 
  * @apiGroup TypingProfiles
  * @apiUse RequestHeaders
  * @apiUse TypingProfileSuccess
  * @apiUse UnauthorizedError
  */
-router.get('/machine/:machine_mac', middleware.requireAuth, TypingProfile.getTypingProfileFromMachine)
+router.post('/machine/:mac', middleware.requireAuth, TypingProfile.postTypingProfileFromMachine)
 
 /**
  * @api {post} /api/typingProfiles  PostTypingProfile

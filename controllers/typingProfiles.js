@@ -1,6 +1,7 @@
 const TypingProfile = require('../models/typingProfile');
 const User = require('../models/user');
 const Machine = require('../models/machine');
+const Organization = require('../models/organization');
 const util = require('../services/util');
 
 exports.getAll = function (req, res) {
@@ -23,32 +24,59 @@ exports.get = function (req, res) {
 	});
 }
 
-exports.getTypingProfileFromMachine = function (req, res) {
-	// Find machine by mac
-	Machine.findOne({mac: req.params.machine_mac}, (err, machine) => {
-		if (err) return res.status(500).send(util.norm.errors(err));
-		if (!machine) return res.status(404).send(util.norm.errors({message: 'Machine not found'}));
-		// Find typing profile with user, machine pair
-		TypingProfile.findOne({
-			user: req.user._id, 
-			machine: machine._id
-		}, (err, typingProfile) => {
+exports.postTypingProfileFromMachine = function (req, res) {
+	// TODO: format files
+	// TODO: tell giles about change in organizations
+
+	var createNewTypingProfile = function(user, machine) {
+		// Find organization to get the default challenge strategies and thresholds
+		Organization.findById(user.organization, (err, organization) => {
 			if (err) return res.status(500).send(util.norm.errors(err));
-			if (!typingProfile) return res.status(404).send(util.norm.errors({message: 'Typing Profile not found'}));
-			res.send({ typingProfile });
+			if (!organization) return res.status(404).send(util.norm.errors({message: 'Organization not found'}));
+
+			// Create new typing profile and save
+			newTypingProfile = new TypingProfile({
+				user: user._id, machine: machine._id, isLocked: false,
+				tensorFlowModel: "", endpoint: "", // TODO: tensorFlowModel and endpoint creation
+				challengeStrategies: organization.defaultChallengeStrategies, threshold: organization.defaultThreshold});
+			newTypingProfile.save(err => {
+				if (err) return res.status(500).send(util.norm.errors(err));
+				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber });
+			})
 		});
-	})
+	}
+
+	// Find machine by mac
+	Machine.findOne({mac: req.params.mac}, (err, machine) => {
+		if (err) return res.status(500).send(util.norm.errors(err));
+		
+		if (machine) {
+			// Find typing profile with user, machine pair
+			TypingProfile.findOne({user: req.user._id, machine: machine._id}, (err, typingProfile) => {
+				if (err) return res.status(500).send(util.norm.errors(err));
+				if (typingProfile) {
+					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber });
+				} else {
+					return createNewTypingProfile(req.user, machine);
+				}
+			});
+		} else {
+			// If machine was not found, then create machine and typing profile
+			newMachine = new Machine({mac: req.params.mac, organization: req.user.organization});
+			newMachine.save(err => {
+				if(err) return res.status(500).send(util.norm.errors(err));
+				return createNewTypingProfile(req.user, newMachine);
+			});
+		}
+	});
 }
 
 exports.heartbeat = function (req, res) {
-	Machine.findOne({mac: req.params.machine_mac}, (err, machine) => {
+	Machine.findOne({mac: req.params.mac}, (err, machine) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!machine) return res.status(404).send(util.norm.errors({message: 'Machine not found'}));
 		// Find typing profile with user, machine pair
-		TypingProfile.findOne({
-			user: req.user._id, 
-			machine: machine._id
-		}, (err, typingProfile) => {
+		TypingProfile.findOne({user: req.user._id, machine: machine._id}, (err, typingProfile) => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!typingProfile) return res.status(404).send(util.norm.errors({message: 'Typing Profile not found'}));
 			typingProfile.lastHeartbeat = Date.now();

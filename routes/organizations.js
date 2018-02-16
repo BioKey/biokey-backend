@@ -25,7 +25,9 @@ const middleware = require('../services/middleware');
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "name": "testOrganization",
- *              "maxUsers": "100"
+ *              "maxUsers": "100",
+ *              "defaultChallengeStrategies": [],
+ *              "defaultThreshold": []
  *          }
  *       ]
  *     }
