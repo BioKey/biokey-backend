@@ -8,20 +8,20 @@ const LocalStrategy = require('passport-local');
 
 // create Local Strategy
 const localOptions = { usernameField: 'email' };
-const localLogin = new LocalStrategy(localOptions, function(email, password, done){
+const localLogin = new LocalStrategy(localOptions, function(email, password, done) {
   // verify this username and password, call done with the username
   // if it is the correct username and password
   // otherwise call done with false
-  User.findOne({ email: email }, function(err, user){
-    if(err) { return done(err, false); }
+  User.findOne({ email: email }, function(err, user) {
+    if (err) { return done(err, false); }
 
-    if(!user) { return done(null, false); }
+    if (!user) { return done(null, false); }
 
     // compare passwords - is 'password equal to user.password'
     // decode the hashed password with the normal password
-    user.comparePassword(password, function(err, isMatch){
-      if(err) { return done(err); }
-      if(!isMatch) { return done(null, false); }
+    user.comparePassword(password, function(err, isMatch) {
+      if (err) { return done(err); }
+      if (!isMatch) { return done(null, false); }
 
       return done(null, user);
     });
@@ -36,13 +36,13 @@ const jwtOptions = {
 };
 
 // Create JWT Strategy
-const jwtLogin = new JwtStrategy(jwtOptions, function(payload, done){
+const jwtLogin = new JwtStrategy(jwtOptions, function(payload, done) {
   // see if the user id in the payload exists in the database
   // if it does call done with that user
   // otherwise call done without the user object
-  User.findById(payload.sub, function(err, user){
-    if(err) { return done(err, false); }
-    if(user){
+  User.findById(payload.sub, function(err, user) {
+    if (err) { return done(err, false); }
+    if (user) {
       done(null, user);
     } else {
       done(null, false);

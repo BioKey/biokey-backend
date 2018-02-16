@@ -55,7 +55,7 @@ router.get('/:id', middleware.requireAdmin, Machine.get)
  * @apiGroup Machines
  * 
  * @apiUse RequestHeaders
-* @apiParam {Object} machine The machine being created
+ * @apiParam {Object} machine The machine being created
  * @apiParam {String} machine.mac The new machine's unique MAC address.
  * @apiParam {String} machine.organization The organization that the new machine is assigned to.
  * @apiParamExample {json} Request-Example

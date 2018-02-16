@@ -16,7 +16,7 @@ var keystrokeSchema = mongoose.Schema({
         require: true
     },
     typingProfile: {
-        type: mongoose.Schema.ObjectId, 
+        type: mongoose.Schema.ObjectId,
         ref: ('TypingProfile'),
         require: true
     }

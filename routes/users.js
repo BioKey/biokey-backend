@@ -18,7 +18,7 @@ const middleware = require('../services/middleware');
  * @apiUse UserSuccess
  * @apiUse UnauthorizedError
  */
- router.get('/me', middleware.requireAuth, User.me);
+router.get('/me', middleware.requireAuth, User.me);
 
 /**
  * @api {get} /api/users  ListUsers
@@ -54,7 +54,7 @@ const middleware = require('../services/middleware');
  * 
  * @apiUse AdminError
  */
- router.get('/', middleware.requireAdmin, User.getAll);
+router.get('/', middleware.requireAdmin, User.getAll);
 
 /**
  * @api {get} /api/users/:id  GetUser
@@ -68,9 +68,9 @@ const middleware = require('../services/middleware');
  * 
  * @apiUse UserError
  */
- router.get('/:id', middleware.requireAuth, User.get);
+router.get('/:id', middleware.requireAuth, User.get);
 
- /**
+/**
  * @api {post} /api/users  PostUser
  * @apiName PostUser
  * @apiDescription 
@@ -83,9 +83,9 @@ const middleware = require('../services/middleware');
  * @apiUse UserSuccess
  * @apiUse UserError
  */
- router.post('/', middleware.requireAdmin, User.post);
+router.post('/', middleware.requireAdmin, User.post);
 
- /**
+/**
  * @api {put} /api/users/:id  UpdateUser
  * @apiName UpdateUser
  * @apiDescription 
@@ -98,7 +98,7 @@ const middleware = require('../services/middleware');
  * @apiUse UserSuccess
  * @apiUse UserError
  */
- router.put('/:id', middleware.requireAuth, User.update);
+router.put('/:id', middleware.requireAuth, User.update);
 
 /**
  * @api {delete} /api/users/:id  DeleteUser
@@ -109,6 +109,6 @@ const middleware = require('../services/middleware');
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
- router.delete('/:id', middleware.requireAdmin, User.delete);
+router.delete('/:id', middleware.requireAdmin, User.delete);
 
- module.exports = router;
+module.exports = router;

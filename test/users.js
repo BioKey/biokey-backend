@@ -43,7 +43,7 @@ describe('Users', function() {
     });
   })
 
-  beforeEach(function(done){
+  beforeEach(function(done) {
     var newUser = new User(testUser);
     newUser.save(err => {
       testUser._id = newUser.id;
@@ -52,7 +52,7 @@ describe('Users', function() {
     });
   });
 
-  afterEach(function(done){
+  afterEach(function(done) {
     User.remove(err => {
       done()
     })
@@ -82,15 +82,15 @@ describe('Users', function() {
 
     it('GET should list ALL users', function(done) {
       chai.request(server)
-      .get('/api/users')
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        res.body.users.should.be.a('array');
-        confirmUser(res.body.users[0], testUser);
-        done();
-      });
+        .get('/api/users')
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.users.should.be.a('array');
+          confirmUser(res.body.users[0], testUser);
+          done();
+        });
     });
   });
 
@@ -98,50 +98,50 @@ describe('Users', function() {
 
     it('GET should list a SINGLE user', function(done) {
       chai.request(server)
-      .get('/api/users/'+testUser._id)
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        confirmUser(res.body.user, testUser);
-        done();
-      });
+        .get('/api/users/' + testUser._id)
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          confirmUser(res.body.user, testUser);
+          done();
+        });
     });
 
     it('GET should not find invalid user', function(done) {
       chai.request(server)
-      .get('/api/users/' + mongoose.Types.ObjectId())
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .get('/api/users/' + mongoose.Types.ObjectId())
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
 
     it('PUT should update a SINGLE user', function(done) {
       chai.request(server)
-      .get('/api/users')
-      .set('authorization', testToken)
-      .end(function(err, res){
-        let userToUpdate = res.body.users[0];
-        chai.request(server)
-        .put('/api/users/'+userToUpdate._id)
+        .get('/api/users')
         .set('authorization', testToken)
-        .send({user: {'name': 'Superman'}})
-        .end(function(error, response){
-          response.should.have.status(200);
-          response.should.be.json;
-          confirmUser(response.body.user, {
-            _id: userToUpdate._id,
-            name: 'Superman',
-            email: userToUpdate.email,
-            isAdmin: userToUpdate.isAdmin,
-            phoneNumber: userToUpdate.phoneNumber,
-            organization: userToUpdate.organization
-          });
-          done();
+        .end(function(err, res) {
+          let userToUpdate = res.body.users[0];
+          chai.request(server)
+            .put('/api/users/' + userToUpdate._id)
+            .set('authorization', testToken)
+            .send({ user: { 'name': 'Superman' } })
+            .end(function(error, response) {
+              response.should.have.status(200);
+              response.should.be.json;
+              confirmUser(response.body.user, {
+                _id: userToUpdate._id,
+                name: 'Superman',
+                email: userToUpdate.email,
+                isAdmin: userToUpdate.isAdmin,
+                phoneNumber: userToUpdate.phoneNumber,
+                organization: userToUpdate.organization
+              });
+              done();
+            });
         });
-      });
     });
 
     it('DELETE should delete a SINGLE user', function(done) {
@@ -150,15 +150,15 @@ describe('Users', function() {
       var newUser = new User(testUser);
       newUser.save(err => {
         chai.request(server)
-        .delete('/api/users/'+newUser.id)
-        .set('authorization', testToken)
-        .end(function(err2, res2) {
-          res2.should.have.status(200);
-          User.findById(newUser.id, function(err, user) {
-            chai.should(user, null);
-            done()
+          .delete('/api/users/' + newUser.id)
+          .set('authorization', testToken)
+          .end(function(err2, res2) {
+            res2.should.have.status(200);
+            User.findById(newUser.id, function(err, user) {
+              chai.should(user, null);
+              done()
+            })
           })
-        })
       });
     });
   });
@@ -185,7 +185,7 @@ describe('Users', function() {
       user.organization.should.equal(val.organization);
     }
 
-    before(function(done){
+    before(function(done) {
       newUser = new User(testUser);
       newUser.save(function(err, data) {
         testUser._id = data.id;
@@ -193,17 +193,17 @@ describe('Users', function() {
       });
     });
 
-    after(function(done){
-      User.remove(function(err){
+    after(function(done) {
+      User.remove(function(err) {
         done();
       });
     });
 
     it('GET should return user for valid user', function(done) {
-     chai.request(server)
+      chai.request(server)
         .get('/api/users/me')
         .set('authorization', newUser.getToken())
-        .end(function(err1, res1){
+        .end(function(err1, res1) {
           res1.should.have.status(200);
           res1.should.be.json;
           confirmUser(res1.body.user, testUser);
@@ -214,7 +214,7 @@ describe('Users', function() {
     it('GET should deny unauthenticated user', function(done) {
       chai.request(server)
         .get('/api/users/me')
-        .end(function(err, res){
+        .end(function(err, res) {
           res.should.have.status(401);
           done();
         });
@@ -224,7 +224,7 @@ describe('Users', function() {
       chai.request(server)
         .get('/api/users/me')
         .set('authorization', 'Other token')
-        .end(function(err, res){
+        .end(function(err, res) {
           res.should.have.status(401);
           done();
         });

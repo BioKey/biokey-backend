@@ -29,21 +29,21 @@ const userSchema = new mongoose.Schema({
     type: String
   },
   organization: {
-    type: mongoose.Schema.ObjectId, 
+    type: mongoose.Schema.ObjectId,
     ref: ('Organization'),
     required: true
   }
 });
 
 // On Save hook, encrypt password
-userSchema.pre('save', function(next){
+userSchema.pre('save', function(next) {
   const user = this;
 
-  bcrypt.genSalt(10, function(err, salt){
-    if(err) { return next(err); }
+  bcrypt.genSalt(10, function(err, salt) {
+    if (err) { return next(err); }
 
-    bcrypt.hash(user.password, salt, null, function(err, hash){
-      if(err) { return next(err); }
+    bcrypt.hash(user.password, salt, null, function(err, hash) {
+      if (err) { return next(err); }
 
       user.password = hash;
       next();
@@ -53,40 +53,40 @@ userSchema.pre('save', function(next){
 
 userSchema.pre('findOneAndUpdate', function(next) {
   let user = this.getUpdate();
-  if(user && user.password) {
-    bcrypt.genSalt(10, function(err, salt){
-      if(err) { return next(err); }
+  if (user && user.password) {
+    bcrypt.genSalt(10, function(err, salt) {
+      if (err) { return next(err); }
 
-      bcrypt.hash(user.password, salt, null, function(err, hash){
-        if(err) { return next(err); }
+      bcrypt.hash(user.password, salt, null, function(err, hash) {
+        if (err) { return next(err); }
 
         user.password = hash;
         next();
       });
     });
-  }
-  else {
+  } else {
     next();
   }
 });
 
-userSchema.methods.comparePassword = function(candidatePassword, callback){
-  User.findOne({_id: this._id})
-  .select('+password')
-  .exec(function(err, user){
-    if(err) { return callback(err); }
+userSchema.methods.comparePassword = function(candidatePassword, callback) {
+  User.findOne({ _id: this._id })
+    .select('+password')
+    .exec(function(err, user) {
+      if (err) { return callback(err); }
 
-    bcrypt.compare(candidatePassword, user.password, function(err, isMatch){
-      if(err) { return callback(err); }
+      bcrypt.compare(candidatePassword, user.password, function(err, isMatch) {
+        if (err) { return callback(err); }
 
-      callback(null, isMatch);
+        callback(null, isMatch);
+      });
     });
-  });
 }
 
-userSchema.methods.getToken = function () {
+userSchema.methods.getToken = function() {
   return jwt.encode({
-    sub: this._id, iat: new Date().getTime()
+    sub: this._id,
+    iat: new Date().getTime()
   }, config.secret);
 }
 

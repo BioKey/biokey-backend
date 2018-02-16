@@ -6,7 +6,7 @@ exports.login = function(req, res) {
   // user has already had thier email and password auth'd
   // we just need to give them a token
   // req.user is assigned by passport done function
-  res.send({token: req.user.getToken()});
+  res.send({ token: req.user.getToken() });
 }
 
 exports.register = function(req, res) {
@@ -17,15 +17,15 @@ exports.register = function(req, res) {
   let organization = req.body.organization;
   let phoneNumber = req.body.phoneNumber;
 
-  if(!email || !password || !name){
-    return res.status(422).send(util.norm.errors({message: 'email, password, and name is required'}));
+  if (!email || !password || !name) {
+    return res.status(422).send(util.norm.errors({ message: 'email, password, and name is required' }));
   }
 
   // see if a user with the given email exists
-  User.findOne({ email: email }, function(err, existingUser){
-    if(err) return res.status(500).send(util.norm.errors(err));
+  User.findOne({ email: email }, function(err, existingUser) {
+    if (err) return res.status(500).send(util.norm.errors(err));
     // if a user with email does exist, return an error
-    if(existingUser) return res.status(422).send(util.norm.errors({message: 'Email is in use'}));
+    if (existingUser) return res.status(422).send(util.norm.errors({ message: 'Email is in use' }));
 
     // To be called after organization is set
     const createUser = () => {
@@ -38,25 +38,24 @@ exports.register = function(req, res) {
         phoneNumber: phoneNumber
       });
 
-      user.save(function(err){
-        if(err) return res.status(500).send(util.norm.errors(err));
-        return res.send({token: user.getToken()});
+      user.save(function(err) {
+        if (err) return res.status(500).send(util.norm.errors(err));
+        return res.send({ token: user.getToken() });
       });
     };
 
     Organization.findById(organization, function(err, org) {
-      if(err) return res.status(500).send(util.norm.errors(err));
-      if(!org) {
+      if (err) return res.status(500).send(util.norm.errors(err));
+      if (!org) {
         // Create org for new user
-        const newOrg = new Organization({ name: `${name}'s Organization`});
+        const newOrg = new Organization({ name: `${name}'s Organization` });
         newOrg.save(err => {
-          if(err) return res.status(500).send(util.norm.errors(err));
+          if (err) return res.status(500).send(util.norm.errors(err));
           organization = newOrg._id;
           isAdmin = true;
           createUser();
         })
-      }
-      else {
+      } else {
         createUser();
       }
     });

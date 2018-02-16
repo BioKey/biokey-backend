@@ -6,16 +6,14 @@
  * @return {Object}     Normalized errors
  */
 const normalizeError = function(err) {
-  let error = {name: 'Error', message: 'Something went wrong... Sorry bout it...'}
+  let error = { name: 'Error', message: 'Something went wrong... Sorry bout it...' }
 
   if (err.name && err.message) {
     error.name = err.name;
     error.message = err.message;
-  }
-  else if (err.message) {
+  } else if (err.message) {
     error.message = err.message;
-  }
-  else if (err.errmsg) {
+  } else if (err.errmsg) {
     let parts = err.errmsg.split(': ')
     error.name = parts[0]
     error.message = parts.slice(1).join(': ')
@@ -36,7 +34,7 @@ const normalizeErrors = function(errors) {
     errors = [errors]
   }
   errors = errors.map(normalizeError);
-  return {errors}
+  return { errors }
 
 }
 
@@ -52,12 +50,12 @@ const normalizeErrors = function(errors) {
 const filterQuery = function(query, allowedParams) {
   let newQuery = {};
   allowedParams.forEach(p => {
-    if(query[p]) newQuery[p] = query[p]
+    if (query[p]) newQuery[p] = query[p]
   });
   return newQuery;
 }
 
-module.exports = { 
+module.exports = {
   norm: {
     error: normalizeError,
     errors: normalizeErrors

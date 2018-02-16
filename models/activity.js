@@ -6,12 +6,12 @@ var activitySchema = mongoose.Schema({
         require: true
     },
     typingProfile: {
-        type: mongoose.Schema.ObjectId, 
+        type: mongoose.Schema.ObjectId,
         ref: ('TypingProfile'),
         require: true
     },
     activityType: {
-        type: mongoose.Schema.ObjectId, 
+        type: mongoose.Schema.ObjectId,
         ref: ('ActivityType'),
         require: true
     }

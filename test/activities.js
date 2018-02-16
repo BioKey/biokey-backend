@@ -14,21 +14,21 @@ chai.use(chaiHttp);
 
 after(function(done) {
   //clear out db
-  Activity.remove(function(err){
-    TypingProfile.remove(function(err){
-      ActivityType.remove(function(err){
+  Activity.remove(function(err) {
+    TypingProfile.remove(function(err) {
+      ActivityType.remove(function(err) {
         Organization.remove(function(err) {
-          User.remove(function(err){
+          User.remove(function(err) {
             mongoose.connection.close();
-            done(); 
+            done();
           });
         })
-      });  
-    }); 
+      });
+    });
   });
 });
 
-describe('Activities', function(){
+describe('Activities', function() {
 
   var testActivity = {
     timestamp: 8008
@@ -56,56 +56,56 @@ describe('Activities', function(){
     organization: mongoose.Types.ObjectId()
   };
 
-  beforeEach(function(done){
+  beforeEach(function(done) {
     var newUser = new User(testUser);
     chai.request(server)
-    .post('/api/auth/register')
-    .send(newUser)
-    .end(function(err, res){
+      .post('/api/auth/register')
+      .send(newUser)
+      .end(function(err, res) {
 
-      testTypingProfile.accessToken = res.body.token;
+        testTypingProfile.accessToken = res.body.token;
 
-      User.findOne({email: testUser.email}, function(err, user){
+        User.findOne({ email: testUser.email }, function(err, user) {
 
-        //Getting user id
-        testUser._id = user._id;
-        testTypingProfile.user =  user._id
-        
-        var newTypingProfile = new TypingProfile(testTypingProfile);
-        newTypingProfile.save(function(err, data){
-          //Getting activity id
-          testActivity.typingProfile = data.id;
-          testTypingProfile._id = data.id
+          //Getting user id
+          testUser._id = user._id;
+          testTypingProfile.user = user._id
 
-          var newActivityType = new ActivityType(testActivityType);
-          newActivityType.save(function(err, data){
+          var newTypingProfile = new TypingProfile(testTypingProfile);
+          newTypingProfile.save(function(err, data) {
+            //Getting activity id
+            testActivity.typingProfile = data.id;
+            testTypingProfile._id = data.id
+
+            var newActivityType = new ActivityType(testActivityType);
+            newActivityType.save(function(err, data) {
               //Getting activity type id
               testActivityType._id = data.id;
               testActivity.activityType = data.id;
 
               var newActivity = new Activity(testActivity);
-              newActivity.save(function(err, data){
+              newActivity.save(function(err, data) {
                 //Getting activity id
                 testActivity._id = data.id;
                 done();
               });
             });
+          });
         });
       });
-    });
   });
 
-  afterEach(function(done){
-    Activity.remove(function(err){
-      TypingProfile.remove(function(err){
-        ActivityType.remove(function(err){
+  afterEach(function(done) {
+    Activity.remove(function(err) {
+      TypingProfile.remove(function(err) {
+        ActivityType.remove(function(err) {
           Organization.remove(function(err) {
-            User.remove(function(err){
-              done(); 
+            User.remove(function(err) {
+              done();
             });
           })
-        });  
-      }); 
+        });
+      });
     });
   });
 
@@ -121,220 +121,226 @@ describe('Activities', function(){
     activity.typingProfile.should.equal(val.typingProfile);
   };
 
-  describe('/api/activities', function(){
+  describe('/api/activities', function() {
 
     let postActivity = {
       timestamp: 8100
     };
 
     //POST Testing
-    it('POST should create a new activity', function(done){
+    it('POST should create a new activity', function(done) {
       postActivity.typingProfile = testActivity.typingProfile;
       postActivity.activityType = testActivity.activityType;
       chai.request(server)
-      .post('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .send({activity: postActivity})
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        postActivity._id = res.body.activity._id;
-        confirmActivity(res.body.activity, postActivity);
-        done();
-      });
+        .post('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
+        .send({ activity: postActivity })
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          postActivity._id = res.body.activity._id;
+          confirmActivity(res.body.activity, postActivity);
+          done();
+        });
     });
 
-    it('POST should not create a activity when the typingProfile cannot be found ', function(done){
+    it('POST should not create a activity when the typingProfile cannot be found ', function(done) {
       postActivity.typingProfile = mongoose.Types.ObjectId();
       postActivity.activityType = testActivity.activityType;
       chai.request(server)
-      .post('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .send({activity: postActivity})
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .post('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
+        .send({ activity: postActivity })
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
 
-    it('POST should not create a activity when the activityType cannot be found ', function(done){
+    it('POST should not create a activity when the activityType cannot be found ', function(done) {
       postActivity.typingProfile = testActivity.typingProfile;
       postActivity.activityType = mongoose.Types.ObjectId();
       chai.request(server)
-      .post('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .send({activity: postActivity})
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .post('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
+        .send({ activity: postActivity })
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
 
     //GET Testing
-    it('GET should list all activities', function(done){
+    it('GET should list all activities', function(done) {
       chai.request(server)
-      .get('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        res.body.activities.should.be.a('array');
-        confirmActivity(res.body.activities[0], testActivity);
-        done();
-      });
+        .get('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.activities.should.be.a('array');
+          confirmActivity(res.body.activities[0], testActivity);
+          done();
+        });
     });
   });
 
-  describe('/api/activities/<id>', function(){
+  describe('/api/activities/<id>', function() {
 
     //GET Testing
-    it('GET should, when it exists, list one activity', function(done){
+    it('GET should, when it exists, list one activity', function(done) {
       chai.request(server)
-      .get('/api/activities/'+testActivity._id)
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        confirmActivity(res.body.activity, testActivity);
-        done();
-      });
+        .get('/api/activities/' + testActivity._id)
+        .set('authorization', testTypingProfile.accessToken)
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          confirmActivity(res.body.activity, testActivity);
+          done();
+        });
     });
 
-    it('GET should not list the requested activity if it does not exist', function(done){
+    it('GET should not list the requested activity if it does not exist', function(done) {
       chai.request(server)
-      .get('/api/activities/' + mongoose.Types.ObjectId())
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .get('/api/activities/' + mongoose.Types.ObjectId())
+        .set('authorization', testTypingProfile.accessToken)
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
 
     //PUT Testing
-    it('PUT should update a single activity', function(done){
+    it('PUT should update a single activity', function(done) {
       chai.request(server)
-      .get('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-        let selectedActivity = res.body.activities[0];
-        chai.request(server)
-        .put('/api/activities/'+selectedActivity._id)
+        .get('/api/activities')
         .set('authorization', testTypingProfile.accessToken)
-        .send({activity: {
-          'timestamp': 9000,
-          'typingProfile': selectedActivity.typingProfile,
-          'activityType': selectedActivity.activityType
-        }})
-        .end(function(error, response){
-          response.should.have.status(200);
-          response.should.be.json;
-          confirmActivity(response.body.activity, {
-            _id: res.body.activities[0]._id,
-            'timestamp': 9000,
-            'typingProfile': selectedActivity.typingProfile,
-            'activityType': selectedActivity.activityType
-          });
-          done();
+        .end(function(err, res) {
+          let selectedActivity = res.body.activities[0];
+          chai.request(server)
+            .put('/api/activities/' + selectedActivity._id)
+            .set('authorization', testTypingProfile.accessToken)
+            .send({
+              activity: {
+                'timestamp': 9000,
+                'typingProfile': selectedActivity.typingProfile,
+                'activityType': selectedActivity.activityType
+              }
+            })
+            .end(function(error, response) {
+              response.should.have.status(200);
+              response.should.be.json;
+              confirmActivity(response.body.activity, {
+                _id: res.body.activities[0]._id,
+                'timestamp': 9000,
+                'typingProfile': selectedActivity.typingProfile,
+                'activityType': selectedActivity.activityType
+              });
+              done();
+            });
         });
-      });
     });
 
-    it('PUT should not update the requested activity if it does not exist', function(done){
+    it('PUT should not update the requested activity if it does not exist', function(done) {
       chai.request(server)
-      .put('/api/activities/' + mongoose.Types.ObjectId())
-      .set('authorization', testTypingProfile.accessToken)
-      .send({})
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
-    });
-
-    it('PUT should not update the activity if the typingProfile cannot be found', function(done){
-      chai.request(server)
-      .get('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-        chai.request(server)
-        .put('/api/activities/'+res.body.activities[0]._id)
+        .put('/api/activities/' + mongoose.Types.ObjectId())
         .set('authorization', testTypingProfile.accessToken)
-        .send({activity: {
-          'character': 'c',
-          'timestamp': 9000,
-          'upOrDown': 'U',
-          'typingProfile': mongoose.Types.ObjectId(),
-          'activityType': res.body.activities[0].activityType
-        }})
-        .end(function(error, response){
-          response.should.have.status(404);
+        .send({})
+        .end(function(err, res) {
+          res.should.have.status(404);
           done();
         });
-      });
     });
 
-    it('PUT should not update the activity if the activityType cannot be found', function(done){
+    it('PUT should not update the activity if the typingProfile cannot be found', function(done) {
       chai.request(server)
-      .get('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-        chai.request(server)
-        .put('/api/activities/'+res.body.activities[0]._id)
+        .get('/api/activities')
         .set('authorization', testTypingProfile.accessToken)
-        .send({activity: {
-          'character': 'c',
-          'timestamp': 9000,
-          'upOrDown': 'U',
-          'typingProfile': res.body.activities[0].typingProfile,
-          'activityType': mongoose.Types.ObjectId()
-        }})
-        .end(function(error, response){
-          response.should.have.status(404);
-          done();
+        .end(function(err, res) {
+          chai.request(server)
+            .put('/api/activities/' + res.body.activities[0]._id)
+            .set('authorization', testTypingProfile.accessToken)
+            .send({
+              activity: {
+                'character': 'c',
+                'timestamp': 9000,
+                'upOrDown': 'U',
+                'typingProfile': mongoose.Types.ObjectId(),
+                'activityType': res.body.activities[0].activityType
+              }
+            })
+            .end(function(error, response) {
+              response.should.have.status(404);
+              done();
+            });
         });
-      });
+    });
+
+    it('PUT should not update the activity if the activityType cannot be found', function(done) {
+      chai.request(server)
+        .get('/api/activities')
+        .set('authorization', testTypingProfile.accessToken)
+        .end(function(err, res) {
+          chai.request(server)
+            .put('/api/activities/' + res.body.activities[0]._id)
+            .set('authorization', testTypingProfile.accessToken)
+            .send({
+              activity: {
+                'character': 'c',
+                'timestamp': 9000,
+                'upOrDown': 'U',
+                'typingProfile': res.body.activities[0].typingProfile,
+                'activityType': mongoose.Types.ObjectId()
+              }
+            })
+            .end(function(error, response) {
+              response.should.have.status(404);
+              done();
+            });
+        });
     });
 
     //DELETE Testing
-    it('DELETE should delete a single activity', function(done){
+    it('DELETE should delete a single activity', function(done) {
       chai.request(server)
-      .get('/api/activities')
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-
-        res.should.have.status(200);
-        res.body.activities.should.be.a('array');
-        res.body.activities.length.should.equal(1);
-
-        chai.request(server)
-        .delete('/api/activities/'+res.body.activities[0]._id)
+        .get('/api/activities')
         .set('authorization', testTypingProfile.accessToken)
-        .end(function(err2, res2){
+        .end(function(err, res) {
 
-          res2.should.have.status(200);
+          res.should.have.status(200);
+          res.body.activities.should.be.a('array');
+          res.body.activities.length.should.equal(1);
 
           chai.request(server)
-          .get('/api/activities')
-          .set('authorization', testTypingProfile.accessToken)
-          .end(function(err3, res3){
+            .delete('/api/activities/' + res.body.activities[0]._id)
+            .set('authorization', testTypingProfile.accessToken)
+            .end(function(err2, res2) {
 
-            res3.should.have.status(200);
-            res3.body.activities.should.be.a('array');
-            res3.body.activities.length.should.equal(0);
+              res2.should.have.status(200);
 
-            done();
-          });
+              chai.request(server)
+                .get('/api/activities')
+                .set('authorization', testTypingProfile.accessToken)
+                .end(function(err3, res3) {
+
+                  res3.should.have.status(200);
+                  res3.body.activities.should.be.a('array');
+                  res3.body.activities.length.should.equal(0);
+
+                  done();
+                });
+            });
         });
-      });
     });
 
-    it('DELETE should not delete the requested activity if it does not exist', function(done){
+    it('DELETE should not delete the requested activity if it does not exist', function(done) {
       chai.request(server)
-      .delete('/api/activities/' + mongoose.Types.ObjectId())
-      .set('authorization', testTypingProfile.accessToken)
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .delete('/api/activities/' + mongoose.Types.ObjectId())
+        .set('authorization', testTypingProfile.accessToken)
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
   });
 });

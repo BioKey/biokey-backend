@@ -12,17 +12,17 @@ chai.use(chaiHttp);
 
 after(function(done) {
   //clear out db
-  Machine.remove(function(err){
-    Organization.remove(function(err){
-      User.remove(function(err){
+  Machine.remove(function(err) {
+    Organization.remove(function(err) {
+      User.remove(function(err) {
         mongoose.connection.close();
-        done(); 
+        done();
       });
-    });   
+    });
   });
 });
 
-describe('Machines', function(){
+describe('Machines', function() {
 
   var testMachine = {
     mac: 'testmacaddress1'
@@ -50,33 +50,33 @@ describe('Machines', function(){
 
   var testToken;
 
-  beforeEach(function(done){
+  beforeEach(function(done) {
     var newUser = new User(testUser);
     chai.request(server)
-    .post('/api/auth/register')
-    .send(newUser)
-    .end(function(err, res){
-      testToken = res.body.token;
-      var newOrganization = new Organization(testOrganization);
-      newOrganization.save(function(err, data){
+      .post('/api/auth/register')
+      .send(newUser)
+      .end(function(err, res) {
+        testToken = res.body.token;
+        var newOrganization = new Organization(testOrganization);
+        newOrganization.save(function(err, data) {
           testOrganization._id = data.id;
           testMachine.organization = data.id;
           var newMachine = new Machine(testMachine);
-          newMachine.save(function(err, data){
+          newMachine.save(function(err, data) {
             testMachine._id = data.id;
             done();
           });
+        });
       });
-    });
   });
 
-  afterEach(function(done){
-    Machine.remove(function(err){
-      Organization.remove(function(err){
-        User.remove(function(err){
-          done(); 
+  afterEach(function(done) {
+    Machine.remove(function(err) {
+      Organization.remove(function(err) {
+        User.remove(function(err) {
+          done();
         });
-      });   
+      });
     });
   });
 
@@ -90,191 +90,195 @@ describe('Machines', function(){
     machine.organization.should.equal(val.organization);
   };
 
-  describe('/api/machines', function(){
-    
+  describe('/api/machines', function() {
+
     let postMachine = {
-        mac: 'testmacaddress2'
+      mac: 'testmacaddress2'
     };
 
     //POST Testing
-    it('POST should create a new machine', function(done){
+    it('POST should create a new machine', function(done) {
       postMachine.organization = testMachine.organization;
       chai.request(server)
-      .post('/api/machines')
-      .set('authorization', testToken)
-      .send({machine: postMachine})
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        postMachine._id = res.body.machine._id;
-        confirmMachine(res.body.machine, postMachine);
-        done();
-      });
+        .post('/api/machines')
+        .set('authorization', testToken)
+        .send({ machine: postMachine })
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          postMachine._id = res.body.machine._id;
+          confirmMachine(res.body.machine, postMachine);
+          done();
+        });
     });
 
-    it('POST should not create a machine with a duplicate mac', function(done){
+    it('POST should not create a machine with a duplicate mac', function(done) {
       chai.request(server)
-      .post('/api/machines')
-      .set('authorization', testToken)
-      .send({machine: postMachine})
-      .end(function(err, res){ });
+        .post('/api/machines')
+        .set('authorization', testToken)
+        .send({ machine: postMachine })
+        .end(function(err, res) {});
       chai.request(server)
-      .post('/api/machines')
-      .set('authorization', testToken)
-      .send({machine: postMachine})
-      .end(function(err, res){
-        res.should.have.status(500);
-        done();
-      });
+        .post('/api/machines')
+        .set('authorization', testToken)
+        .send({ machine: postMachine })
+        .end(function(err, res) {
+          res.should.have.status(500);
+          done();
+        });
     });
 
-    it('POST should not create a machine when the organization cannot be found ', function(done){
+    it('POST should not create a machine when the organization cannot be found ', function(done) {
       postMachine.organization = mongoose.Types.ObjectId();
       chai.request(server)
-      .post('/api/machines')
-      .set('authorization', testToken)
-      .send({machine: postMachine})
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .post('/api/machines')
+        .set('authorization', testToken)
+        .send({ machine: postMachine })
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
 
     //GET Testing
-    it('GET should list all machines', function(done){
+    it('GET should list all machines', function(done) {
       chai.request(server)
-      .get('/api/machines')
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        res.body.machines.should.be.a('array');
-        confirmMachine(res.body.machines[0], testMachine);
-        done();
-      });
+        .get('/api/machines')
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.machines.should.be.a('array');
+          confirmMachine(res.body.machines[0], testMachine);
+          done();
+        });
     });
   });
 
-  describe('/api/machines/<id>', function(){
-    
+  describe('/api/machines/<id>', function() {
+
     //GET Testing
-    it('GET should, when it exists, list one machine', function(done){
+    it('GET should, when it exists, list one machine', function(done) {
       chai.request(server)
-      .get('/api/machines/'+testMachine._id)
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        confirmMachine(res.body.machine, testMachine);
-        done();
-      });
+        .get('/api/machines/' + testMachine._id)
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          res.should.have.status(200);
+          res.should.be.json;
+          confirmMachine(res.body.machine, testMachine);
+          done();
+        });
     });
 
-    it('GET should not list the requested machine if it does not exist', function(done){
+    it('GET should not list the requested machine if it does not exist', function(done) {
       chai.request(server)
-      .get('/api/machines/' + mongoose.Types.ObjectId())
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .get('/api/machines/' + mongoose.Types.ObjectId())
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
 
     //PUT Testing
-    it('PUT should update a single machine', function(done){
+    it('PUT should update a single machine', function(done) {
       chai.request(server)
-      .get('/api/machines')
-      .set('authorization', testToken)
-      .end(function(err, res){
-        chai.request(server)
-        .put('/api/machines/'+res.body.machines[0]._id)
-        .set('authorization', testToken)
-        .send({machine: {
-          'mac': 'Updated mac',
-          'organization': res.body.machines[0].organization
-        }})
-        .end(function(error, response){
-          response.should.have.status(200);
-          response.should.be.json;
-          confirmMachine(response.body.machine, {
-            _id: res.body.machines[0]._id,
-            'mac': 'Updated mac',
-            'organization': res.body.machines[0].organization
-          });
-          done();
-        });
-      });
-    });
-
-    it('PUT should not update the requested machine if it does not exist', function(done){
-      chai.request(server)
-      .put('/api/machines/' + mongoose.Types.ObjectId())
-      .set('authorization', testToken)
-      .send({})
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
-    });
-
-    it('PUT should not update the machine if the organization cannot be found', function(done){
-        chai.request(server)
         .get('/api/machines')
         .set('authorization', testToken)
-        .end(function(err, res){
+        .end(function(err, res) {
           chai.request(server)
-          .put('/api/machines/'+res.body.machines[0]._id)
-          .set('authorization', testToken)
-          .send({machine: {
-            'mac': 'Updated mac',
-            'organization': mongoose.Types.ObjectId()
-          }})
-          .end(function(error, response){
-            response.should.have.status(404);
-            done();
-          });
+            .put('/api/machines/' + res.body.machines[0]._id)
+            .set('authorization', testToken)
+            .send({
+              machine: {
+                'mac': 'Updated mac',
+                'organization': res.body.machines[0].organization
+              }
+            })
+            .end(function(error, response) {
+              response.should.have.status(200);
+              response.should.be.json;
+              confirmMachine(response.body.machine, {
+                _id: res.body.machines[0]._id,
+                'mac': 'Updated mac',
+                'organization': res.body.machines[0].organization
+              });
+              done();
+            });
         });
-      });
-
-    //DELETE Testing
-    it('DELETE should delete a single machine', function(done){
-      chai.request(server)
-      .get('/api/machines')
-      .set('authorization', testToken)
-      .end(function(err, res){
-
-        res.should.have.status(200);
-        res.body.machines.should.be.a('array');
-        res.body.machines.length.should.equal(1);
-
-        chai.request(server)
-        .delete('/api/machines/'+res.body.machines[0]._id)
-        .set('authorization', testToken)
-        .end(function(err2, res2){
-
-          res2.should.have.status(200);
-
-          chai.request(server)
-          .get('/api/machines')
-          .set('authorization', testToken)
-          .end(function(err3, res3){
-
-            res3.should.have.status(200);
-
-            done();
-          });
-        });
-      });
     });
 
-    it('DELETE should not delete the requested machine if it does not exist', function(done){
+    it('PUT should not update the requested machine if it does not exist', function(done) {
       chai.request(server)
-      .delete('/api/machines/' + mongoose.Types.ObjectId())
-      .set('authorization', testToken)
-      .end(function(err, res){
-        res.should.have.status(404);
-        done();
-      });
+        .put('/api/machines/' + mongoose.Types.ObjectId())
+        .set('authorization', testToken)
+        .send({})
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
+    });
+
+    it('PUT should not update the machine if the organization cannot be found', function(done) {
+      chai.request(server)
+        .get('/api/machines')
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          chai.request(server)
+            .put('/api/machines/' + res.body.machines[0]._id)
+            .set('authorization', testToken)
+            .send({
+              machine: {
+                'mac': 'Updated mac',
+                'organization': mongoose.Types.ObjectId()
+              }
+            })
+            .end(function(error, response) {
+              response.should.have.status(404);
+              done();
+            });
+        });
+    });
+
+    //DELETE Testing
+    it('DELETE should delete a single machine', function(done) {
+      chai.request(server)
+        .get('/api/machines')
+        .set('authorization', testToken)
+        .end(function(err, res) {
+
+          res.should.have.status(200);
+          res.body.machines.should.be.a('array');
+          res.body.machines.length.should.equal(1);
+
+          chai.request(server)
+            .delete('/api/machines/' + res.body.machines[0]._id)
+            .set('authorization', testToken)
+            .end(function(err2, res2) {
+
+              res2.should.have.status(200);
+
+              chai.request(server)
+                .get('/api/machines')
+                .set('authorization', testToken)
+                .end(function(err3, res3) {
+
+                  res3.should.have.status(200);
+
+                  done();
+                });
+            });
+        });
+    });
+
+    it('DELETE should not delete the requested machine if it does not exist', function(done) {
+      chai.request(server)
+        .delete('/api/machines/' + mongoose.Types.ObjectId())
+        .set('authorization', testToken)
+        .end(function(err, res) {
+          res.should.have.status(404);
+          done();
+        });
     });
   });
 });

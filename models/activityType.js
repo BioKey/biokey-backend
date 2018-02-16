@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 var activityTypeSchema = mongoose.Schema({
     description: {
-        type: String, 
+        type: String,
         trim: true,
         unique: true,
         require: true

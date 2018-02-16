@@ -68,7 +68,7 @@ router.get('/:id', middleware.requireAuth, TypingProfile.get)
  * @apiUse UnauthorizedError
  * 
  */
-router.post('/:mac/heartbeat',middleware.requireAuth,TypingProfile.heartbeat)
+router.post('/:mac/heartbeat', middleware.requireAuth, TypingProfile.heartbeat)
 
 /**
  * @api {post} /api/typingProfiles/machine/:mac  PostMachineTypingProfile
