@@ -37,7 +37,6 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				machine: machine._id,
 				isLocked: false,
 				tensorFlowModel: "",
-				endpoint: "", // TODO: tensorFlowModel and endpoint creation
 				challengeStrategies: organization.defaultChallengeStrategies,
 				threshold: organization.defaultThreshold
 			});
