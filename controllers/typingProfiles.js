@@ -3,6 +3,14 @@ const User = require('../models/user');
 const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
+var AWS = require('aws-sdk');
+AWS.config.update({ 
+    "accessKeyId": "AKIAJIIIB3OU5NDDZVOQ", 
+    "secretAccessKey": "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", 
+    "region": "us-east-2" 
+});
+
+var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
@@ -135,6 +143,19 @@ exports.update = function(req, res) {
 			// Save typing profile
 			TypingProfile.findByIdAndUpdate(req.params.id, updatedProfile, { new: true }, (err, typingProfile) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
+				let sendParams = {
+                    MessageBody: JSON.stringify(typingProfile),
+                    QueueUrl: typingProfile.endpoint,
+                    MessageGroupId: typingProfile._id+""
+				}/*
+				//Send updated typing profile to SQS
+                sqs.sendMessage(sendParams, function(err, sent) {
+                    if (err) {
+                        console.log("Error", err);
+                      } else {
+                        console.log("Success", sent.MessageId);
+                      }
+				});*/
 				res.send({ typingProfile });
 			});
 		})
