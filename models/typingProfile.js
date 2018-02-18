@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
 var AWS = require('aws-sdk');
 AWS.config.update({ 
-    "accessKeyId": "AKIAITJLQUJBBCWMFU4Q", 
-    "secretAccessKey": "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", 
+    "accessKeyId": process.env.AWS_KEY, 
+    "secretAccessKey": process.env.AWS_SECRET, 
     "region": "us-east-2" 
 });
 
