@@ -57,7 +57,7 @@ router.get('/:id', middleware.requireAuth, TypingProfile.get)
 
 
 /**
- * @api {post} /api/typingProfiles/:mac/heartbeat  PostHeartBeat
+ * @api {post} /api/typingProfiles/:id/heartbeat  PostHeartBeat
  * @apiName PostHeartbeat
  * @apiDescription
  * Recieves a hearbeat request from the client to verify client is online and secure.
