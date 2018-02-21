@@ -81,11 +81,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 }
 
 exports.heartbeat = function(req, res) {
-	Machine.findOne({ mac: req.params.mac }, (err, machine) => {
-		if (err) return res.status(500).send(util.norm.errors(err));
-		if (!machine) return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
-		// Find typing profile with user, machine pair
-		TypingProfile.findOne({ user: req.user._id, machine: machine._id }, (err, typingProfile) => {
+	TypingProfile.findById(req.params.id, (err, typingProfile) => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
 			typingProfile.lastHeartbeat = Date.now();
@@ -94,7 +90,6 @@ exports.heartbeat = function(req, res) {
 				res.sendStatus(200);
 			});
 		});
-	})
 }
 
 exports.post = function(req, res) {
