@@ -42,24 +42,18 @@ var typingProfileSchema = mongoose.Schema({
 
 typingProfileSchema.index({ user: 1, machine: 1 }, { unique: true }); // ASSUMPTION: user-machine pairs should be unique
 
-//Create SQS server + endpoint
-typingProfileSchema.post('save', function(typingProfile, next) {
-    
-    if(typingProfile.endpoint!=null) next();
+// Create SQS server + endpoint.
+typingProfileSchema.pre('save', function(next) {
+    // Check if endpoint has already been set.
+    if (!!this.endpoint) return next();
 
-    createParams.QueueName = typingProfile._id+".fifo";
-
+    createParams.QueueName = this._id + ".fifo";
     sqs.createQueue(createParams, function(err, data) {
         if (err) {
           console.log("Error", err);
         } else {
           console.log("Success can be found at " + data.QueueUrl);
-          typingProfile.endpoint = data.QueueUrl;
-          typingProfile.save(function(err, saved){
-            if(err) console.log(err);
-            else console.log("Typing profile saved successfully! " + saved.endpoint);
-            next();
-          });
+          this.endpoint = data.QueueUrl;
         }
         next();
     });
