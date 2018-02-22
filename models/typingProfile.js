@@ -1,10 +1,6 @@
 var mongoose = require('mongoose');
 var AWS = require('aws-sdk');
-AWS.config.update({ 
-    "accessKeyId": process.env.AWS_KEY, 
-    "secretAccessKey": process.env.AWS_SECRET, 
-    "region": "us-east-2" 
-});
+AWS.config.update({ "region": process.env.AWS_REGION });
 
 var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 

@@ -4,11 +4,7 @@ const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
 var AWS = require('aws-sdk');
-AWS.config.update({ 
-    "accessKeyId": "AKIAJIIIB3OU5NDDZVOQ", 
-    "secretAccessKey": "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", 
-    "region": "us-east-2" 
-});
+AWS.config.update({ "region": process.env.AWS_REGION });
 
 var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
