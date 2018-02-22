@@ -33,9 +33,6 @@ app.use('/api/users', users);
 var activities = require('./routes/activities');
 app.use('/api/activities', activities);
 
-var activityTypes = require('./routes/activityTypes');
-app.use('/api/activityTypes', activityTypes);
-
 var keystrokes = require('./routes/keystrokes');
 app.use('/api/keystrokes', keystrokes);
 

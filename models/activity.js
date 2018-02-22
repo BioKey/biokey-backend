@@ -11,8 +11,8 @@ var activitySchema = mongoose.Schema({
         require: true
     },
     activityType: {
-        type: mongoose.Schema.ObjectId,
-        ref: ('ActivityType'),
+        type: String,
+        enum: ['LOCKED', 'UNLOCKED', 'LOGIN', 'LOGIN'], // Add more here
         require: true
     }
 });
