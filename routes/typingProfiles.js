@@ -103,7 +103,10 @@ router.post('/', middleware.requireAuth, TypingProfile.post);
  * @api {put} /api/typingProfiles/:id  UpdateTypingProfile
  * @apiName UpdateTypingProfile
  * @apiDescription
- * Update a typing profile.
+ * Update a typing profile. Enqueues an SQS job.
+ * 
+ * @apiSampleRequest sqsJob
+ * 
  * 
  * @apiGroup TypingProfiles
  * 

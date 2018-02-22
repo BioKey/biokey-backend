@@ -1,5 +1,11 @@
 const User = require('../models/user');
+const TypingProfile = require('../models/typingProfile');
 const util = require('../services/util');
+var mongoose = require('mongoose');
+var AWS = require('aws-sdk');
+AWS.config.update({ "region": process.env.AWS_REGION });
+
+var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
 exports.me = function(req, res) {
 	res.send({ user: req.user });
@@ -43,6 +49,12 @@ exports.update = function(req, res) {
 
 	User.findByIdAndUpdate(req.params.id, updatedUser, { new: true }, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
+		//Send a message to the SQS server
+		TypingProfile.find({"user": user._id}, function (err, typingProfiles) {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			if (!typingProfiles) return res.status(404).send(util.norm.errors(err));
+			sendUserMessage(user, typingProfiles[0]);
+		});
 		res.send({ user });
 	});
 }
@@ -52,5 +64,38 @@ exports.delete = function(req, res) {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
 		res.sendStatus(200);
+	});
+}
+
+/**
+ * Function to send a "User"-type message to the client.
+ */
+var sendUserMessage = function(user, typingProfile){
+
+	console.log("Sending a user message!");
+	
+	let sendParams = {
+		QueueUrl: typingProfile.endpoint,
+		MessageGroupId: typingProfile._id+"",
+		MessageBody: JSON.stringify(user),
+		MessageAttributes: {
+			"ChangeType": {
+				DataType: "String",
+				StringValue: "User"
+			},
+			"Timestamp": {
+				DataType: "Number",
+				StringValue: Date.now()+""
+			}
+		}
+	}
+
+	//Send updated typing profile to SQS
+	sqs.sendMessage(sendParams, function(err, sent) {
+		if (err) {
+			console.log("Error", err);
+		} else {
+			console.log("Success", sent.MessageId);
+		}
 	});
 }

@@ -90,6 +90,7 @@ router.post('/', middleware.requireAdmin, User.post);
  * @apiName UpdateUser
  * @apiDescription 
  * Update a user with optional password update. Returns the updated user. Include "password" in body to change password.
+ * Enqueues an SQS job.
  * 
  * @apiGroup Users
  * @apiUse RequestHeaders

@@ -258,7 +258,7 @@ describe('TypingProfiles', function() {
         .set('authorization', testTypingProfile.accessToken)
         .send({ user: mongoose.Types.ObjectId(), machine: mongoose.Types.ObjectId() })
         .end(function(err, res) {
-          res.should.have.status(404);
+          res.should.have.status(500);
           done();
         });
     });

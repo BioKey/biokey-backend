@@ -5,12 +5,14 @@ var mongoose = require('mongoose');
 var server = require('../app');
 var User = require('../models/user');
 var Organization = require('../models/organization');
+var TypingProfile = require('../models/typingProfile');
 
 var should = chai.should();
 chai.use(chaiHttp);
 
 let testOrg;
 let testUser;
+var testTP;
 
 after(function(done) {
   //clear out db
@@ -39,7 +41,16 @@ describe('Users', function() {
         organization: testOrg.id.toString(),
         isAdmin: true
       };
-      done();
+      testTP = new TypingProfile({
+        isLocked: false,
+        tensorFlowModel: 'tfmodel',
+        machine: mongoose.Types.ObjectId(),
+        user: mongoose.Types.ObjectId()
+      });
+      testTP.save(err => {
+        console.log(err);
+        done();
+      });
     });
   })
 
@@ -48,6 +59,7 @@ describe('Users', function() {
     newUser.save(err => {
       testUser._id = newUser.id;
       testToken = newUser.getToken();
+      testTP.user = newUser.id;
       done();
     });
   });
@@ -57,7 +69,6 @@ describe('Users', function() {
       done()
     })
   });
-
 
 
   let confirmUser = (user, val) => {
@@ -118,29 +129,33 @@ describe('Users', function() {
         });
     });
 
-    it('PUT should update a SINGLE user', function(done) {
+    it.only('PUT should update a SINGLE user', function (done) {
       chai.request(server)
         .get('/api/users')
         .set('authorization', testToken)
-        .end(function(err, res) {
+        .end(function (err, res) {
           let userToUpdate = res.body.users[0];
-          chai.request(server)
-            .put('/api/users/' + userToUpdate._id)
-            .set('authorization', testToken)
-            .send({ user: { 'name': 'Superman' } })
-            .end(function(error, response) {
-              response.should.have.status(200);
-              response.should.be.json;
-              confirmUser(response.body.user, {
-                _id: userToUpdate._id,
-                name: 'Superman',
-                email: userToUpdate.email,
-                isAdmin: userToUpdate.isAdmin,
-                phoneNumber: userToUpdate.phoneNumber,
-                organization: userToUpdate.organization
+          testTP.user = userToUpdate._id;
+          console.log("Final", testTP);
+          testTP.save(err => {
+            chai.request(server)
+              .put('/api/users/' + userToUpdate._id)
+              .set('authorization', testToken)
+              .send({ user: { 'name': 'Superman' } })
+              .end(function (error, response) {
+                response.should.have.status(200);
+                response.should.be.json;
+                confirmUser(response.body.user, {
+                  _id: userToUpdate._id,
+                  name: 'Superman',
+                  email: userToUpdate.email,
+                  isAdmin: userToUpdate.isAdmin,
+                  phoneNumber: userToUpdate.phoneNumber,
+                  organization: userToUpdate.organization
+                });
+                done();
               });
-              done();
-            });
+          });
         });
     });
 

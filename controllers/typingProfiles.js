@@ -134,19 +134,7 @@ exports.update = function(req, res) {
 			// Save typing profile
 			TypingProfile.findByIdAndUpdate(req.params.id, updatedProfile, { new: true }, (err, typingProfile) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
-				let sendParams = {
-                    MessageBody: JSON.stringify(typingProfile),
-                    QueueUrl: typingProfile.endpoint,
-                    MessageGroupId: typingProfile._id+""
-				}/*
-				//Send updated typing profile to SQS
-                sqs.sendMessage(sendParams, function(err, sent) {
-                    if (err) {
-                        console.log("Error", err);
-                      } else {
-                        console.log("Success", sent.MessageId);
-                      }
-				});*/
+				sendTypingProfileMessage(typingProfile);
 				res.send({ typingProfile });
 			});
 		})
@@ -158,5 +146,37 @@ exports.delete = function(req, res) {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
 		res.sendStatus(200);
+	});
+}
+
+/**
+ * Function to send a "TypingProfile"-type message to the client.
+ */
+var sendTypingProfileMessage = function(typingProfile){
+
+	console.log("Sending a typingProfile message!");
+
+	var sendParams = {
+		QueueUrl: typingProfile.endpoint,
+		MessageGroupId: typingProfile._id+"",
+		MessageBody: JSON.stringify(typingProfile),
+		MessageAttributes: {
+			"ChangeType": {
+				DataType: "String",
+				StringValue: "TypingProfile"
+			},
+			"Timestamp": {
+				DataType: "Number",
+				StringValue: Date.now()+""
+			}
+		}
+	}
+	//Send updated typing profile to SQS
+	sqs.sendMessage(sendParams, function(err, sent) {
+		if (err) {
+			console.log("Error", err);
+		  } else {
+			console.log("Success", sent.MessageId);
+		  }
 	});
 }

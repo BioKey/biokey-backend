@@ -45,6 +45,8 @@ typingProfileSchema.index({ user: 1, machine: 1 }, { unique: true }); // ASSUMPT
 //Create SQS server + endpoint
 typingProfileSchema.post('save', function(typingProfile, next) {
     
+    if(typingProfile.endpoint!=null) next();
+
     createParams.QueueName = typingProfile._id+".fifo";
 
     sqs.createQueue(createParams, function(err, data) {
@@ -54,27 +56,8 @@ typingProfileSchema.post('save', function(typingProfile, next) {
           console.log("Success can be found at " + data.QueueUrl);
           typingProfile.endpoint = data.QueueUrl;
           typingProfile.save(function(err, saved){
-            if(err) {
-                console.log(err);
-            }
-            else {
-                console.log("Typing profile saved successfully! " + saved.endpoint);
-                /* How-to enqueue a message!
-                let sendParams = {
-                    MessageBody: JSON.stringify(saved),
-                    QueueUrl: saved.endpoint,
-                    MessageGroupId: saved._id+""
-                }
-                sqs.sendMessage(sendParams, function(err, sent) {
-                    if (err) {
-                        console.log("Error", err);
-                      } else {
-                        console.log("Success", sent.MessageId);
-                      }
-                      next();
-                });
-                */
-            }
+            if(err) console.log(err);
+            else console.log("Typing profile saved successfully! " + saved.endpoint);
             next();
           });
         }
