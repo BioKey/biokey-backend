@@ -46,7 +46,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 			});
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
-				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber });
+				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber, googleAuthKey: user.googleAuthKey });
 			})
 		});
 	}
