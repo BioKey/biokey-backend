@@ -36,7 +36,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 			if (!organization) return res.status(404).send(util.norm.errors({ message: 'Organization not found' }));
 
 			// Create new typing profile and save
-			newTypingProfile = new TypingProfile({
+			newTypingProfile = new TypingProfile ({
 				user: user._id,
 				machine: machine._id,
 				isLocked: false,
@@ -47,7 +47,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber });
-			})
+			});
 		});
 	}
 
@@ -90,10 +90,10 @@ exports.heartbeat = function(req, res) {
 
 exports.post = function(req, res) {
 	var typingProfile = new TypingProfile(req.body.typingProfile);
-	// Assert admin or self made post
-	if (!req.user.isAdmin && req.user._id != typingProfile.user) {
-		return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
-	}
+	
+	// Determine how to handle the message
+	let origin = util.check(req.user, typingProfile.user);
+	if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 	// TODO: Validate before insert
 
@@ -116,11 +116,14 @@ exports.post = function(req, res) {
 
 exports.update = function(req, res) {
 	let updatedProfile = req.body.typingProfile;
-	// Assert admin or self made post
-	if (!req.user.isAdmin && req.user._id != typingProfile.user) {
+	
+	// Determine how to handle the message
+	let origin = util.check(req.user, req.body.typingProfile.user);
+	if (origin == 'INVALID') {
+		console.log('invalid!')
 		return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 	}
-
+	
 	// TODO: Verify changes before updating
 
 	// Assert valid user
@@ -132,10 +135,25 @@ exports.update = function(req, res) {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!machine) return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
 			// Save typing profile
-			TypingProfile.findByIdAndUpdate(req.params.id, updatedProfile, { new: true }, (err, typingProfile) => {
+			TypingProfile.findById(req.params.id, (err, typingProfile) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
-				sendTypingProfileMessage(typingProfile);
-				res.send({ typingProfile });
+				if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
+				
+				// Save activity, alert the relevant party
+				util.send.activity.typingProfile(origin, typingProfile, updatedProfile)
+			
+				typingProfile.user = updatedProfile.user;
+				typingProfile.machine = updatedProfile.machine;
+				typingProfile.isLocked = updatedProfile.isLocked;
+				typingProfile.lastHeartbeat = updatedProfile.lastHeartbeat;
+				typingProfile.tensorFlowModel = updatedProfile.tensorFlowModel;
+				typingProfile.challengeStrategies = updatedProfile.challengeStrategies;
+				typingProfile.threshold = updatedProfile.threshold;
+
+				typingProfile.save((err, saved) => {
+					if (err) return res.status(500).send(util.norm.errors(err));
+					res.send({ typingProfile: saved });
+				});
 			});
 		})
 	});
@@ -146,37 +164,5 @@ exports.delete = function(req, res) {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
 		res.sendStatus(200);
-	});
-}
-
-/**
- * Function to send a "TypingProfile"-type message to the client.
- */
-var sendTypingProfileMessage = function(typingProfile){
-
-	console.log("Sending a typingProfile message!");
-
-	var sendParams = {
-		QueueUrl: typingProfile.endpoint,
-		MessageGroupId: typingProfile._id+"",
-		MessageBody: JSON.stringify(typingProfile),
-		MessageAttributes: {
-			"ChangeType": {
-				DataType: "String",
-				StringValue: "TypingProfile"
-			},
-			"Timestamp": {
-				DataType: "Number",
-				StringValue: Date.now()+""
-			}
-		}
-	}
-	//Send updated typing profile to SQS
-	sqs.sendMessage(sendParams, function(err, sent) {
-		if (err) {
-			console.log("Error", err);
-		  } else {
-			console.log("Success", sent.MessageId);
-		  }
 	});
 }

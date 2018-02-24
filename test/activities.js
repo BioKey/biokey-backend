@@ -28,7 +28,10 @@ after(function(done) {
 describe('Activities', function() {
 
   var testActivity = {
-    timestamp: 8008
+    timestamp: 8008,
+    activityType: 'LOCKED',
+    initiatedBy: 'CLIENT',
+    parameters: {}
   };
 
   var testTypingProfile = {
@@ -112,10 +115,14 @@ describe('Activities', function() {
     activity.should.have.property('timestamp');
     activity.should.have.property('activityType');
     activity.should.have.property('typingProfile');
+    activity.should.have.property('initiatedBy');
+    activity.should.have.property('parameters');
     activity._id.should.equal(val._id);
     activity.timestamp.should.equal(val.timestamp);
     activity.activityType.should.equal(val.activityType);
     activity.typingProfile.should.equal(val.typingProfile);
+    activity.initiatedBy.should.equal(val.initiatedBy);
+    activity.parameters.should.equal(val.parameters);
   };
 
   describe('/api/activities', function() {
@@ -221,7 +228,9 @@ describe('Activities', function() {
           activity: {
             'timestamp': 9000,
             'typingProfile': selectedActivity.typingProfile,
-            'activityType': selectedActivity.activityType
+            'activityType': selectedActivity.activityType,
+            'initiatedBy': selectedActivity.initiatedBy,
+            'parameters': selectedActivity.parameters
           }
         })
         .end(function(error, response) {
@@ -231,7 +240,9 @@ describe('Activities', function() {
             _id: res.body.activities[0]._id,
             'timestamp': 9000,
             'typingProfile': selectedActivity.typingProfile,
-            'activityType': selectedActivity.activityType
+            'activityType': selectedActivity.activityType,
+            'initiatedBy': selectedActivity.initiatedBy,
+            'parameters': selectedActivity.parameters
           });
           done();
         });
@@ -263,7 +274,9 @@ describe('Activities', function() {
             'timestamp': 9000,
             'upOrDown': 'U',
             'typingProfile': mongoose.Types.ObjectId(),
-            'activityType': res.body.activities[0].activityType
+            'activityType': res.body.activities[0].activityType,
+            initiatedBy: 'CLIENT',
+            parameters: {}
           }
         })
         .end(function(error, response) {
@@ -287,7 +300,9 @@ describe('Activities', function() {
             'timestamp': 9000,
             'upOrDown': 'U',
             'typingProfile': res.body.activities[0].typingProfile,
-            'activityType': mongoose.Types.ObjectId()
+            'activityType': mongoose.Types.ObjectId(),
+            initiatedBy: 'CLIENT',
+            parameters: {}
           }
         })
         .end(function(error, response) {

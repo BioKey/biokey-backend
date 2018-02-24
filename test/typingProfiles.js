@@ -38,7 +38,6 @@ describe('TypingProfiles', function() {
     password: 'test',
     isAdmin: true,
     phoneNumber: '555-555-555',
-    endpoint: 'example.com/api/6b3b015129015e0a8b9c1649',
     organization: mongoose.Types.ObjectId()
   };
 
@@ -220,7 +219,7 @@ describe('TypingProfiles', function() {
     });
 
     //PUT Testing
-    it('PUT should update a single typingProfile', function(done) {
+    it.only('PUT should update a single typingProfile', function(done) {
       chai.request(server)
         .get('/api/typingProfiles')
         .set('authorization', testTypingProfile.accessToken)
@@ -230,7 +229,7 @@ describe('TypingProfiles', function() {
             .set('authorization', testTypingProfile.accessToken)
             .send({
               typingProfile: {
-                isLocked: true,
+                isLocked: false,
                 tensorFlowModel: 'anothertfmodel',
                 'user': res.body.typingProfiles[0].user,
                 'machine': res.body.typingProfiles[0].machine
@@ -241,9 +240,9 @@ describe('TypingProfiles', function() {
               response.should.be.json;
               confirmTypingProfile(response.body.typingProfile, {
                 _id: res.body.typingProfiles[0]._id,
-                isLocked: true,
                 tensorFlowModel: 'anothertfmodel',
                 'timestamp': 9000,
+                'isLocked': false,
                 'user': res.body.typingProfiles[0].user,
                 'machine': res.body.typingProfiles[0].machine
               });
@@ -276,6 +275,7 @@ describe('TypingProfiles', function() {
                 'character': 'c',
                 'timestamp': 9000,
                 'upOrDown': 'U',
+                'isLocked': true,
                 'user': mongoose.Types.ObjectId(),
                 'machine': res.body.typingProfiles[0].machine
               }
@@ -300,6 +300,7 @@ describe('TypingProfiles', function() {
                 'character': 'c',
                 'timestamp': 9000,
                 'upOrDown': 'U',
+                'isLocked': true,
                 'user': res.body.typingProfiles[0].user,
                 'machine': mongoose.Types.ObjectId()
               }

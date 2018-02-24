@@ -3,6 +3,7 @@ var AWS = require('aws-sdk');
 AWS.config.update({ "region": process.env.AWS_REGION });
 
 var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+var isLockedUpdated = false; //ASSUMPTION: this will be the only thing that could possibly change.
 
 var createParams = {
     Attributes: {
@@ -34,7 +35,8 @@ var typingProfileSchema = mongoose.Schema({
         trim: true
     },
     endpoint: {
-        type: String
+        type: String,
+        require: true
     },
     challengeStrategies: [String],
     threshold: [Number]
@@ -42,20 +44,27 @@ var typingProfileSchema = mongoose.Schema({
 
 typingProfileSchema.index({ user: 1, machine: 1 }, { unique: true }); // ASSUMPTION: user-machine pairs should be unique
 
-// Create SQS server + endpoint.
-typingProfileSchema.pre('save', function(next) {
-    // Check if endpoint has already been set.
-    if (!!this.endpoint) return next();
+/**
+ * Create the SQS server and endpoint.
+ */
+typingProfileSchema.post('save', function(doc, next) {
 
-    createParams.QueueName = this._id + ".fifo";
+    // Check if endpoint has already been set.
+    if (!!doc.endpoint) return next();
+
+    createParams.QueueName = doc._id + ".fifo";
     sqs.createQueue(createParams, function(err, data) {
         if (err) {
           console.log("Error", err);
+          return next();
         } else {
-          console.log("Success can be found at " + data.QueueUrl);
-          this.endpoint = data.QueueUrl;
+          doc.endpoint = data.QueueUrl;
+          doc.save(err => {
+              if (err) console.log(err);
+              console.log('URL saved!')
+              next();
+          });
         }
-        next();
     });
 });
 
