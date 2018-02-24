@@ -145,7 +145,7 @@ const buildActivity = function (activityType, objectType, typingProfile, user, o
         // Alert the client
         sendSQS(activity.paramaters.sqs);
       }
-      else if (origin == 'CLIENT') {
+      else if (origin == 'CLIENT' && activity.activityType != 'INFO') {
         // Alert the Admin
         sendAdminAlert(objectType, activityType, activity);
       }
