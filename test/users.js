@@ -38,6 +38,7 @@ describe('Users', function() {
         email: 'batman@gotham.co',
         password: 'test',
         phoneNumber: '555-555-555',
+        googleAuthKey: 'testkey',
         organization: testOrg.id.toString(),
         isAdmin: true
       };
@@ -48,7 +49,7 @@ describe('Users', function() {
         user: mongoose.Types.ObjectId()
       });
       testTP.save(err => {
-        console.log(err);
+        if (err) console.log(err);
         done();
       });
     });
@@ -129,14 +130,13 @@ describe('Users', function() {
         });
     });
 
-    it.only('PUT should update a SINGLE user', function (done) {
+    it('PUT should update a SINGLE user', function (done) {
       chai.request(server)
         .get('/api/users')
         .set('authorization', testToken)
         .end(function (err, res) {
           let userToUpdate = res.body.users[0];
           testTP.user = userToUpdate._id;
-          console.log("Final", testTP);
           testTP.save(err => {
             chai.request(server)
               .put('/api/users/' + userToUpdate._id)

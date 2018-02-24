@@ -74,26 +74,35 @@ const determineOrigin = function (changer, changee_id) {
   else return 'INVALID';
 }
 
+/**
+ * Save a successful User update to the database.
+ * Depending on the origin of the update, alerts the client or the administrator.
+ * 
+ * @param {String} origin                The origin of tfe update
+ * @param {User} old                     The old user
+ * @param {User} updated                 The updated user
+ * @param {TypingProfile} typingProfile  The TypingProfile associated with the user
+ */
 const sendUserActivity = function (origin, old, updated, typingProfile) {
-
-  // TODO: Determine the type of activity
+  
+  //Determine the type of activity
   let activityType;
   if (old.email != updated.email || old.password != updated.password) activityType = 'LOGOUT';
   else activityType = 'INFO';
 
-  buildActivity(activityType, 'User', typingProfile, old, updated, origin);
+  buildActivity(activityType, 'User', typingProfile, old, typingProfile, updated, origin);
 }
 
 /**
- * Saves a successful update to the database.
+ * Saves a successful TypingProfile update to the database.
  * Depending on the origin of the update, alerts the client or the administrator.
- * @
- * @param {String} origin   The origin of the update
- * @param {Object} old      The old object
- * @param {Object} updated  The updated object
- * @return {Boolean}        Returns the success/failure of the saved activity and the alert
+ * 
+ * @param {String} origin          The origin of the update
+ * @param {TypingProfile} old      The old TypingProfile
+ * @param {TypingProfile} updated  The updated TypingProfile
+ * @return {Boolean}               Returns the success/failure of the saved activity and the alert
  */
-const sendTypingProfileActivity = function (origin, old, updated, typingProfile) {
+const sendTypingProfileActivity = function (origin, old, updated, user) {
 
   //Determine the type of activity
   var activityType;
@@ -102,7 +111,7 @@ const sendTypingProfileActivity = function (origin, old, updated, typingProfile)
     else activityType = 'UNLOCK';
   } else var activityType = 'INFO';
 
-  buildActivity(activityType, 'TypingProfile', old, old, updated, origin);
+  buildActivity(activityType, 'TypingProfile', old, user, old, updated, origin);
 }
 
 /**
@@ -115,32 +124,33 @@ const sendTypingProfileActivity = function (origin, old, updated, typingProfile)
  * @param {Object} updated          The updated object
  * @param {String} origin           The origin of the change that caused the activity
  */
-const buildActivity = function (activityType, objectType, typingProfile, old, updated, origin) {
+const buildActivity = function (activityType, objectType, typingProfile, user, old, updated, origin) {
+
   let activity = {
     timestamp: Date.now(),
     typingProfile: typingProfile._id,
     activityType: activityType,
     initiatedBy: origin,
     paramaters: {
-      sqs: sqsParams(objectType, old, updated)
+      sqs: sqsParams(objectType, old, updated, user)
     }
   }
+  console.log("Parameters: " + JSON.stringify(activity.paramaters.sqs));
   let newActivity = new Activity(activity);
   newActivity.save((err, saved) => {
     if (err) console.log("Activity save err: " + err);
     else {
-      console.log(saved);
-      if (origin == 'CLIENT') {
+      console.log("Saved activity: " + saved);
+      if (origin == 'ADMIN') {
         // Alert the client
         sendSQS(activity.paramaters.sqs);
       }
-      else if (origin == 'ADMIN') {
+      else if (origin == 'CLIENT') {
         // Alert the Admin
         sendAdminAlert(objectType, activityType, activity);
       }
     }
   });
-
 }
 
 /**
@@ -150,11 +160,15 @@ const buildActivity = function (activityType, objectType, typingProfile, old, up
  * @param {Object} old         The previous version of the object
  * @param {Object} updated     The new version of the object
  */
-const sqsParams = function (changeType, old, updated) {
+const sqsParams = function (changeType, old, updated, user) {
   return {
     QueueUrl: old.endpoint,
     MessageGroupId: old._id+"",
-    MessageBody: JSON.stringify(updated),
+    MessageBody: JSON.stringify({
+      typingProfile: JSON.stringify(updated),
+      phoneNumber: user.phoneNumber,
+      googleAuthKey: user.googleAuthKey
+    }),
     MessageAttributes: {
       "ChangeType": {
         DataType: "String",

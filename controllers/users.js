@@ -55,8 +55,10 @@ exports.update = function(req, res) {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!typingProfiles) return res.status(404).send(util.norm.errors(err));
 
-			//Save activity, alert the relevant party
-			util.send.activity.user(origin, user, updatedUser, typingProfiles[0]);
+			// Save activities for each typingProfile, alert the relevant party
+			typingProfiles.forEach(profile => {
+				util.send.activity.user(origin, user, updatedUser, profile);
+			});
 
 			if(updatedUser.name) user.name = updatedUser.name;
 			if(updatedUser.email) user.email = updatedUser.email;

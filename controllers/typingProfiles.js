@@ -132,7 +132,7 @@ exports.update = function(req, res) {
 				if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
 				
 				// Save activity, alert the relevant party
-				util.send.activity.typingProfile(origin, typingProfile, updatedProfile)
+				util.send.activity.typingProfile(origin, typingProfile, updatedProfile, user)
 			
 				typingProfile.user = updatedProfile.user;
 				typingProfile.machine = updatedProfile.machine;

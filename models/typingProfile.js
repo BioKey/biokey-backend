@@ -61,7 +61,6 @@ typingProfileSchema.post('save', function(doc, next) {
           doc.endpoint = data.QueueUrl;
           doc.save(err => {
               if (err) console.log(err);
-              console.log('URL saved!')
               next();
           });
         }

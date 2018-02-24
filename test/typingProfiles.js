@@ -39,7 +39,8 @@ describe('TypingProfiles', function() {
     email: 'batman@gotham.co',
     password: 'test',
     isAdmin: true,
-    phoneNumber: '555-555-555',
+    phoneNumber: '555-555-5555',
+    googleAuthKey: 'testkey',
     organization: mongoose.Types.ObjectId()
   };
 
