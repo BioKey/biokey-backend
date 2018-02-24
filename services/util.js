@@ -161,11 +161,12 @@ const buildActivity = function (activityType, objectType, typingProfile, user, o
  * @param {Object} updated     The new version of the object
  */
 const sqsParams = function (changeType, old, updated, user) {
+  
   return {
     QueueUrl: old.endpoint,
     MessageGroupId: old._id+"",
     MessageBody: JSON.stringify({
-      typingProfile: JSON.stringify(updated),
+      updatedObject: JSON.stringify(updated),
       phoneNumber: user.phoneNumber,
       googleAuthKey: user.googleAuthKey
     }),
