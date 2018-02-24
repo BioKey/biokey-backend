@@ -1,4 +1,8 @@
 const Activity = require('../models/activity');
+const AWS = require('aws-sdk');
+const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+AWS.config.update({ "region": process.env.AWS_REGION });
+const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
 /**
  * Helper function to normalize an error
@@ -70,8 +74,14 @@ const determineOrigin = function (changer, changee_id) {
   else return 'INVALID';
 }
 
-const sendUserActivity = function () {
-  // TODO: implement
+const sendUserActivity = function (origin, old, updated, typingProfile) {
+
+  // TODO: Determine the type of activity
+  let activityType;
+  if (old.email != updated.email || old.password != updated.password) activityType = 'LOGOUT';
+  else activityType = 'INFO';
+
+  buildActivity(activityType, 'User', typingProfile, old, updated, origin);
 }
 
 /**
@@ -83,33 +93,63 @@ const sendUserActivity = function () {
  * @param {Object} updated  The updated object
  * @return {Boolean}        Returns the success/failure of the saved activity and the alert
  */
-const sendTypingProfileActivity = function (origin, old, updated) {
-  
-  // TODO: determine the kind of update!
-  var activityType = 'placeholder';
+const sendTypingProfileActivity = function (origin, old, updated, typingProfile) {
 
-  // TODO: create new activity
-  let newActivity = {
+  //Determine the type of activity
+  var activityType;
+  if (old.isLocked != updated.isLocked) {
+    if (updated.isLocked) activityType = 'LOCK';
+    else activityType = 'UNLOCK';
+  } else var activityType = 'INFO';
+
+  buildActivity(activityType, 'TypingProfile', old, old, updated, origin);
+}
+
+/**
+ * A helper function to build, save, and send alerts for activities.
+ * 
+ * @param {String} activityType     The type of activity
+ * @param {String} objectType       The type of object
+ * @param {ObjectId} typingProfile  The associated typing profile
+ * @param {Object} old              The old object
+ * @param {Object} updated          The updated object
+ * @param {String} origin           The origin of the change that caused the activity
+ */
+const buildActivity = function (activityType, objectType, typingProfile, old, updated, origin) {
+  let activity = {
     timestamp: Date.now(),
-    typingProfile: old._id,
+    typingProfile: typingProfile._id,
     activityType: activityType,
     initiatedBy: origin,
     paramaters: {
-      sqs: sqsParams('TypingProfile', old, updated),
-      admin: { }
+      sqs: sqsParams(objectType, old, updated)
     }
   }
+  let newActivity = new Activity(activity);
+  newActivity.save((err, saved) => {
+    if (err) console.log("Activity save err: " + err);
+    else {
+      console.log(saved);
+      if (origin == 'CLIENT') {
+        // Alert the client
+        sendSQS(activity.paramaters.sqs);
+      }
+      else if (origin == 'ADMIN') {
+        // Alert the Admin
+        sendAdminAlert(objectType, activityType, activity);
+      }
+    }
+  });
 
-  if (origin == 'CLIENT') {
-    // TODO: alert the admin
-    sendSQS();
-  }
-  else if (origin == 'ADMIN') {
-    // TODO: enqueue an SQS job for the client
-    sendAdminAlert();
-  }
 }
 
+/**
+ * Helper function to build SQS requests.
+ * 
+ * @param {String} changeType  The type of object that was updated
+ * @param {Object} old         The previous version of the object
+ * @param {Object} updated     The new version of the object
+ */
 const sqsParams = function (changeType, old, updated) {
   return {
     QueueUrl: old.endpoint,
@@ -128,50 +168,41 @@ const sqsParams = function (changeType, old, updated) {
   }
 }
 
-const sendAdminAlert = function () {
-  // TODO: 
-  console.log('Alerting the admin!');
-}
-
-const sendSQS = function () {
-  // TODO: implement
+/**
+ * A helper function to send SQS messages.
+ * 
+ * @param {JSON} params Parameters for the request
+ */
+const sendSQS = function (params) {
   console.log('Alerting the client!');
+  sqs.sendMessage(params, function(err, sent) {
+    if (err) {
+      console.log("SQS error: " + err);
+    } else {
+      console.log("Success: " + sent.MessageId);
+    }
+  });
 }
 
 /**
- * Function to send a "User"-type message to the client.
+ * A helper function to send admin alerts via Twilio.
+ * 
+ * @param {String} objectType    The type of the object whose update triggered the activity
+ * @param {String} activityType  The type of activity being reported
+ * @param {Object} activity      The details of the activity
  */
-/*
-var sendUserMessage = function(user, typingProfile){
+const sendAdminAlert = function (objectType, activityType, activity) {
 
-	console.log("Sending a user message!");
-	
-	let sendParams = {
-		QueueUrl: typingProfile.endpoint,
-		MessageGroupId: typingProfile._id+"",
-		MessageBody: JSON.stringify(user),
-		MessageAttributes: {
-			"ChangeType": {
-				DataType: "String",
-				StringValue: "User"
-			},
-			"Timestamp": {
-				DataType: "Number",
-				StringValue: Date.now()+""
-			}
-		}
-	}
-
-	//Send updated typing profile to SQS
-	sqs.sendMessage(sendParams, function(err, sent) {
-		if (err) {
-			console.log("Error", err);
-		} else {
-			console.log("Success", sent.MessageId);
-		}
-	});
+  console.log('Alerting the admin!');
+  twilio.messages.create({
+    to: process.env.TWILIO_TO_PHONE_NUMBER,
+    from: process.env.TWILIO_FROM_PHONE_NUMBER,
+    body: objectType + " " + activityType + " update!\nProfile:\n" + activity.typingProfile + "\nTimestamp:\n" + activity.timestamp,
+  })
+  .then(message => {
+    console.log("Text sent!")
+  });
 }
-*/
 
 module.exports = {
   norm: {

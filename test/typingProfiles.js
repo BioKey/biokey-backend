@@ -29,7 +29,9 @@ describe('TypingProfiles', function() {
 
   var testTypingProfile = {
     isLocked: false,
-    tensorFlowModel: 'tfmodel'
+    tensorFlowModel: 'tfmodel',
+    threshold: 1,
+    lastHeartbeat: Date.now()
   };
 
   var testUser = {
@@ -219,7 +221,7 @@ describe('TypingProfiles', function() {
     });
 
     //PUT Testing
-    it.only('PUT should update a single typingProfile', function(done) {
+    it('PUT should update a single typingProfile', function(done) {
       chai.request(server)
         .get('/api/typingProfiles')
         .set('authorization', testTypingProfile.accessToken)
@@ -229,10 +231,12 @@ describe('TypingProfiles', function() {
             .set('authorization', testTypingProfile.accessToken)
             .send({
               typingProfile: {
-                isLocked: false,
+                isLocked: true,
                 tensorFlowModel: 'anothertfmodel',
-                'user': res.body.typingProfiles[0].user,
-                'machine': res.body.typingProfiles[0].machine
+                user: res.body.typingProfiles[0].user,
+                machine: res.body.typingProfiles[0].machine,
+                challengeStrategies: [],
+                threshold: [1]
               }
             })
             .end(function(error, response) {
@@ -242,7 +246,7 @@ describe('TypingProfiles', function() {
                 _id: res.body.typingProfiles[0]._id,
                 tensorFlowModel: 'anothertfmodel',
                 'timestamp': 9000,
-                'isLocked': false,
+                'isLocked': true,
                 'user': res.body.typingProfiles[0].user,
                 'machine': res.body.typingProfiles[0].machine
               });

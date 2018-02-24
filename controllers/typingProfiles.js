@@ -3,10 +3,6 @@ const User = require('../models/user');
 const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
-var AWS = require('aws-sdk');
-AWS.config.update({ "region": process.env.AWS_REGION });
-
-var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
@@ -92,8 +88,7 @@ exports.post = function(req, res) {
 	var typingProfile = new TypingProfile(req.body.typingProfile);
 	
 	// Determine how to handle the message
-	let origin = util.check(req.user, typingProfile.user);
-	if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+	if (util.check(req.user, typingProfile.user) == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 	// TODO: Validate before insert
 
@@ -119,10 +114,7 @@ exports.update = function(req, res) {
 	
 	// Determine how to handle the message
 	let origin = util.check(req.user, req.body.typingProfile.user);
-	if (origin == 'INVALID') {
-		console.log('invalid!')
-		return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
-	}
+	if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 	
 	// TODO: Verify changes before updating
 

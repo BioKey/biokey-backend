@@ -2,10 +2,6 @@ const User = require('../models/user');
 const TypingProfile = require('../models/typingProfile');
 const util = require('../services/util');
 var mongoose = require('mongoose');
-var AWS = require('aws-sdk');
-AWS.config.update({ "region": process.env.AWS_REGION });
-
-var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
 exports.me = function(req, res) {
 	res.send({ user: req.user });
@@ -47,15 +43,32 @@ exports.update = function(req, res) {
 
 	// TODO: Verify changes before updating
 
-	User.findByIdAndUpdate(req.params.id, updatedUser, { new: true }, (err, user) => {
+	User.findById(req.params.id, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
-		//Send a message to the SQS server
+
+		// Determine how to handle the message
+		let origin = util.check(req.user, user._id);
+		if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+
+		//Get the user's typing profile
 		TypingProfile.find({"user": user._id}, function (err, typingProfiles) {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!typingProfiles) return res.status(404).send(util.norm.errors(err));
-			//sendUserMessage(user, typingProfiles[0]);
+
+			//Save activity, alert the relevant party
+			util.send.activity.user(origin, user, updatedUser, typingProfiles[0]);
+
+			if(updatedUser.name) user.name = updatedUser.name;
+			if(updatedUser.email) user.email = updatedUser.email;
+			if(updatedUser.isAdmin) user.isAdmin = updatedUser.isAdmin;
+			if(updatedUser.phoneNumber) user.phoneNumber = updatedUser.phoneNumber;
+			if(updatedUser.organization) user.organization = updatedUser.organization;
+
+			user.save((err, saved) => {
+				if (err) return res.status(500).send(util.norm.errors(err));
+				res.send({ user });
+			});
 		});
-		res.send({ user });
 	});
 }
 

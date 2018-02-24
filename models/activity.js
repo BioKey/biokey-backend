@@ -12,12 +12,12 @@ var activitySchema = mongoose.Schema({
     },
     activityType: {
         type: String,
-        enum: ['LOCKED', 'UNLOCKED', 'INFO', 'OFFLINE', 'ONLINE'], // Add more here
+        enum: ['LOCK', 'UNLOCK', 'INFO', 'LOGOUT', 'LOGIN'], // Add more here
         require: true
     },
     initiatedBy: {
         type: String,
-        enum: ['CLIENT', 'SERVER'],
+        enum: ['CLIENT', 'ADMIN'],
         require: true
     },
     parameters: {

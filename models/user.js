@@ -54,7 +54,7 @@ userSchema.pre('save', function(next) {
   });
 });
 
-userSchema.pre('findOneAndUpdate', function(next) {
+userSchema.pre('findById', function(next) {
   let user = this.getUpdate();
   if (user && user.password) {
     bcrypt.genSalt(10, function(err, salt) {
