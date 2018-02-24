@@ -130,7 +130,7 @@ describe('Users', function() {
         });
     });
 
-    it('PUT should update a SINGLE user', function (done) {
+    it.only('PUT should update a SINGLE user', function (done) {
       chai.request(server)
         .get('/api/users')
         .set('authorization', testToken)

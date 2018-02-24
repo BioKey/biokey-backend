@@ -132,7 +132,7 @@ const buildActivity = function (activityType, objectType, typingProfile, user, o
     activityType: activityType,
     initiatedBy: origin,
     paramaters: {
-      sqs: sqsParams(objectType, old, updated, user)
+      sqs: sqsParams(objectType, old, updated, user, activityType)
     }
   }
   console.log("Parameters: " + JSON.stringify(activity.paramaters.sqs));
@@ -156,17 +156,20 @@ const buildActivity = function (activityType, objectType, typingProfile, user, o
 /**
  * Helper function to build SQS requests.
  * 
- * @param {String} changeType  The type of object that was updated
+ * @param {String} objectType  The type of object that was updated
  * @param {Object} old         The previous version of the object
  * @param {Object} updated     The new version of the object
  */
-const sqsParams = function (changeType, old, updated, user) {
-  
+const sqsParams = function (objectType, old, updated, user, changeType) {
+  let update;
+  if (objectType == 'User') update = changeType;
+  else if (objectType == 'TypingProfile') update = JSON.stringify(updated);
+
   return {
     QueueUrl: old.endpoint,
     MessageGroupId: old._id+"",
     MessageBody: JSON.stringify({
-      updatedObject: JSON.stringify(updated),
+      update: update,
       phoneNumber: user.phoneNumber,
       googleAuthKey: user.googleAuthKey
     }),
