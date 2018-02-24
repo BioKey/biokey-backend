@@ -28,6 +28,9 @@ const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String
   },
+  googleAuthKey: {
+    type: String
+  },
   organization: {
     type: mongoose.Schema.ObjectId,
     ref: ('Organization'),

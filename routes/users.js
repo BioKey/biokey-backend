@@ -37,6 +37,7 @@ router.get('/me', middleware.requireAuth, User.me);
  * @apiSuccess {String} users.phoneNumber User's phone number
  * @apiSuccess {Organization} users.organization User's organization
  * @apiSuccess {Boolean} users.isAdmin  Whether user is a system administrator
+ * @apiSuccess {String} users.googleAuthKey User's secret key for Google Auth 2FA
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
@@ -46,8 +47,10 @@ router.get('/me', middleware.requireAuth, User.me);
  *            "_id": "5a2c87d5f8de982a759cedf0",
  *            "email": "test@example.com",
  *            "name": "Hosh Weinstein",
- *            "organization": "5a4c019629015e0c8b9c1737"
- *            "isAdmin": false
+ *            "organization": "5a4c019629015e0c8b9c1737",
+ *            "isAdmin": false,
+ *            "googleAuthKey": "OIEHFOWLIW271",
+ *            "phoneNumber": "+11234567890"
  *          }
  *       ]
  *     }
