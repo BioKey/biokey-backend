@@ -168,6 +168,7 @@ const sqsParams = function (objectType, old, updated, user, changeType) {
   return {
     QueueUrl: old.endpoint,
     MessageGroupId: old._id+"",
+    MessageDeduplicationId: Date.now(),
     MessageBody: JSON.stringify({
       update: update,
       phoneNumber: user.phoneNumber,

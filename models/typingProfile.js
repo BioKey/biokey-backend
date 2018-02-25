@@ -9,7 +9,7 @@ var createParams = {
     Attributes: {
         'FifoQueue': "true",
         'ReceiveMessageWaitTimeSeconds': "1",
-        'ContentBasedDeduplication': "true"
+        'ContentBasedDeduplication': "false"
     }
 };
 
