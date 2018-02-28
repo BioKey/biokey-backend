@@ -42,7 +42,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 			});
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
-				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber, googleAuthKey: user.googleAuthKey });
+				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber, googleAuthKey: user.googleAuthKey, timeStamp: Date.now() });
 			})
 		});
 	}
@@ -56,7 +56,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 			TypingProfile.findOne({ user: req.user._id, machine: machine._id }, (err, typingProfile) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				if (typingProfile) {
-					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber });
+					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber, googleAuthKey: user.googleAuthKey, timeStamp: Date.now() });
 				} else {
 					return createNewTypingProfile(req.user, machine);
 				}
