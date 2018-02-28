@@ -56,7 +56,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 			TypingProfile.findOne({ user: req.user._id, machine: machine._id }, (err, typingProfile) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				if (typingProfile) {
-					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber, googleAuthKey: user.googleAuthKey, timeStamp: Date.now() });
+					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber, googleAuthKey: req.user.googleAuthKey, timeStamp: Date.now() });
 				} else {
 					return createNewTypingProfile(req.user, machine);
 				}
