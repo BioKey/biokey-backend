@@ -134,13 +134,13 @@ exports.update = function(req, res) {
 				// Save activity, alert the relevant party
 				util.send.activity.typingProfile(origin, typingProfile, updatedProfile, user)
 			
-				typingProfile.user = updatedProfile.user;
-				typingProfile.machine = updatedProfile.machine;
-				typingProfile.isLocked = updatedProfile.isLocked;
-				typingProfile.lastHeartbeat = updatedProfile.lastHeartbeat;
-				typingProfile.tensorFlowModel = updatedProfile.tensorFlowModel;
-				typingProfile.challengeStrategies = updatedProfile.challengeStrategies;
-				typingProfile.threshold = updatedProfile.threshold;
+				if (updatedProfile.user) typingProfile.user = updatedProfile.user;
+				if (updatedProfile.machine) typingProfile.machine = updatedProfile.machine;
+				if (updatedProfile.isLocked) typingProfile.isLocked = updatedProfile.isLocked;
+				if (updatedProfile.lastHeartbeat) typingProfile.lastHeartbeat = updatedProfile.lastHeartbeat;
+				if (updatedProfile.tensorFlowModel) typingProfile.tensorFlowModel = updatedProfile.tensorFlowModel;
+				if (updatedProfile.challengeStrategies) typingProfile.challengeStrategies = updatedProfile.challengeStrategies;
+				if (updatedProfile.threshold) typingProfile.threshold = updatedProfile.threshold;
 
 				typingProfile.save((err, saved) => {
 					if (err) return res.status(500).send(util.norm.errors(err));

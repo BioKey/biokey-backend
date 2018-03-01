@@ -147,7 +147,7 @@ const buildActivity = function (activityType, objectType, typingProfile, user, o
       }
       else if (origin == 'CLIENT' && activity.activityType != 'INFO') {
         // Alert the Admin
-        sendAdminAlert(objectType, activityType, activity);
+        sendAdminAlert(objectType, activityType, activity, updatedUser);
       }
     }
   });
@@ -207,11 +207,11 @@ const sendSQS = function (params) {
  * @param {String} activityType  The type of activity being reported
  * @param {Object} activity      The details of the activity
  */
-const sendAdminAlert = function (objectType, activityType, activity) {
+const sendAdminAlert = function (objectType, activityType, activity, updatedUser) {
 
   console.log('Alerting the admin!');
   twilio.messages.create({
-    to: process.env.TWILIO_TO_PHONE_NUMBER,
+    to: updatedUser.phoneNumber,
     from: process.env.TWILIO_FROM_PHONE_NUMBER,
     body: objectType + " " + activityType + " update!\nProfile:\n" + activity.typingProfile + "\nTimestamp:\n" + activity.timestamp,
   })
