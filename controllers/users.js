@@ -60,11 +60,11 @@ exports.update = function(req, res) {
 				util.send.activity.user(origin, user, updatedUser, profile);
 			});
 
-			if(updatedUser.name) user.name = updatedUser.name;
-			if(updatedUser.email) user.email = updatedUser.email;
-			if(updatedUser.isAdmin) user.isAdmin = updatedUser.isAdmin;
-			if(updatedUser.phoneNumber) user.phoneNumber = updatedUser.phoneNumber;
-			if(updatedUser.organization) user.organization = updatedUser.organization;
+			if (updatedUser.name) user.name = updatedUser.name;
+			if (updatedUser.email) user.email = updatedUser.email;
+			if (updatedUser.isAdmin) user.isAdmin = updatedUser.isAdmin;
+			if (updatedUser.phoneNumber) user.phoneNumber = updatedUser.phoneNumber;
+			if (updatedUser.organization) user.organization = updatedUser.organization;
 
 			user.save((err, saved) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
