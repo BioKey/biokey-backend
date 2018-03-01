@@ -45,7 +45,4 @@ app.use('/api/organizations', organizations);
 var typingProfiles = require('./routes/typingProfiles');
 app.use('/api/typingProfiles', typingProfiles);
 
-var statusUpdates = require('./routes/statusUpdates');
-app.use('/api/statusUpdates', statusUpdates);
-
 module.exports = app;

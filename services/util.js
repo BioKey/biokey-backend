@@ -71,7 +71,7 @@ const filterQuery = function(query, allowedParams) {
  * @return {String}            Returns the origin of the change; on of [INVALID, CLIENT, ADMIN]
  */
 const determineOrigin = function(changer, changee_id) {
-  if (changer.isAdmin) return 'ADMIN';
+  if (changer.isAdmin && changer._id != changee_id) return 'ADMIN';
   if (changer._id == changee_id) return 'CLIENT';
   else return 'INVALID';
 }
@@ -80,19 +80,29 @@ const determineOrigin = function(changer, changee_id) {
  * Save a successful User update to the database.
  * Depending on the origin of the update, alerts the client or the administrator.
  * 
- * @param {String} origin                The origin of tfe update
+ * @param {String} origin                The origin of the update
  * @param {User} old                     The old user
  * @param {User} updated                 The updated user
  * @param {TypingProfile} typingProfile  The TypingProfile associated with the user
+ * @param {boolean} passwordUpdated      Whether the password was updated
  */
-const sendUserActivity = function(origin, old, updated, typingProfile) {
-
-  //Determine the type of activity
+const sendUserActivity = function(origin, old, updated, typingProfile, passwordUpdated) {
+  // Determine the type of activity.
   let activityType;
-  if (old.email != updated.email || old.password != updated.password) activityType = 'LOGOUT';
+  if (old.email != updated.email || passwordUpdated) activityType = 'LOGOUT';
   else activityType = 'INFO';
 
-  buildActivity(activityType, 'User', typingProfile, old, typingProfile, updated, origin);
+  // Add some user fields to the TypingProfile.
+  typingProfile.phoneNumber = updated.phoneNumber;
+  typingProfile.googleAuthKey = updated.googleAuthKey;
+
+  let objectType = 'User';
+
+  getAdminPhoneNumbers(updated, function(phoneNumbers) {
+    saveAndSendActivity(
+      buildActivity(typingProfile._id, activityType, origin, sqsParams(objectType, typingProfile, activityType),
+      objectType, phoneNumbers));
+  });
 }
 
 /**
@@ -102,53 +112,69 @@ const sendUserActivity = function(origin, old, updated, typingProfile) {
  * @param {String} origin          The origin of the update
  * @param {TypingProfile} old      The old TypingProfile
  * @param {TypingProfile} updated  The updated TypingProfile
+ * @param {User} user              The user associated with this typing profile
  * @return {Boolean}               Returns the success/failure of the saved activity and the alert
  */
 const sendTypingProfileActivity = function(origin, old, updated, user) {
-
-  //Determine the type of activity
-  var activityType;
+  // Determine the type of activity.
+  let activityType;
   if (old.isLocked != updated.isLocked) {
     if (updated.isLocked) activityType = 'LOCK';
     else activityType = 'UNLOCK';
-  } else var activityType = 'INFO';
+  } else activityType = 'INFO';
 
-  buildActivity(activityType, 'TypingProfile', old, user, old, updated, origin);
+  // Add some user fields to the TypingProfile.
+  updated.phoneNumber = user.phoneNumber;
+  updated.googleAuthKey = user.googleAuthKey;
+
+  let objectType = 'TypingProfile';
+
+  getAdminPhoneNumbers(user, function(phoneNumbers) {
+    saveAndSendActivity(
+      buildActivity(updated._id, activityType, origin, sqsParams(objectType, updated, activityType),
+      objectType, phoneNumbers));
+  });
 }
 
 /**
  * A helper function to build, save, and send alerts for activities.
  * 
- * @param {String} activityType     The type of activity
- * @param {String} objectType       The type of object
  * @param {ObjectId} typingProfile  The associated typing profile
- * @param {Object} old              The old object
- * @param {Object} updated          The updated object
+ * @param {String} activityType     The type of activity
  * @param {String} origin           The origin of the change that caused the activity
+ * @param {Object} sqs              The sqs message object
  */
-const buildActivity = function(activityType, objectType, typingProfile, user, old, updated, origin) {
-
-  let activity = {
+const buildActivity = function(typingProfileId, activityType, origin, sqs) {
+  return {
     timestamp: Date.now(),
-    typingProfile: typingProfile._id,
+    typingProfile: typingProfileId,
     activityType: activityType,
     initiatedBy: origin,
     paramaters: {
-      sqs: sqsParams(objectType, old, updated, user, activityType)
+      sqs: sqs
     }
   }
-  console.log("Parameters: " + JSON.stringify(activity.paramaters.sqs));
+}
+
+/**
+ * A helper function to save activity and send alerts for its creation.
+ * 
+ * @param {Object} activity       The activity to save
+ * @param {String} objectType     The type of object that was updated
+ * @param {Array}  phoneNumbers   The phone numbers to send alert to
+ */
+const saveAndSendActivity = function(activity, objectType, phoneNumbers) {
   let newActivity = new Activity(activity);
   newActivity.save((err, saved) => {
     if (err) console.log("Activity save err: " + err);
     else {
-      console.log("Saved activity: " + saved);
-      if (origin == 'ADMIN') {
-        // Alert the client
+      console.log("Saved activity: " + saved._id);
+      if (activity.initiatedBy == 'ADMIN') {
+        // Alert the client.
         sendSQS(activity.paramaters.sqs);
-      } else if (origin == 'CLIENT' && activity.activityType != 'INFO') {
-        // Alert the Admin
-        sendAdminAlert(objectType, activityType, activity, user);
+      } else if (activity.initiatedBy == 'CLIENT' && activity.activityType != 'INFO') {
+        // Alert the admin.
+        sendAdminAlert(objectType, activity.activityType, activity, phoneNumbers);
       }
     }
   });
@@ -157,20 +183,20 @@ const buildActivity = function(activityType, objectType, typingProfile, user, ol
 /**
  * Helper function to build SQS requests.
  * 
- * @param {String} objectType  The type of object that was updated
- * @param {Object} old         The previous version of the object
- * @param {Object} updated     The new version of the object
+ * @param {String} objectType     The type of object that was updated
+ * @param {Object} updated        The updated typing profile (with additional fields)
+ * @param {String} activityType   The type of activity
  */
-const sqsParams = function(objectType, old, updated, user, changeType) {
+const sqsParams = function(objectType, updated, activityType) {
   return {
-    QueueUrl: old.endpoint,
-    MessageGroupId: old._id + "",
+    QueueUrl: updated.endpoint,
+    MessageGroupId: updated._id + "",
     MessageDeduplicationId: Date.now().toString(),
     MessageBody: JSON.stringify({
-      userChangeType: changeType,
+      changeType: activityType,
       typingProfile: JSON.stringify(updated),
-      phoneNumber: user.phoneNumber,
-      googleAuthKey: user.googleAuthKey,
+      phoneNumber: updated.phoneNumber,
+      googleAuthKey: updated.googleAuthKey,
       timeStamp: Date.now().toString()
     }),
     MessageAttributes: {
@@ -188,7 +214,7 @@ const sqsParams = function(objectType, old, updated, user, changeType) {
  * @param {JSON} params Parameters for the request
  */
 const sendSQS = function(params) {
-  console.log('Alerting the client!');
+  console.log('Sending admin action to the client with id: ' + params.MessageGroupId);
   sqs.sendMessage(params, function(err, sent) {
     if (err) {
       console.log("SQS error: " + err);
@@ -204,42 +230,39 @@ const sendSQS = function(params) {
  * @param {String} objectType    The type of the object whose update triggered the activity
  * @param {String} activityType  The type of activity being reported
  * @param {Object} activity      The details of the activity
- * @param {Object} updatedUser   The user who owns the object
+ * @param {Array}  phoneNumbers  The phone numbers to send alert to
  */
-const sendAdminAlert = function(objectType, activityType, activity, updatedUser) {
-  //Get the organization's admins' phone numbers
-  let adminNumbers = getAdminPhone(updatedUser);
-  if (adminNumbers.length == 0) return;
-  //Text them
-  adminNumbers.forEach(adminNumber => {
+const sendAdminAlert = function(objectType, activityType, activity, phoneNumbers) {
+  if (!phoneNumbers || phoneNumbers.length == 0) return;
+
+  // Text the administrators.
+  phoneNumbers.forEach(phoneNumber => {
     twilio.messages.create({
-      to: adminNumber,
-      from: process.env.TWILIO_FROM_PHONE_NUMBER,
-      body: objectType + " " + activityType + " update!\nProfile:\n" + activity.typingProfile + "\nTimestamp:\n" + activity.timestamp,
-    })
-    .then(message => {
-      console.log("Text sent!")
-    });
+        to: phoneNumber,
+        from: process.env.TWILIO_FROM_PHONE_NUMBER,
+        body: objectType + " " + activityType + " update!\nOn Typing Profile:\n" + activity.typingProfile,
+      }, (err, message) => {
+        if (err) console.log("Could not send text to " + phoneNumber);
+        console.log("Sent text to regarding activity " + activity._id + " to " + phoneNumber);
+      });
   });
 }
 
 /**
  * A helper function to get the admins of the user's organization.
  * 
- * @param {Object} user  The user who owns the object
- * @return {Array}       The array of admin numbers
+ * @param {Object} user     The user who owns the object
+ * @param {Function} nextF  The function to call with the phoneNumbers
+ * @return {Array}          The array of admin numbers
  */
-const getAdminPhone = function(user) {
-  let adminNumbers = [];
-  Organization.findById(user.organization, (err, organization) => {
-    if(err || !organization) return [];
-    User.find({'organization': organization._id, 'isAdmin': true}, (err, admins) =>{
-      if(err || admins.length == 0) return [];
-      else admins.forEach(admin => {
-        adminNumbers.push(admin.phoneNumber);
-      });
-      return adminNumbers;
+const getAdminPhoneNumbers = function(user, nextF) {
+  let phoneNumbers = [];
+  User.find({ 'organization': user.organization, 'isAdmin': true }, (err, admins) => {
+    if (err || admins.length == 0) nextF(phoneNumbers);
+    else admins.forEach(admin => {
+      phoneNumbers.push(admin.phoneNumber);
     });
+    nextF(phoneNumbers);
   });
 }
 
@@ -251,7 +274,7 @@ module.exports = {
   filter: {
     query: filterQuery
   },
-  check: determineOrigin,
+  checkOrigin: determineOrigin,
   send: {
     activity: {
       typingProfile: sendTypingProfileActivity,

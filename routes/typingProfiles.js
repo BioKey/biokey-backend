@@ -107,7 +107,6 @@ router.post('/', middleware.requireAuth, TypingProfile.post);
  * 
  * @apiSampleRequest sqsJob
  * 
- * 
  * @apiGroup TypingProfiles
  * 
  * @apiUse RequestHeaders

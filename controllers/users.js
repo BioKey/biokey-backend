@@ -38,31 +38,24 @@ exports.post = function(req, res) {
 	});
 }
 
-exports.update = function(req, res, statusChange) {
+exports.update = function(req, res) {
 	let updatedUser = req.body.user;
 
 	// TODO: Verify changes before updating
-
-	console.log(req.params.id)
 
 	User.findById(req.params.id, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!user) return res.status(404).send(util.norm.errors({ message: 'User not found' }));
 
 		// Determine how to handle the message
-		let origin = util.check(req.user, user._id);
+		let origin = util.checkOrigin(req.user, user._id);
 		if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
-		//Get the user's typing profile
+		// Get the user's typing profiles to save activities.
 		TypingProfile.find({"user": user._id}, function (err, typingProfiles) {
 			if (err) return res.status(500).send(util.norm.errors(err));
-			if (!typingProfiles) return res.status(404).send(util.norm.errors(err));
 
-			// Save activities for each typingProfile, alert the relevant party
-			typingProfiles.forEach(profile => {
-				util.send.activity.user(origin, user, updatedUser, profile);
-			});
-
+			let oldUser = JSON.parse(JSON.stringify(user));
 			if (updatedUser.name) user.name = updatedUser.name;
 			if (updatedUser.email) user.email = updatedUser.email;
 			if (updatedUser.isAdmin) user.isAdmin = updatedUser.isAdmin;
@@ -71,10 +64,14 @@ exports.update = function(req, res, statusChange) {
 
 			user.save((err, saved) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
-				else if (statusChange === true) {
-					res.status(200).send("Status update successful!");
-					return;
+
+				// Save activities for each typingProfile, alert the relevant party.
+				if (typingProfiles) {
+					typingProfiles.forEach(profile => {
+						util.send.activity.user(origin, oldUser, updatedUser, profile, false);
+					});
 				}
+
 				res.send({ user });
 			});
 		});

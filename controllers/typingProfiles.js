@@ -111,31 +111,31 @@ exports.post = function(req, res) {
 	});
 }
 
-exports.update = function(req, res, statusChange, totalReq) {
+exports.update = function(req, res) {
 	let updatedProfile = req.body.typingProfile;
 
-	// Determine how to handle the message
-	let origin = util.check(req.user, req.body.typingProfile.user);
+	// Determine how to handle the message.
+	let origin = util.checkOrigin(req.user, req.body.typingProfile.user);
 	if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 	
 	// TODO: Verify changes before updating
 
-	// Assert valid user
+	// Assert valid user.
 	User.findById(updatedProfile.user, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!user) return res.status(404).send(util.norm.errors({ message: 'User not found' }));
-		// Assert valid machine
+
+		// Assert valid machine.
 		Machine.findById(updatedProfile.machine, (err2, machine) => {
 			if (err2) return res.status(500).send(util.norm.errors(err2));
 			if (!machine) return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
-			// Save typing profile
+
+			// Find and save typing profile.
 			TypingProfile.findById(req.params.id, (err3, typingProfile) => {
 				if (err3) return res.status(500).send(util.norm.errors(err3));
 				if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
-				
-				// Save activity, alert the relevant party
-				util.send.activity.typingProfile(origin, typingProfile, updatedProfile, user)
-			
+
+				let oldProfile = JSON.parse(JSON.stringify(typingProfile));
 				if (updatedProfile.user) typingProfile.user = updatedProfile.user;
 				if (updatedProfile.machine) typingProfile.machine = updatedProfile.machine;
 				if (updatedProfile.isLocked) typingProfile.isLocked = updatedProfile.isLocked;
@@ -147,30 +147,36 @@ exports.update = function(req, res, statusChange, totalReq) {
 
 				typingProfile.save((err4, saved) => {
 					if (err4) return res.status(500).send(util.norm.errors(err4));
-					console.log("SC", statusChange)
-					if (statusChange === true) {
-						saveUserFromStatusUpdate(totalReq, res);
-					}
-					else return res.send({ typingProfile: saved });
+					
+					// Save activity, alert the relevant party.
+					util.send.activity.typingProfile(origin, oldProfile, updatedProfile, user);
+
+					// Check if user fields related to typing profile has been updated.
+					if (req.body.phoneNumber || req.body.googleAuthKey) {
+						let oldUser = JSON.parse(JSON.stringify(user));
+						if (req.body.phoneNumber) user.phoneNumber = req.body.phoneNumber;
+						if (req.body.googleAuthKey) user.googleAuthKey = req.body.googleAuthKey;
+
+						user.save((err5, savedUser) => {
+							if (err5) return res.status(500).send(util.norm.errors(err5));
+
+							// Save activities for each typingProfile, alert the relevant party.
+							TypingProfile.find({"user": user._id}, (err6, typingProfiles) => {
+								if (err6) return res.status(500).send(util.norm.errors(err));
+								if (typingProfiles) {
+									typingProfiles.forEach(profile => {
+										util.send.activity.user(origin, oldUser, user, profile, false);
+									});
+								}
+								res.send({ typingProfile: saved });
+							});
+						});
+					} else res.send({ typingProfile: saved });
 				});
 			});
 		});
 	});
 }
-
-function saveUserFromStatusUpdate(req, res) {
-    // Construct user request
-    let userReq = req;
-    userReq.params.id = req.body.typingProfile.user;
-    userReq.body = {
-        user: {
-            phoneNumber: req.body.phoneNumber,
-            googleAuthKey: req.body.googleAuthKey
-        }
-    };
-    UserControllor.update(userReq, res, true)
-}
-
 
 exports.delete = function(req, res) {
 	TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
