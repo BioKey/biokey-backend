@@ -1,4 +1,6 @@
 const Activity = require('../models/activity');
+const Organization = require('../models/organization');
+const User = require('../models/user');
 const AWS = require('aws-sdk');
 const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 AWS.config.update({ "region": process.env.AWS_REGION });
@@ -146,7 +148,7 @@ const buildActivity = function(activityType, objectType, typingProfile, user, ol
         sendSQS(activity.paramaters.sqs);
       } else if (origin == 'CLIENT' && activity.activityType != 'INFO') {
         // Alert the Admin
-        sendAdminAlert(objectType, activityType, activity, updatedUser);
+        sendAdminAlert(objectType, activityType, activity, user);
       }
     }
   });
@@ -163,18 +165,18 @@ const sqsParams = function(objectType, old, updated, user, changeType) {
   return {
     QueueUrl: old.endpoint,
     MessageGroupId: old._id + "",
-    MessageDeduplicationId: Date.now(),
+    MessageDeduplicationId: Date.now().toString(),
     MessageBody: JSON.stringify({
       userChangeType: changeType,
       typingProfile: JSON.stringify(updated),
       phoneNumber: user.phoneNumber,
       googleAuthKey: user.googleAuthKey,
-      timeStamp: Date.now()
+      timeStamp: Date.now().toString()
     }),
     MessageAttributes: {
       "ChangeType": {
         DataType: "String",
-        StringValue: changeType
+        StringValue: objectType
       }
     }
   }
@@ -202,15 +204,42 @@ const sendSQS = function(params) {
  * @param {String} objectType    The type of the object whose update triggered the activity
  * @param {String} activityType  The type of activity being reported
  * @param {Object} activity      The details of the activity
+ * @param {Object} updatedUser   The user who owns the object
  */
-const sendAdminAlert = function (objectType, activityType, activity, updatedUser) {
-  twilio.messages.create({
-    to: updatedUser.phoneNumber,
-    from: process.env.TWILIO_FROM_PHONE_NUMBER,
-    body: objectType + " " + activityType + " update!\nProfile:\n" + activity.typingProfile + "\nTimestamp:\n" + activity.timestamp,
-  })
-  .then(message => {
-    console.log("Text sent!")
+const sendAdminAlert = function(objectType, activityType, activity, updatedUser) {
+  //Get the organization's admins' phone numbers
+  let adminNumbers = getAdminPhone(updatedUser);
+  if (adminNumbers.length == 0) return;
+  //Text them
+  adminNumbers.forEach(adminNumber => {
+    twilio.messages.create({
+      to: adminNumber,
+      from: process.env.TWILIO_FROM_PHONE_NUMBER,
+      body: objectType + " " + activityType + " update!\nProfile:\n" + activity.typingProfile + "\nTimestamp:\n" + activity.timestamp,
+    })
+    .then(message => {
+      console.log("Text sent!")
+    });
+  });
+}
+
+/**
+ * A helper function to get the admins of the user's organization.
+ * 
+ * @param {Object} user  The user who owns the object
+ * @return {Array}       The array of admin numbers
+ */
+const getAdminPhone = function(user) {
+  let adminNumbers = [];
+  Organization.findById(user.organization, (err, organization) => {
+    if(err || !organization) return [];
+    User.find({'organization': organization._id, 'isAdmin': true}, (err, admins) =>{
+      if(err || admins.length == 0) return [];
+      else admins.forEach(admin => {
+        adminNumbers.push(admin.phoneNumber);
+      });
+      return adminNumbers;
+    });
   });
 }
 

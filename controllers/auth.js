@@ -13,7 +13,7 @@ exports.register = function(req, res) {
   let email = req.body.email;
   let password = req.body.password;
   let name = req.body.name;
-  let isAdmin = false;
+  let isAdmin = req.body.isAdmin;
   let organization = req.body.organization;
   let phoneNumber = req.body.phoneNumber;
 

@@ -22,7 +22,7 @@ const middleware = require('../services/middleware');
  *              "machine": "bb4fd2d5aa0f2f041258e517",
  *              "isLocked": "false",
  *				"lastHeartbeat": "2020-04-24T11:41:47.280Z",
- *				"tensorFlowModel": "testModelString"	
+ *				"tensorFlowModel": "testModelString",	
  *              "endpoint": "https://aws.amazon.com",
  *              "challengeStrategies": [],
  *				"threshold": []    

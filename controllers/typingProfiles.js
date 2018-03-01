@@ -1,5 +1,6 @@
 const TypingProfile = require('../models/typingProfile');
 const User = require('../models/user');
+const UserControllor = require('../controllers/users');
 const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
@@ -94,6 +95,7 @@ exports.post = function(req, res) {
 
 	// Assert valid user
 	User.findById(typingProfile.user, (err, user) => {
+		console.log("WAH",user);
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!user) return res.status(404).send(util.norm.errors({ message: 'User not found' }));
 		// Assert valid machine
@@ -109,9 +111,9 @@ exports.post = function(req, res) {
 	});
 }
 
-exports.update = function(req, res) {
+exports.update = function(req, res, statusChange, totalReq) {
 	let updatedProfile = req.body.typingProfile;
-	
+
 	// Determine how to handle the message
 	let origin = util.check(req.user, req.body.typingProfile.user);
 	if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
@@ -123,12 +125,12 @@ exports.update = function(req, res) {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!user) return res.status(404).send(util.norm.errors({ message: 'User not found' }));
 		// Assert valid machine
-		Machine.findById(updatedProfile.machine, (err, machine) => {
-			if (err) return res.status(500).send(util.norm.errors(err));
+		Machine.findById(updatedProfile.machine, (err2, machine) => {
+			if (err2) return res.status(500).send(util.norm.errors(err2));
 			if (!machine) return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
 			// Save typing profile
-			TypingProfile.findById(req.params.id, (err, typingProfile) => {
-				if (err) return res.status(500).send(util.norm.errors(err));
+			TypingProfile.findById(req.params.id, (err3, typingProfile) => {
+				if (err3) return res.status(500).send(util.norm.errors(err3));
 				if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
 				
 				// Save activity, alert the relevant party
@@ -141,15 +143,34 @@ exports.update = function(req, res) {
 				if (updatedProfile.tensorFlowModel) typingProfile.tensorFlowModel = updatedProfile.tensorFlowModel;
 				if (updatedProfile.challengeStrategies) typingProfile.challengeStrategies = updatedProfile.challengeStrategies;
 				if (updatedProfile.threshold) typingProfile.threshold = updatedProfile.threshold;
+				if (updatedProfile.endpoint) typingProfile.endpoint = updatedProfile.endpoint;
 
-				typingProfile.save((err, saved) => {
-					if (err) return res.status(500).send(util.norm.errors(err));
-					res.send({ typingProfile: saved });
+				typingProfile.save((err4, saved) => {
+					if (err4) return res.status(500).send(util.norm.errors(err4));
+					console.log("SC", statusChange)
+					if (statusChange === true) {
+						saveUserFromStatusUpdate(totalReq, res);
+					}
+					else return res.send({ typingProfile: saved });
 				});
 			});
-		})
+		});
 	});
 }
+
+function saveUserFromStatusUpdate(req, res) {
+    // Construct user request
+    let userReq = req;
+    userReq.params.id = req.body.typingProfile.user;
+    userReq.body = {
+        user: {
+            phoneNumber: req.body.phoneNumber,
+            googleAuthKey: req.body.googleAuthKey
+        }
+    };
+    UserControllor.update(userReq, res, true)
+}
+
 
 exports.delete = function(req, res) {
 	TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {

@@ -38,13 +38,16 @@ exports.post = function(req, res) {
 	});
 }
 
-exports.update = function(req, res) {
+exports.update = function(req, res, statusChange) {
 	let updatedUser = req.body.user;
 
 	// TODO: Verify changes before updating
 
+	console.log(req.params.id)
+
 	User.findById(req.params.id, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
+		if (!user) return res.status(404).send(util.norm.errors({ message: 'User not found' }));
 
 		// Determine how to handle the message
 		let origin = util.check(req.user, user._id);
@@ -68,6 +71,10 @@ exports.update = function(req, res) {
 
 			user.save((err, saved) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
+				else if (statusChange === true) {
+					res.status(200).send("Status update successful!");
+					return;
+				}
 				res.send({ user });
 			});
 		});
