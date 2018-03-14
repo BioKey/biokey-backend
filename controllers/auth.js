@@ -18,7 +18,7 @@ exports.register = function(req, res) {
   let phoneNumber = req.body.phoneNumber;
 
   if (!email || !password || !name) {
-    return res.status(422).send(util.norm.errors({ message: 'email, password, and name is required' }));
+    return res.status(422).send(util.norm.errors({ message: 'email, password, and name are required' }));
   }
 
   // see if a user with the given email exists
@@ -40,6 +40,7 @@ exports.register = function(req, res) {
 
       user.save(function(err) {
         if (err) return res.status(500).send(util.norm.errors(err));
+        util.send.adminAlert(organization, "New user with email: " + email + " joined user organization.");
         return res.send({ token: user.getToken() });
       });
     };
@@ -56,6 +57,7 @@ exports.register = function(req, res) {
           createUser();
         })
       } else {
+        isAdmin = false;
         createUser();
       }
     });

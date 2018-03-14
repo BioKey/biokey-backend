@@ -8,12 +8,12 @@ const middleware = require('../services/middleware');
  * @api {get} /api/organizations  ListOrganizations
  * @apiName ListOrganizations
  * @apiDescription
- * Get a list of all organizations
+ * Get the organization of the requesting user
  * 
  * @apiGroup Organizations
  * 
  * @apiUse RequestHeaders
- * @apiSuccess {Array} organizations List of organizations
+ * @apiSuccess {Object} organization The organization of the requesting user
  * @apiSuccess {String} organizations._id UUID of the organization for the system.
  * @apiSuccess {String} organizations.name The organization's unique name.
  * @apiSuccess {Number} organizations.maxUsers The number of users that the organization may have.
@@ -21,7 +21,7 @@ const middleware = require('../services/middleware');
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
  *     {
- *       "organizations": [
+ *       "organizations":
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "name": "testOrganization",
@@ -29,7 +29,6 @@ const middleware = require('../services/middleware');
  *              "defaultChallengeStrategies": [],
  *              "defaultThreshold": []
  *          }
- *       ]
  *     }
  * @apiUse AdminError
  */

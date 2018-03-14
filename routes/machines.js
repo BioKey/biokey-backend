@@ -8,7 +8,7 @@ const middleware = require('../services/middleware');
  * @api {get} /api/machines  ListMachines
  * @apiName ListMachines
  * @apiDescription
- * Get a list of all machines
+ * Get a list of all machines in the administrator's organization.
  * 
  * @apiGroup Machines
  * 

@@ -7,7 +7,7 @@ const middleware = require('../services/middleware');
  * @api {get} /api/typingProfiles  ListTypingProfiles
  * @apiName ListTypingProfiles
  * @apiDescription
- * Get a list of all typingProfiles
+ * Get a list of all typingProfiles for a user in the administrator's organization
  * 
  * @apiGroup TypingProfiles
  * 

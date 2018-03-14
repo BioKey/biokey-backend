@@ -12,7 +12,7 @@ var activitySchema = mongoose.Schema({
     },
     activityType: {
         type: String,
-        enum: ['LOCK', 'UNLOCK', 'INFO', 'LOGOUT', 'LOGIN'], // Add more here
+        enum: ['LOCK', 'UNLOCK', 'INFO', 'LOGOUT', 'LOGIN', "NEW_PROFILE"], // Add more here
         require: true
     },
     initiatedBy: {

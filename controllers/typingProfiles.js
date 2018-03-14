@@ -7,21 +7,58 @@ const util = require('../services/util');
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
-	TypingProfile.find(query, (err, typingProfiles) => {
-		if (err) return res.status(500).send(util.norm.errors(err));
-		res.send({ typingProfiles });
-	});
+
+	// If a user was specified, make sure they are in the same organization.
+	if (query.user) {
+		User.findById(query.user, (err, user) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			if (!user || String(user.organization) != req.user.organization) {
+				return res.status(404).send(util.norm.errors({ message: 'User not found' }));
+			}
+
+			// Get all the typing profiles for that user.
+			TypingProfile.find(query, (err, typingProfiles) => {
+				if (err) return res.status(500).send(util.norm.errors(err));
+				if (!typingProfiles) return res.status(404).send(util.norm.errors({ message: 'Typing Profiles not found' }));
+				res.send({ typingProfiles });
+			});
+		});
+	} else {
+		// If no user was specified, find all the users in the organization.
+		User.find({'organization' : req.user.organization}, {_id: 1}, (err, users) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			
+			// Add the queries
+			let ids = users.map(function(doc) { return doc._id});
+			query.user = {$in: ids};
+
+			// Get all the typing profiles for that user.
+			TypingProfile.find(query, (err, typingProfiles) => {
+				if (err) return res.status(500).send(util.norm.errors(err));
+				if (!typingProfiles) return res.status(404).send(util.norm.errors({ message: 'Typing Profiles not found' }));
+				res.send({ typingProfiles });
+			});
+		});
+	}
 }
 
 exports.get = function(req, res) {
-	// Query for requested paramater and user_id if not admin
 	let query = { _id: req.params.id };
 	if (!req.user.isAdmin) query.user = req.user._id;
 
 	TypingProfile.findOne(query, (err, typingProfile) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
-		res.send({ typingProfile });
+
+		// Make sure that the typing profile of the user is accessible by the request user
+		User.findById(typingProfile.user, (err, user) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			if (!user || String(user.organization) != req.user.organization) {
+				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
+			}
+
+			res.send({ typingProfile });
+		});
 	});
 }
 
@@ -43,6 +80,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 			});
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
+				util.send.activity.typingProfile("CLIENT", {}, newTypingProfile, user);
 				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber, googleAuthKey: user.googleAuthKey, timeStamp: Date.now() });
 			})
 		});
@@ -53,6 +91,9 @@ exports.postTypingProfileFromMachine = function(req, res) {
 		if (err) return res.status(500).send(util.norm.errors(err));
 
 		if (machine) {
+			if (String(machine.organization) != req.user.organization) {
+				return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
+			}
 			// Find typing profile with user, machine pair
 			TypingProfile.findOne({ user: req.user._id, machine: machine._id }, (err, typingProfile) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
@@ -75,14 +116,18 @@ exports.postTypingProfileFromMachine = function(req, res) {
 
 exports.heartbeat = function(req, res) {
 	TypingProfile.findById(req.params.id, (err, typingProfile) => {
+		if (err) return res.status(500).send(util.norm.errors(err));
+		if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
+		if (String(typingProfile.user) != req.user._id) {
+			return res.status(404).send(util.norm.errors({ message: 'Cannot heartbeat another user' }));
+		}
+
+		typingProfile.lastHeartbeat = Date.now();
+		typingProfile.save(err => {
 			if (err) return res.status(500).send(util.norm.errors(err));
-			if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
-			typingProfile.lastHeartbeat = Date.now();
-			typingProfile.save(err => {
-				if (err) return res.status(500).send(util.norm.errors(err));
-				res.sendStatus(200);
-			});
+			res.sendStatus(200);
 		});
+	});
 }
 
 exports.post = function(req, res) {
@@ -95,16 +140,20 @@ exports.post = function(req, res) {
 
 	// Assert valid user
 	User.findById(typingProfile.user, (err, user) => {
-		console.log("WAH",user);
 		if (err) return res.status(500).send(util.norm.errors(err));
-		if (!user) return res.status(404).send(util.norm.errors({ message: 'User not found' }));
+		if (!user || String(user.organization) != req.user.organization) {
+			return res.status(404).send(util.norm.errors({ message: 'User not found' }));
+		}
+		
 		// Assert valid machine
 		Machine.findById(typingProfile.machine, (err, machine) => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!machine) return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
+			
 			// Save typing profiles
 			typingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
+				util.send.activity.typingProfile("CLIENT", {}, typingProfile, user);
 				res.send({ typingProfile });
 			});
 		})
@@ -123,7 +172,9 @@ exports.update = function(req, res) {
 	// Assert valid user.
 	User.findById(updatedProfile.user, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
-		if (!user) return res.status(404).send(util.norm.errors({ message: 'User not found' }));
+		if (!user || String(user.organization) != req.user.organization) {
+			return res.status(404).send(util.norm.errors({ message: 'User not found' }));
+		}
 
 		// Assert valid machine.
 		Machine.findById(updatedProfile.machine, (err2, machine) => {
@@ -179,9 +230,22 @@ exports.update = function(req, res) {
 }
 
 exports.delete = function(req, res) {
-	TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
+	TypingProfile.findById(req.params.id, (err, typingProfile) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
-		if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-		res.sendStatus(200);
+		if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
+
+		// Make sure that the typing profile of the user is accessible by the request user
+		User.findById(typingProfile.user, (err, user) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			if (!user || String(user.organization) != req.user.organization) {
+				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
+			}
+
+			TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
+				if (err) return res.status(500).send(util.norm.errors(err));
+				if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
+				res.sendStatus(200);
+			});
+		});
 	});
 }

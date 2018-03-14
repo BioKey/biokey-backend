@@ -54,24 +54,6 @@ userSchema.pre('save', function(next) {
   });
 });
 
-userSchema.pre('findById', function(next) {
-  let user = this.getUpdate();
-  if (user && user.password) {
-    bcrypt.genSalt(10, function(err, salt) {
-      if (err) { return next(err); }
-
-      bcrypt.hash(user.password, salt, null, function(err, hash) {
-        if (err) { return next(err); }
-
-        user.password = hash;
-        next();
-      });
-    });
-  } else {
-    next();
-  }
-});
-
 userSchema.methods.comparePassword = function(candidatePassword, callback) {
   User.findOne({ _id: this._id })
     .select('+password')

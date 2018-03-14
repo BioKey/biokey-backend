@@ -24,7 +24,7 @@ router.get('/me', middleware.requireAuth, User.me);
  * @api {get} /api/users  ListUsers
  * @apiName ListUsers
  * @apiDescription 
- * Get a list of all users
+ * Get a list of all users in the administrator's organization.
  * 
  * @apiGroup Users
  *
@@ -71,7 +71,7 @@ router.get('/', middleware.requireAdmin, User.getAll);
  * 
  * @apiUse UserError
  */
-router.get('/:id', middleware.requireAuth, User.get);
+router.get('/:id', middleware.requireAdmin, User.get);
 
 /**
  * @api {post} /api/users  PostUser

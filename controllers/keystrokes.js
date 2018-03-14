@@ -5,18 +5,26 @@ const util = require('../services/util');
 const Q = require('q');
 
 exports.getAll = function(req, res) {
+	/*// TODO: only get keystrokes from your organization
 	Keystroke.find((err, keystrokes) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		return res.send({ keystrokes });
-	});
+	});*/
+
+	// Don't need get of keystrokes for now.
+	res.sendStatus(405);
 }
 
 exports.get = function(req, res) {
+	/*// TODO: only get keystrokes from your organization
 	Keystroke.findById(req.params.id, (err, keystroke) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!keystroke) return res.status(404).send(util.norm.errors({ message: 'Keystroke not found' }));
 		return res.send({ keystroke });
-	});
+	});*/
+
+	// Don't need get of keystrokes for now.
+	res.sendStatus(405);
 }
 
 exports.post = function(req, res) {
@@ -31,6 +39,10 @@ exports.post = function(req, res) {
 	TypingProfile.findOne(query, (err, typingProfile) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
+		if (String(typingProfile.user) != req.user._id) {
+			return res.status(404).send(util.norm.errors({ message: 'Cannot add keystrokes for someone else' }));
+		}
+		
 		// Validate all keystrokes
 		var validatePromises = [];
 		var keystrokes = [];
@@ -63,14 +75,11 @@ exports.post = function(req, res) {
 	});
 }
 
-// TODO: Should this be able to change?
 exports.update = function(req, res) {
+	/*// TODO: only update keystrokes from your organization
 	var updatedKeystroke = req.body.keystroke;
-	// Try to find the TypingProfile
-	// Query for activity typing profile and user_id if not admin
-	let query = { _id: updatedKeystroke.typingProfile };
-	if (!req.user.isAdmin) query.user = req.user._id;
-	TypingProfile.findOne(query, (err, typingProfile) => {
+	
+	TypingProfile.findOne({ _id: updatedKeystroke.typingProfile }, (err, typingProfile) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
 		// Update the activity
@@ -78,13 +87,20 @@ exports.update = function(req, res) {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			res.send({ keystroke });
 		});
-	});
+	});*/
+
+	// Why would we ever change a keystroke?!
+	res.sendStatus(405);
 }
 
 exports.delete = function(req, res) {
+	/*// TODO: only delete keystrokes from your organization
 	Keystroke.findByIdAndRemove(req.params.id, (err, deleted) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
 		res.sendStatus(200);
-	});
+	});*/
+
+	// Don't need delete of keystrokes for now.
+	res.sendStatus(405);
 }

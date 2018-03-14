@@ -118,10 +118,14 @@ const sendUserActivity = function(origin, old, updated, typingProfile, passwordU
 const sendTypingProfileActivity = function(origin, old, updated, user) {
   // Determine the type of activity.
   let activityType;
-  if (old.isLocked != updated.isLocked) {
+  if (!old || old == {}) {
+    activityType = "NEW_PROFILE";
+  }
+  else if (old.isLocked != updated.isLocked) {
     if (updated.isLocked) activityType = 'LOCK';
     else activityType = 'UNLOCK';
-  } else activityType = 'INFO';
+  }
+  else activityType = 'INFO';  
 
   // Add some user fields to the TypingProfile.
   updated.phoneNumber = user.phoneNumber;
@@ -249,6 +253,30 @@ const sendAdminAlert = function(objectType, activityType, activity, phoneNumbers
 }
 
 /**
+ * A helper function to send admin alerts via Twilio.
+ * 
+ * @param {Object} organization   The organization whose admins should be alerted
+ * @param {String} adminMessage   The message to send to the admins
+ */
+const genericSendAdminAlert = function(organization, adminMessage) {
+  getAdminPhoneNumbers({'organization': organization}, function(phoneNumbers) {
+    if (!phoneNumbers || phoneNumbers.length == 0) return;
+
+    // Text the administrators.
+    phoneNumbers.forEach(phoneNumber => {
+      twilio.messages.create({
+          to: phoneNumber,
+          from: process.env.TWILIO_FROM_PHONE_NUMBER,
+          body: adminMessage,
+        }, (err, message) => {
+          if (err) console.log("Could not send text to " + phoneNumber);
+          console.log("Sent text to regarding activity " + activity._id + " to " + phoneNumber);
+        });
+    });
+  });
+}
+
+/**
  * A helper function to get the admins of the user's organization.
  * 
  * @param {Object} user     The user who owns the object
@@ -279,6 +307,7 @@ module.exports = {
     activity: {
       typingProfile: sendTypingProfileActivity,
       user: sendUserActivity
-    }
+    },
+    adminAlert: genericSendAdminAlert
   }
 };
