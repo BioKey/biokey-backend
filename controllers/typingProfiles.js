@@ -4,6 +4,7 @@ const UserControllor = require('../controllers/users');
 const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
+const testGaussian = require('../test-gaussian');
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
@@ -74,13 +75,16 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				user: user._id,
 				machine: machine._id,
 				isLocked: false,
-				tensorFlowModel: "",
+				tensorFlowModel: {
+						'gaussianProfile': testGaussian
+					},
 				challengeStrategies: organization.defaultChallengeStrategies,
 				threshold: organization.defaultThreshold
 			});
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				util.send.activity.typingProfile("CLIENT", {}, newTypingProfile, user);
+
 				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber, googleAuthKey: user.googleAuthKey, timeStamp: Date.now() });
 			})
 		});

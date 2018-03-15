@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 var keystrokeSchema = mongoose.Schema({
     character: {
-        type: String,
+        type: Number,
         require: true,
         trim: true
     },
