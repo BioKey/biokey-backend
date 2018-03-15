@@ -17,6 +17,7 @@ const middleware = require('../services/middleware');
  * @apiSuccess {String} organizations._id UUID of the organization for the system.
  * @apiSuccess {String} organizations.name The organization's unique name.
  * @apiSuccess {Number} organizations.maxUsers The number of users that the organization may have.
+ * @apiSuccess {Array} organizations.defaultChallengeStrategies The default challenge strategies for typing profiles in the organization.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
@@ -26,8 +27,7 @@ const middleware = require('../services/middleware');
  *              "_id": "5a4fd2d5fb0f2f041278e510",
  *              "name": "testOrganization",
  *              "maxUsers": "100",
- *              "defaultChallengeStrategies": [],
- *              "defaultThreshold": []
+ *              "defaultChallengeStrategies": []
  *          }
  *     }
  * @apiUse AdminError

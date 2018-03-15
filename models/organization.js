@@ -11,8 +11,7 @@ var organizationSchema = mongoose.Schema({
         require: true,
         default: 100
     },
-    defaultChallengeStrategies: [String],
-    defaultThreshold: [Number]
+    defaultChallengeStrategies: [String]
 });
 
 module.exports = mongoose.model('Organization', organizationSchema);

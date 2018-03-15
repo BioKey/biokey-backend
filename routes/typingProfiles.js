@@ -20,6 +20,8 @@ const middleware = require('../services/middleware');
  * @apiSuccess {Boolean} typingProfiles.lockStatus The lock status of the typing profile.
  * @apiSuccess {String} typingProfiles.accessToken The access token for the typing profile's session.
  * @apiSuccess {String} typingProfiles.tensorFlowModel The tensor flow model of the typing profile.
+ * @apiSuccess {String} typingProfiles.endpoint The sqs endpoint of the typing profile.
+ * @apiSuccess {Array} typingProfiles.challengeStrategies The challenge strategies of the typing profile.
  * 
  * @apiSuccessExample Response (example):
  *     HTTP/1.1 200 Success
@@ -33,8 +35,7 @@ const middleware = require('../services/middleware');
  *				"lastHeartbeat": "2020-04-24T11:41:47.280Z",
  *				"tensorFlowModel": "testModelString"	
  *              "endpoint": "https://aws.amazon.com",
- *              "challengeStrategies": [],
- *				"threshold": []
+ *              "challengeStrategies": []
  *          }
  *        ]
  *      }

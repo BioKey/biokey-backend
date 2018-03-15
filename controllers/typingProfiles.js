@@ -65,7 +65,7 @@ exports.get = function(req, res) {
 
 exports.postTypingProfileFromMachine = function(req, res) {
 	var createNewTypingProfile = function(user, machine) {
-		// Find organization to get the default challenge strategies and thresholds
+		// Find organization to get the default challenge strategies
 		Organization.findById(user.organization, (err, organization) => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!organization) return res.status(404).send(util.norm.errors({ message: 'Organization not found' }));
@@ -78,8 +78,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				tensorFlowModel: {
 						'gaussianProfile': testGaussian
 					},
-				challengeStrategies: organization.defaultChallengeStrategies,
-				threshold: organization.defaultThreshold
+				challengeStrategies: organization.defaultChallengeStrategies
 			});
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
@@ -126,7 +125,7 @@ exports.heartbeat = function(req, res) {
 			return res.status(404).send(util.norm.errors({ message: 'Cannot heartbeat another user' }));
 		}
 
-		typingProfile.lastHeartbeat = Date.now().getTime();
+		typingProfile.lastHeartbeat = (new Date).getTime();
 		typingProfile.save(err => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			res.sendStatus(200);
@@ -197,7 +196,6 @@ exports.update = function(req, res) {
 				if (updatedProfile.lastHeartbeat) typingProfile.lastHeartbeat = updatedProfile.lastHeartbeat;
 				if (updatedProfile.tensorFlowModel) typingProfile.tensorFlowModel = updatedProfile.tensorFlowModel;
 				if (updatedProfile.challengeStrategies) typingProfile.challengeStrategies = updatedProfile.challengeStrategies;
-				if (updatedProfile.threshold) typingProfile.threshold = updatedProfile.threshold;
 				if (updatedProfile.endpoint) typingProfile.endpoint = updatedProfile.endpoint;
 
 				typingProfile.save((err4, saved) => {
