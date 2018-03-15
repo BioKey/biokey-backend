@@ -1,4 +1,5 @@
 const Machine = require('../models/machine');
+const User = require('../models/user');
 const Organization = require('../models/organization');
 const util = require('../services/util');
 
@@ -63,10 +64,10 @@ exports.update = function(req, res) {
 }
 
 exports.delete = function(req, res) {
-	User.findById(req.params.id, (err, user) => {
+	Machine.findById(req.params.id, (err, machine) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
-		if (!user || String(user.organization) != req.user.organization) {
-			return res.status(404).send(util.norm.errors({ message: 'Cannot delete machine outside of organization' }));
+		if (!machine || String(machine.organization) != req.user.organization) {
+			return res.status(500).send(util.norm.errors({ message: 'Cannot delete machine outside of organization' }));
 		}
 
 		Machine.findByIdAndRemove(req.params.id, (err, deleted) => {

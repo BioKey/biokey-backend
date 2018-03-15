@@ -122,7 +122,7 @@ exports.heartbeat = function(req, res) {
 			return res.status(404).send(util.norm.errors({ message: 'Cannot heartbeat another user' }));
 		}
 
-		typingProfile.lastHeartbeat = Date.now();
+		typingProfile.lastHeartbeat = Date.now().getTime();
 		typingProfile.save(err => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			res.sendStatus(200);
@@ -134,7 +134,7 @@ exports.post = function(req, res) {
 	var typingProfile = new TypingProfile(req.body.typingProfile);
 	
 	// Determine how to handle the message
-	if (util.check(req.user, typingProfile.user) == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+	if (util.checkOrigin(req.user, typingProfile.user) == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 	// TODO: Validate before insert
 

@@ -118,7 +118,7 @@ const sendUserActivity = function(origin, old, updated, typingProfile, passwordU
 const sendTypingProfileActivity = function(origin, old, updated, user) {
   // Determine the type of activity.
   let activityType;
-  if (!old || old == {}) {
+  if (!old || Object.getOwnPropertyNames(old).length == 0) {
     activityType = "NEW_PROFILE";
   }
   else if (old.isLocked != updated.isLocked) {

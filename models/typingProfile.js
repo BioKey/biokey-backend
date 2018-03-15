@@ -29,7 +29,7 @@ var typingProfileSchema = mongoose.Schema({
         require: true,
         default: false
     },
-    lastHeartbeat: Date,
+    lastHeartbeat: Number,
     tensorFlowModel: {
         type: String,
         trim: true

@@ -35,7 +35,7 @@ exports.get = function(req, res) {
 
 			User.findById(typingProfile.user, (err, user) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
-				if (!user || String(user.organization) != req.user._id) {
+				if (!user || String(user.organization) != req.user.organization) {
 					return res.status(404).send(util.norm.errors({ message: 'No activity was found.' }));
 				}
 
