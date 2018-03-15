@@ -37,8 +37,7 @@ var typingProfileSchema = mongoose.Schema({
         type: String,
         require: true
     },
-    challengeStrategies: [String],
-    threshold: [Number]
+    challengeStrategies: [String]
 });
 
 typingProfileSchema.index({ user: 1, machine: 1 }, { unique: true }); // ASSUMPTION: user-machine pairs should be unique

@@ -67,7 +67,7 @@ exports.update = function(req, res) {
 			let oldUser = JSON.parse(JSON.stringify(user));
 			if (updatedUser.name) user.name = updatedUser.name;
 			if (updatedUser.email) user.email = updatedUser.email;
-			if (req.user.isAdmin && updatedUser.isAdmin) user.isAdmin = updatedUser.isAdmin;
+			if (req.user.isAdmin && updatedUser.hasOwnProperty('isAdmin')) user.isAdmin = updatedUser.isAdmin;
 			if (updatedUser.phoneNumber) user.phoneNumber = updatedUser.phoneNumber;
 			if (updatedUser.organization) user.organization = updatedUser.organization;
 			if (updatedUser.password) user.password = updatedUser.password;
@@ -79,11 +79,11 @@ exports.update = function(req, res) {
 				// Save activities for each typingProfile, alert the relevant party.
 				if (typingProfiles) {
 					typingProfiles.forEach(profile => {
-						util.send.activity.user(origin, oldUser, updatedUser, profile, false);
+						util.send.activity.user(origin, oldUser, saved, profile, false);
 					});
 				}
 
-				res.send({ user });
+				res.send({ user: saved });
 			});
 		});
 	});

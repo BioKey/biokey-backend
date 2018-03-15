@@ -11,8 +11,10 @@ var organizationSchema = mongoose.Schema({
         require: true,
         default: 100
     },
-    defaultChallengeStrategies: [String],
-    defaultThreshold: [Number]
+    defaultChallengeStrategies: {
+        type: Array,
+        default: ['GoogleAuth', 'TextMessage']
+    }
 });
 
 module.exports = mongoose.model('Organization', organizationSchema);
