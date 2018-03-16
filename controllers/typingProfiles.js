@@ -4,7 +4,7 @@ const UserControllor = require('../controllers/users');
 const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
-const testGaussian = require('../test-gaussian');
+const testModel = require('../ensemble.json');
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
@@ -65,7 +65,7 @@ exports.get = function(req, res) {
 
 exports.postTypingProfileFromMachine = function(req, res) {
 	var createNewTypingProfile = function(user, machine) {
-		// Find organization to get the default challenge strategies
+		// Find organization to get the default challenge strategies and thresholds
 		Organization.findById(user.organization, (err, organization) => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			if (!organization) return res.status(404).send(util.norm.errors({ message: 'Organization not found' }));
@@ -75,13 +75,12 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				user: user._id,
 				machine: machine._id,
 				isLocked: false,
-				tensorFlowModel: { 'gaussianProfile': testGaussian },
+				tensorFlowModel: test,
 				challengeStrategies: organization.defaultChallengeStrategies
 			});
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				util.send.activity.typingProfile("CLIENT", {}, newTypingProfile, user);
-
 				res.send({ typingProfile: newTypingProfile, phoneNumber: user.phoneNumber, googleAuthKey: user.googleAuthKey, timeStamp: Date.now() });
 			})
 		});
@@ -123,7 +122,7 @@ exports.heartbeat = function(req, res) {
 			return res.status(404).send(util.norm.errors({ message: 'Cannot heartbeat another user' }));
 		}
 
-		typingProfile.lastHeartbeat = (new Date).getTime();
+		typingProfile.lastHeartbeat = Date.now();
 		typingProfile.save(err => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			res.sendStatus(200);
@@ -135,7 +134,7 @@ exports.post = function(req, res) {
 	var typingProfile = new TypingProfile(req.body.typingProfile);
 	
 	// Determine how to handle the message
-	if (util.checkOrigin(req.user, typingProfile.user) == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+	if (util.check(req.user, typingProfile.user) == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 	// TODO: Validate before insert
 
@@ -194,6 +193,7 @@ exports.update = function(req, res) {
 				if (updatedProfile.lastHeartbeat) typingProfile.lastHeartbeat = updatedProfile.lastHeartbeat;
 				if (updatedProfile.tensorFlowModel) typingProfile.tensorFlowModel = updatedProfile.tensorFlowModel;
 				if (updatedProfile.challengeStrategies) typingProfile.challengeStrategies = updatedProfile.challengeStrategies;
+				if (updatedProfile.threshold) typingProfile.threshold = updatedProfile.threshold;
 				if (updatedProfile.endpoint) typingProfile.endpoint = updatedProfile.endpoint;
 
 				typingProfile.save((err4, saved) => {
@@ -243,8 +243,16 @@ exports.delete = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
 			}
 
+<<<<<<< HEAD
+			TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
+				if (err) return res.status(500).send(util.norm.errors(err));
+				if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
+				res.sendStatus(200);
+			});
+=======
 			typingProfile.remove();
 			res.sendStatus(200);
+>>>>>>> 054d6751e32c1021dd7002551b57d56b6724ddff
 		});
 	});
 }
