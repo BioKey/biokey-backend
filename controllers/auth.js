@@ -62,5 +62,45 @@ exports.register = function(req, res) {
       }
     });
   });
+}
 
+exports.registerForOrganization = function(req, res) {
+  let email = req.body.email;
+  let password = req.body.password;
+  let name = req.body.name;
+  let isAdmin = req.body.isAdmin;
+  let organization = req.params.organization_id;
+  let phoneNumber = req.body.phoneNumber;
+
+  if (!email || !password || !name) {
+    return res.status(422).send(util.norm.errors({ message: 'email, password, and name are required' }));
+  }
+
+  // Check that organization exists
+  Organization.findById(organization, function(err, org) {
+    if (err) return res.status(500).send(util.norm.errors(err));
+    if (!org) return res.status(400).send(util.norm.errors({ message: 'Organization not found' }));
+    
+    // see if a user with the given email exists
+    User.findOne({ email: email }, function(err, existingUser) {
+      if (err) return res.status(500).send(util.norm.errors(err));
+      // if a user with email does exist, return an error
+      if (existingUser) return res.status(422).send(util.norm.errors({ message: 'Email is in use' }));
+
+      // Create and save the user
+      const user = new User({
+        email: email,
+        password: password,
+        name: name,
+        isAdmin: isAdmin,
+        organization: organization,
+        phoneNumber: phoneNumber
+      });
+      
+      user.save(err => {
+        if (err) return res.status(500).send(util.norm.errors(err));
+        res.send({ user });
+      });
+    });
+  });
 }
