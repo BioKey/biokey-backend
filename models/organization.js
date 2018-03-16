@@ -13,7 +13,10 @@ var organizationSchema = mongoose.Schema({
         require: true,
         default: 100
     },
-    defaultChallengeStrategies: [String]
+    defaultChallengeStrategies: {
+        type: Array,
+        default: ['GoogleAuth', 'TextMessage']
+    }
 });
 
 /**

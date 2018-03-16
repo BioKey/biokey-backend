@@ -71,7 +71,7 @@ router.get('/', middleware.requireAdmin, User.getAll);
  * 
  * @apiUse UserError
  */
-router.get('/:id', middleware.requireAdmin, User.get);
+router.get('/:id', middleware.requireAuth, User.get);
 
 /**
  * @api {post} /api/users  PostUser

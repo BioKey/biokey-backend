@@ -58,7 +58,8 @@ exports.delete = function(req, res) {
 	Organization.findById(req.params.id, (err, organization) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!organization) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-		organization.remove(); // Delete the machine
+		
+		organization.remove();
 		res.sendStatus(200);
 	});
 }

@@ -43,23 +43,25 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', function(next) {
   const user = this;
 
-  bcrypt.genSalt(10, function(err, salt) {
-    if (err) { return next(err); }
-
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
+  if (user.password) {
+    bcrypt.genSalt(10, function(err, salt) {
       if (err) { return next(err); }
 
-      user.password = hash;
-      next();
+      bcrypt.hash(user.password, salt, null, function(err, hash) {
+        if (err) { return next(err); }
+
+        user.password = hash;
+        next();
+      });
     });
-  });
+  } else next();
 });
 
 /**
  * Hook to ensure referential integrity.
  */
 userSchema.pre('remove', function(next) {
-  TypingProfile.remove({user: this._id}).exec();
+  TypingProfile.remove({ user: this._id }).exec();
   next();
 });
 

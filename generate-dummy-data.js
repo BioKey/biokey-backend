@@ -17,7 +17,7 @@ confirm("This will delete all current data, do you want to proceed?", function()
         .then(db => {
             db.dropDatabase();
 
-            let organizations = [{ name: "A", maxUsers: 10, defaultChallengeStrategies: ["GoogleAuth", "TextMessage"]}, { name: "B", maxUsers: 20, defaultChallengeStrategies: ["GoogleAuth", "TextMessage"]}]
+            let organizations = [{ name: "A", maxUsers: 10}, { name: "B", maxUsers: 20}]
             let machines = [{ mac: "ABC", organization: "A" }, { mac: "DEF", organization: "A" }, { mac: "GHI", organization: "A" }, { mac: "JKL", organization: "B" }]
             let users = [{ email: "a@a.com", name: "A", password: "a", isAdmin: false, phoneNumber: "1234567890", organization: "A" }, { email: "b@b.com", name: "B", password: "b", isAdmin: true, phoneNumber: "1234567890", organization: "A" }, { email: "c@c.com", name: "C", password: "c", isAdmin: false, phoneNumber: "1234567890", organization: "A" }, { email: "d@d.com", name: "D", password: "d", isAdmin: false, phoneNumber: "1234567890", organization: "B" }]
             let typingProfiles = [{ user: "A", machine: "ABC", isLocked: false, tensorFlowModel: testModel, endpoint: "pointA", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }, { user: "B", machine: "DEF", isLocked: false, tensorFlowModel: testModel, endpoint: "pointB", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }, { user: "C", machine: "GHI", isLocked: false, tensorFlowModel: testModel, endpoint: "pointC", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }, { user: "D", machine: "JKL", isLocked: false, tensorFlowModel: testModel, endpoint: "pointD", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }]

@@ -16,6 +16,8 @@ exports.getAll = function(req, res) {
 }
 
 exports.get = function(req, res) {
+	if (!req.user.isAdmin && req.params.id != req.user.id) return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+
 	User.findById(req.params.id, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!user || String(user.organization) != req.user.organization) {
@@ -46,7 +48,7 @@ exports.update = function(req, res) {
 	let updatedUser = req.body.user;
 
 	// TODO: Verify changes before updating
-	if (!req.user.isAdmin && updatedUser._id != req.user._id) {
+	if (!req.user.isAdmin && req.params.id != req.user._id) {
 		return res.status(404).send(util.norm.errors({ message: 'Cannot update another user' }));
 	}
 
@@ -58,6 +60,7 @@ exports.update = function(req, res) {
 
 		// Determine how to handle the message
 		let origin = util.checkOrigin(req.user, user._id);
+
 		if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 		// Get the user's typing profiles to save activities.
@@ -67,7 +70,7 @@ exports.update = function(req, res) {
 			let oldUser = JSON.parse(JSON.stringify(user));
 			if (updatedUser.name) user.name = updatedUser.name;
 			if (updatedUser.email) user.email = updatedUser.email;
-			if (req.user.isAdmin && updatedUser.isAdmin) user.isAdmin = updatedUser.isAdmin;
+			if (req.user.isAdmin && updatedUser.hasOwnProperty('isAdmin')) user.isAdmin = updatedUser.isAdmin;
 			if (updatedUser.phoneNumber) user.phoneNumber = updatedUser.phoneNumber;
 			if (updatedUser.organization) user.organization = updatedUser.organization;
 			if (updatedUser.password) user.password = updatedUser.password;
@@ -79,11 +82,11 @@ exports.update = function(req, res) {
 				// Save activities for each typingProfile, alert the relevant party.
 				if (typingProfiles) {
 					typingProfiles.forEach(profile => {
-						util.send.activity.user(origin, oldUser, updatedUser, profile, false);
+						util.send.activity.user(origin, oldUser, saved, profile, false);
 					});
 				}
 
-				res.send({ user });
+				res.send({ user: saved });
 			});
 		});
 	});
@@ -96,12 +99,7 @@ exports.delete = function(req, res) {
 			return res.status(404).send(util.norm.errors({ message: 'Cannot delete user outside of organization' }));
 		}
 
-		// Find the user to delete
-		User.findById(req.params.id, (err, user) => {
-			if (err) return res.status(500).send(util.norm.errors(err));
-			if (!user) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-			user.remove(); // Delete the user
-			res.sendStatus(200);
-		});
+		user.remove();
+		res.sendStatus(200);
 	});
 }

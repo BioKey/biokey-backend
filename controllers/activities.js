@@ -105,11 +105,8 @@ exports.delete = function(req, res) {
 					return res.status(404).send(util.norm.errors({ message: 'No activity was found.' }));
 				}
 
-				Activity.findByIdAndRemove(req.params.id, (err, deleted) => {
-					if (err) return res.status(500).send(util.norm.errors(err));
-					if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-					res.sendStatus(200);
-				});
+				machine.remove();
+				activity.sendStatus(200);
 			});
 		});
 	});

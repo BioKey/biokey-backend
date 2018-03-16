@@ -8,7 +8,7 @@ const testModel = require('../ensemble.json');
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
-
+	
 	// If a user was specified, make sure they are in the same organization.
 	if (query.user) {
 		User.findById(query.user, (err, user) => {
@@ -76,8 +76,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				machine: machine._id,
 				isLocked: false,
 				tensorFlowModel: test,
-				challengeStrategies: organization.defaultChallengeStrategies,
-				threshold: organization.defaultThreshold
+				challengeStrategies: organization.defaultChallengeStrategies
 			});
 			newTypingProfile.save(err => {
 				if (err) return res.status(500).send(util.norm.errors(err));
@@ -190,7 +189,7 @@ exports.update = function(req, res) {
 				let oldProfile = JSON.parse(JSON.stringify(typingProfile));
 				if (updatedProfile.user) typingProfile.user = updatedProfile.user;
 				if (updatedProfile.machine) typingProfile.machine = updatedProfile.machine;
-				if (updatedProfile.isLocked) typingProfile.isLocked = updatedProfile.isLocked;
+				if (updatedProfile.hasOwnProperty('isLocked')) typingProfile.isLocked = updatedProfile.isLocked;
 				if (updatedProfile.lastHeartbeat) typingProfile.lastHeartbeat = updatedProfile.lastHeartbeat;
 				if (updatedProfile.tensorFlowModel) typingProfile.tensorFlowModel = updatedProfile.tensorFlowModel;
 				if (updatedProfile.challengeStrategies) typingProfile.challengeStrategies = updatedProfile.challengeStrategies;
@@ -242,11 +241,16 @@ exports.delete = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
 			}
 
+<<<<<<< HEAD
 			TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
 				res.sendStatus(200);
 			});
+=======
+			typingProfile.remove();
+			res.sendStatus(200);
+>>>>>>> 054d6751e32c1021dd7002551b57d56b6724ddff
 		});
 	});
 }
