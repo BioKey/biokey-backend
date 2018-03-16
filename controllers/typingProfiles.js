@@ -243,16 +243,8 @@ exports.delete = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
 			}
 
-<<<<<<< HEAD
-			TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
-				if (err) return res.status(500).send(util.norm.errors(err));
-				if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-				res.sendStatus(200);
-			});
-=======
 			typingProfile.remove();
 			res.sendStatus(200);
->>>>>>> 054d6751e32c1021dd7002551b57d56b6724ddff
 		});
 	});
 }
