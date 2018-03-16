@@ -9,9 +9,7 @@ const TypingProfile = require('./models/typingProfile');
 const User = require('./models/user');
 const confirm = require('confirm-cli');
 const testGaussian = require('./test-gaussian');
-const testModel = {
-    "gaussianProfile": testGaussian
-}
+const testModel = require('./ensemble.json');
 
 confirm("This will delete all current data, do you want to proceed?", function() {
     mongoose.Promise = global.Promise;
