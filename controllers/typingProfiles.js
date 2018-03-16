@@ -75,9 +75,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				user: user._id,
 				machine: machine._id,
 				isLocked: false,
-				tensorFlowModel: {
-						'gaussianProfile': testGaussian
-					},
+				tensorFlowModel: { 'gaussianProfile': testGaussian },
 				challengeStrategies: organization.defaultChallengeStrategies
 			});
 			newTypingProfile.save(err => {

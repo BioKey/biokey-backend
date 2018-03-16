@@ -267,15 +267,14 @@ const genericSendAdminAlert = function(organization, adminMessage) {
     // Text the administrators.
     phoneNumbers.forEach(phoneNumber => {
       if(phoneNumber){
-        twilio.messages.create({
-            to: phoneNumber,
-            from: process.env.TWILIO_FROM_PHONE_NUMBER,
-            body: adminMessage,
-          }, (err, message) => {
-            if (err) console.log("Could not send text to " + phoneNumber);
-            console.log("Sent text to regarding activity " + activity._id + " to " + phoneNumber);
-          }
-        );
+      twilio.messages.create({
+          to: phoneNumber,
+          from: process.env.TWILIO_FROM_PHONE_NUMBER,
+          body: adminMessage,
+        }, (err, message) => {
+          if (err) console.log("Could not send text to " + phoneNumber);
+          console.log("Sent text to regarding " + adminMessage  + " to " + phoneNumber);
+        });
       }
     });
   });
