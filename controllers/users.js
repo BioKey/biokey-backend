@@ -16,6 +16,8 @@ exports.getAll = function(req, res) {
 }
 
 exports.get = function(req, res) {
+	if (req.params.id != req.user.id) return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+
 	User.findById(req.params.id, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!user || String(user.organization) != req.user.organization) {
@@ -46,7 +48,7 @@ exports.update = function(req, res) {
 	let updatedUser = req.body.user;
 
 	// TODO: Verify changes before updating
-	if (!req.user.isAdmin && updatedUser._id != req.user._id) {
+	if (!req.user.isAdmin && req.params.id != req.user._id) {
 		return res.status(404).send(util.norm.errors({ message: 'Cannot update another user' }));
 	}
 
@@ -58,6 +60,7 @@ exports.update = function(req, res) {
 
 		// Determine how to handle the message
 		let origin = util.checkOrigin(req.user, user._id);
+
 		if (origin == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 		// Get the user's typing profiles to save activities.

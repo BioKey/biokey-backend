@@ -8,7 +8,7 @@ const testGaussian = require('../test-gaussian');
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
-
+	
 	// If a user was specified, make sure they are in the same organization.
 	if (query.user) {
 		User.findById(query.user, (err, user) => {

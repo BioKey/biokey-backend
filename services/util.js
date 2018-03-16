@@ -71,9 +71,11 @@ const filterQuery = function(query, allowedParams) {
  * @return {String}            Returns the origin of the change; on of [INVALID, CLIENT, ADMIN]
  */
 const determineOrigin = function(changer, changee_id) {
-  if (changer.isAdmin && changer._id != changee_id) return 'ADMIN';
-  if (changer._id == changee_id) return 'CLIENT';
-  else return 'INVALID';
+  if (!changer || !changee_id) return 'INVALID';
+  else if (changer.isAdmin && String(changer._id) != String(changee_id)) return 'ADMIN';
+  else if (String(changer._id) == String(changee_id)) return 'CLIENT';
+  
+  return 'INVALID';
 }
 
 /**
