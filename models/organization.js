@@ -27,7 +27,6 @@ organizationSchema.pre('remove', function(next) {
     Machine.remove({organization: this._id}).exec();
     User.remove({organization: this._id}).exec();
     next();
->>>>>>> aa18401a2d804bcfebc022216368519b27c5d1c2
 });
 
 module.exports = mongoose.model('Organization', organizationSchema);
