@@ -98,7 +98,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
 			}
 			// Find typing profile with user, machine pair
-			TypingProfile.findOne({ user: req.user._id, machine: machine._id }, (err, typingProfile) => {
+			User.findOne({ user: req.user._id, machine: machine._id }).select('+tensorFlowModel').exec(function(err, user) {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				if (typingProfile) {
 					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber, googleAuthKey: req.user.googleAuthKey, timeStamp: Date.now() });
@@ -202,8 +202,10 @@ exports.update = function(req, res) {
 				typingProfile.save((err4, saved) => {
 					if (err4) return res.status(500).send(util.norm.errors(err4));
 					
+					// Strip the model from saved because it is too big to send.
+					if (saved.tensorFlowModel) saved.tensorFlowModel = null;
 					// Save activity, alert the relevant party.
-					util.send.activity.typingProfile(origin, oldProfile, updatedProfile, user);
+					util.send.activity.typingProfile(origin, oldProfile, saved, user);
 
 					// Check if user fields related to typing profile has been updated.
 					if (req.body.phoneNumber || req.body.googleAuthKey) {
@@ -219,7 +221,7 @@ exports.update = function(req, res) {
 								if (err6) return res.status(500).send(util.norm.errors(err));
 								if (typingProfiles) {
 									typingProfiles.forEach(profile => {
-										util.send.activity.user(origin, oldUser, user, profile, false);
+										util.send.activity.user(origin, oldUser, savedUser, profile, false);
 									});
 								}
 								res.send({ typingProfile: saved });
