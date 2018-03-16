@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt-nodejs');
 const jwt = require('jwt-simple');
 const config = require('../config');
+const TypingProfile = require('./typingProfile');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -52,6 +53,14 @@ userSchema.pre('save', function(next) {
       next();
     });
   });
+});
+
+/**
+ * Hook to ensure referential integrity.
+ */
+userSchema.pre('remove', function(next) {
+  TypingProfile.remove({user: this._id}).exec();
+  next();
 });
 
 userSchema.methods.comparePassword = function(candidatePassword, callback) {

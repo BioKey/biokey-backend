@@ -54,9 +54,11 @@ exports.delete = function(req, res) {
 		return res.status(404).send(util.norm.errors({ message: 'Cannot delete another organization' }));
 	}
 
-	Organization.findByIdAndRemove(req.params.id, (err, deleted) => {
+	// Find the organization to delete
+	Organization.findById(req.params.id, (err, organization) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
-		if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
+		if (!organization) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
+		organization.remove(); // Delete the machine
 		res.sendStatus(200);
 	});
 }
