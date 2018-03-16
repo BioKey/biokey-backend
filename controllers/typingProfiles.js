@@ -4,7 +4,10 @@ const UserControllor = require('../controllers/users');
 const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
-const testModel = require('../ensemble.json');
+
+let testModel = require('../ensemble.json');
+testModel.model = testModel.model + ''
+testModel.weights = testModel.weights + ''
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
@@ -75,7 +78,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				user: user._id,
 				machine: machine._id,
 				isLocked: false,
-				tensorFlowModel: test,
+				tensorFlowModel: testModel,
 				challengeStrategies: organization.defaultChallengeStrategies
 			});
 			newTypingProfile.save(err => {
@@ -241,16 +244,8 @@ exports.delete = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
 			}
 
-<<<<<<< HEAD
-			TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
-				if (err) return res.status(500).send(util.norm.errors(err));
-				if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-				res.sendStatus(200);
-			});
-=======
 			typingProfile.remove();
 			res.sendStatus(200);
->>>>>>> 054d6751e32c1021dd7002551b57d56b6724ddff
 		});
 	});
 }
