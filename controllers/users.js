@@ -16,7 +16,7 @@ exports.getAll = function(req, res) {
 }
 
 exports.get = function(req, res) {
-	if (req.params.id != req.user.id) return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+	if (!req.user.isAdmin && req.params.id != req.user.id) return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 	User.findById(req.params.id, (err, user) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
