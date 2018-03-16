@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var Machine = require('./machine');
+var User = require('./user');
 
 var organizationSchema = mongoose.Schema({
     name: {
@@ -12,6 +14,16 @@ var organizationSchema = mongoose.Schema({
         default: 100
     },
     defaultChallengeStrategies: [String]
+});
+
+/**
+ * Hook to ensure referential integrity.
+ */
+organizationSchema.pre('remove', function(next) {
+    console.log("Removing things associated with" + this._id);
+    Machine.remove({organization: this._id}).exec();
+    User.remove({organization: this._id}).exec();
+    next();
 });
 
 module.exports = mongoose.model('Organization', organizationSchema);

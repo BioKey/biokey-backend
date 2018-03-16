@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var Activity = require('./activity');
+var Keystroke = require('./keystroke');
 var AWS = require('aws-sdk');
 AWS.config.update({ "region": process.env.AWS_REGION });
 
@@ -63,6 +65,15 @@ typingProfileSchema.post('save', function(doc, next) {
           });
         }
     });
+});
+
+/**
+ * Hook to ensure referential integrity.
+ */
+typingProfileSchema.pre('remove', function(next) {
+    Activity.remove({typingProfile: this._id}).exec();
+    Keystroke.remove({typingProfile: this._id}).exec();
+    next();
 });
 
 module.exports = mongoose.model('TypingProfile', typingProfileSchema);
