@@ -272,7 +272,7 @@ const genericSendAdminAlert = function(organization, adminMessage) {
           body: adminMessage,
         }, (err, message) => {
           if (err) console.log("Could not send text to " + phoneNumber);
-          console.log("Sent text to regarding activity " + activity._id + " to " + phoneNumber);
+          console.log("Sent text to regarding " + adminMessage  + " to " + phoneNumber);
         });
     });
   });

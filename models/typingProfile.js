@@ -33,7 +33,8 @@ var typingProfileSchema = mongoose.Schema({
     },
     lastHeartbeat: Number,
     tensorFlowModel: {
-        type: mongoose.Schema.Types.Mixed
+        type: mongoose.Schema.Types.Mixed,
+        select: false
     },
     endpoint: {
         type: String,

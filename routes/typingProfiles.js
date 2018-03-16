@@ -56,7 +56,6 @@ router.get('/', middleware.requireAdmin, TypingProfile.getAll);
  */
 router.get('/:id', middleware.requireAuth, TypingProfile.get)
 
-
 /**
  * @api {post} /api/typingProfiles/:id/heartbeat  PostHeartBeat
  * @apiName PostHeartbeat
