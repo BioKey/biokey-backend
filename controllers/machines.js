@@ -69,13 +69,8 @@ exports.delete = function(req, res) {
 		if (!machine || String(machine.organization) != req.user.organization) {
 			return res.status(500).send(util.norm.errors({ message: 'Cannot delete machine outside of organization' }));
 		}
-
-		// Find the machine to delete
-		Machine.findById(req.params.id, (err, machine) => {
-			if (err) return res.status(500).send(util.norm.errors(err));
-			if (!machine) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-			machine.remove(); // Delete the machine
-			res.sendStatus(200);
-		});
+		
+		machine.remove();
+		res.sendStatus(200);
 	});	
 }

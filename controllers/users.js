@@ -96,12 +96,7 @@ exports.delete = function(req, res) {
 			return res.status(404).send(util.norm.errors({ message: 'Cannot delete user outside of organization' }));
 		}
 
-		// Find the user to delete
-		User.findById(req.params.id, (err, user) => {
-			if (err) return res.status(500).send(util.norm.errors(err));
-			if (!user) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-			user.remove(); // Delete the user
-			res.sendStatus(200);
-		});
+		user.remove();
+		res.sendStatus(200);
 	});
 }
