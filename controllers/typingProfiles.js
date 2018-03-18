@@ -4,7 +4,10 @@ const UserControllor = require('../controllers/users');
 const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
-const testModel = require('../ensemble.json');
+
+let testModel = require('../ensemble.json');
+testModel.model = testModel.model + ''
+testModel.weights = testModel.weights + ''
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);
@@ -75,7 +78,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				user: user._id,
 				machine: machine._id,
 				isLocked: false,
-				tensorFlowModel: test,
+				tensorFlowModel: testModel,
 				challengeStrategies: organization.defaultChallengeStrategies
 			});
 			newTypingProfile.save(err => {
@@ -95,7 +98,7 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
 			}
 			// Find typing profile with user, machine pair
-			TypingProfile.findOne({ user: req.user._id, machine: machine._id }, (err, typingProfile) => {
+			User.findOne({ user: req.user._id, machine: machine._id }).select('+tensorFlowModel').exec(function(err, user) {
 				if (err) return res.status(500).send(util.norm.errors(err));
 				if (typingProfile) {
 					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber, googleAuthKey: req.user.googleAuthKey, timeStamp: Date.now() });
@@ -199,8 +202,10 @@ exports.update = function(req, res) {
 				typingProfile.save((err4, saved) => {
 					if (err4) return res.status(500).send(util.norm.errors(err4));
 					
+					// Strip the model from saved because it is too big to send.
+					if (saved.tensorFlowModel) saved.tensorFlowModel = null;
 					// Save activity, alert the relevant party.
-					util.send.activity.typingProfile(origin, oldProfile, updatedProfile, user);
+					util.send.activity.typingProfile(origin, oldProfile, saved, user);
 
 					// Check if user fields related to typing profile has been updated.
 					if (req.body.phoneNumber || req.body.googleAuthKey) {
@@ -216,7 +221,7 @@ exports.update = function(req, res) {
 								if (err6) return res.status(500).send(util.norm.errors(err));
 								if (typingProfiles) {
 									typingProfiles.forEach(profile => {
-										util.send.activity.user(origin, oldUser, user, profile, false);
+										util.send.activity.user(origin, oldUser, savedUser, profile, false);
 									});
 								}
 								res.send({ typingProfile: saved });
@@ -241,12 +246,8 @@ exports.delete = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
 			}
 
-			TypingProfile.findById(req.params.id, (err, typingProfile) => {
-				if (err) return res.status(500).send(util.norm.errors(err));
-				if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
-				typingProfile.remove();
-				res.sendStatus(200);
-			});
+			typingProfile.remove();
+			res.sendStatus(200);
 		});
 	});
 }
