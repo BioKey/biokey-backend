@@ -134,7 +134,7 @@ exports.post = function(req, res) {
 	var typingProfile = new TypingProfile(req.body.typingProfile);
 	
 	// Determine how to handle the message
-	if (util.check(req.user, typingProfile.user) == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
+	if (util.checkOrigin(req.user, typingProfile.user) == 'INVALID') return res.status(401).send(util.norm.errors({ message: 'Invalid Permissions' }));
 
 	// TODO: Validate before insert
 
@@ -241,16 +241,12 @@ exports.delete = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Typing Profile not found' }));
 			}
 
-<<<<<<< HEAD
-			TypingProfile.findByIdAndRemove(req.params.id, (err, deleted) => {
+			TypingProfile.findById(req.params.id, (err, typingProfile) => {
 				if (err) return res.status(500).send(util.norm.errors(err));
-				if (!deleted) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
+				if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'Record not found' }))
+				typingProfile.remove();
 				res.sendStatus(200);
 			});
-=======
-			typingProfile.remove();
-			res.sendStatus(200);
->>>>>>> 054d6751e32c1021dd7002551b57d56b6724ddff
 		});
 	});
 }
