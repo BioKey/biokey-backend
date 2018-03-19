@@ -6,8 +6,8 @@ const Organization = require('../models/organization');
 const util = require('../services/util');
 
 let testModel = require('../ensemble.json');
-testModel.model = testModel.model + ''
-testModel.weights = testModel.weights + ''
+testModel.model = testModel.model + '';
+testModel.weights = testModel.weights + '';
 
 exports.getAll = function(req, res) {
 	let query = util.filter.query(req.query, ['user', 'machine']);

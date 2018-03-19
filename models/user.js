@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 const bcrypt = require('bcrypt-nodejs');
 const jwt = require('jwt-simple');
 const config = require('../config');
@@ -38,6 +39,8 @@ const userSchema = new mongoose.Schema({
     required: true
   }
 });
+
+userSchema.plugin(mongoosePaginate);
 
 // On Save hook, encrypt password
 userSchema.pre('save', function(next) {

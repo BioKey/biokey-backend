@@ -8,6 +8,7 @@ exports.me = function(req, res) {
 }
 
 exports.getAll = function(req, res) {
+	console.log(req.params);
 	// Allow the client to query only the user's organization
 	User.find({'organization' : req.user.organization}, (err, users) => {
 		if (err) return res.status(500).send(util.norm.errors(err));

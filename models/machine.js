@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 var TypingProfile = require('./typingProfile');
 
 var machineSchema = mongoose.Schema({
@@ -14,6 +15,8 @@ var machineSchema = mongoose.Schema({
         require: true
     }
 });
+
+machineSchema.plugin(mongoosePaginate);
 
 /**
  * Hook to ensure referential integrity.
