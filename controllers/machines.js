@@ -4,10 +4,22 @@ const Organization = require('../models/organization');
 const util = require('../services/util');
 
 exports.getAll = function(req, res) {
-	Machine.find({'organization' : req.user.organization}, (err, machines) => {
-		if (err) return res.status(500).send(util.norm.errors(err));
-		res.send({ machines });
-	});
+	let limit = parseInt(req.query.limit);
+	let page = parseInt(req.query.page);
+	let sort = req.query.sort || 'mac';
+
+	// Allow the client to query only the user's organization
+	if (limit && page) {
+		Machine.paginate({'organization' : req.user.organization}, {page: page, limit: limit, sort: sort}, (err, machines) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			res.send({ machines: machines.docs, meta: {pages: machines.pages} });
+		});
+	} else {
+		Machine.find({'organization' : req.user.organization}, (err, machines) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			res.send({ machines });
+		});
+	}
 }
 
 exports.get = function(req, res) {

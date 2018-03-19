@@ -10,6 +10,9 @@ testModel.model = testModel.model + '';
 testModel.weights = testModel.weights + '';
 
 exports.getAll = function(req, res) {
+	let limit = parseInt(req.query.limit);
+	let page = parseInt(req.query.page);
+	let sort = req.query.sort || '-lastHeartbeat';
 	let query = util.filter.query(req.query, ['user', 'machine']);
 	
 	// If a user was specified, make sure they are in the same organization.
@@ -21,27 +24,39 @@ exports.getAll = function(req, res) {
 			}
 
 			// Get all the typing profiles for that user.
-			TypingProfile.find(query, (err, typingProfiles) => {
-				if (err) return res.status(500).send(util.norm.errors(err));
-				if (!typingProfiles) return res.status(404).send(util.norm.errors({ message: 'Typing Profiles not found' }));
-				res.send({ typingProfiles });
-			});
+			if (limit && page) {
+				TypingProfile.paginate(query, {page: page, limit: limit, sort: sort}, (err, typingProfiles) => {
+					if (err) return res.status(500).send(util.norm.errors(err));
+					res.send({ typingProfiles: typingProfiles.docs, meta: {pages: typingProfiles.pages} });
+				});
+			} else {
+				TypingProfile.find(query, (err, typingProfiles) => {
+					if (err) return res.status(500).send(util.norm.errors(err));
+					res.send({ typingProfiles });
+				});
+			}
 		});
 	} else {
 		// If no user was specified, find all the users in the organization.
 		User.find({'organization' : req.user.organization}, {_id: 1}, (err, users) => {
 			if (err) return res.status(500).send(util.norm.errors(err));
 			
-			// Add the queries
+			// Add all the users to the query
 			let ids = users.map(function(doc) { return doc._id});
 			query.user = {$in: ids};
 
 			// Get all the typing profiles for that user.
-			TypingProfile.find(query, (err, typingProfiles) => {
-				if (err) return res.status(500).send(util.norm.errors(err));
-				if (!typingProfiles) return res.status(404).send(util.norm.errors({ message: 'Typing Profiles not found' }));
-				res.send({ typingProfiles });
-			});
+			if (limit && page) {
+				TypingProfile.paginate(query, {page: page, limit: limit}, (err, typingProfiles) => {
+					if (err) return res.status(500).send(util.norm.errors(err));
+					res.send({ typingProfiles: typingProfiles.docs, meta: {pages: typingProfiles.pages} });
+				});
+			} else {
+				TypingProfile.find(query, (err, typingProfiles) => {
+					if (err) return res.status(500).send(util.norm.errors(err));
+					res.send({ typingProfiles });
+				});
+			}
 		});
 	}
 }
