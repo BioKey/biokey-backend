@@ -113,8 +113,9 @@ exports.postTypingProfileFromMachine = function(req, res) {
 				return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
 			}
 			// Find typing profile with user, machine pair
-			User.findOne({ user: req.user._id, machine: machine._id }).select('+tensorFlowModel').exec(function(err, user) {
+			TypingProfile.findOne({ user: req.user._id, machine: machine._id }).select('+tensorFlowModel').exec(function(err, typingProfile) {
 				if (err) return res.status(500).send(util.norm.errors(err));
+				
 				if (typingProfile) {
 					res.send({ typingProfile: typingProfile, phoneNumber: req.user.phoneNumber, googleAuthKey: req.user.googleAuthKey, timeStamp: Date.now() });
 				} else {

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
-var keystrokeSchema = mongoose.Schema({
-    character: {
+var analysisResultSchema = mongoose.Schema({
+    probability: {
         type: Number,
         require: true,
         trim: true
@@ -11,10 +11,6 @@ var keystrokeSchema = mongoose.Schema({
         min: 0,
         require: true
     },
-    keyDown: {
-        type: Boolean,
-        require: true
-    },
     typingProfile: {
         type: mongoose.Schema.ObjectId,
         ref: ('TypingProfile'),
@@ -22,6 +18,6 @@ var keystrokeSchema = mongoose.Schema({
     }
 });
 
-keystrokeSchema.index({ timestamp: -1 });
+analysisResultSchema.index({ timestamp: -1});
 
-module.exports = mongoose.model('Keystroke', keystrokeSchema);
+module.exports = mongoose.model('AnalysisResult', analysisResultSchema);

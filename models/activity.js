@@ -28,5 +28,6 @@ var activitySchema = mongoose.Schema({
 });
 
 activitySchema.plugin(mongoosePaginate);
+activitySchema.index({ timestamp: -1 });
 
 module.exports = mongoose.model('Activity', activitySchema);
