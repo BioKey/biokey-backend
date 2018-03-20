@@ -15,7 +15,7 @@ const middleware = require('../services/middleware');
  * @apiUse RequestHeaders
  * @apiSuccess {Array} keystrokes List of keystrokes
  * @apiSuccess {String} keystrokes._id UUID of the keystroke for the system.
- * @apiSuccess {String} keystrokes.character The key that was pressed/released.
+ * @apiSuccess {Number} keystrokes.character The key that was pressed/released.
  * @apiSuccess {Number} keystrokes.timestamp The time that the keystroke occurred.
  * @apiSuccess {Boolean} keystrokes.keyDown Specifies whether the key was pressed or released.
  * @apiSuccess {TypingProfile} keystrokes.typingProfile The typing profile that submitted the keystoke.
@@ -26,7 +26,7 @@ const middleware = require('../services/middleware');
  *       "keystrokes": [
  *          {
  *              "_id": "5a4fd2d5fb0f2f041278e510",
- *              "character": "R",
+ *              "character": 11,
  *              "timestamp": 3456732435432,
  *              "keyDown": false,
  *              "typingProfile": "5a4c019629015e0c8b9c1737"

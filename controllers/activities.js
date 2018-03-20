@@ -4,6 +4,10 @@ const User = require('../models/user');
 const util = require('../services/util');
 
 exports.getAll = function(req, res) {
+	let limit = parseInt(req.query.limit);
+	let page = parseInt(req.query.page);
+	let sort = req.query.sort || '-timestamp';
+
 	// Get all the users for the organization
 	User.find({'organization' : req.user.organization}, {_id: 1}, (err, users) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
@@ -15,10 +19,17 @@ exports.getAll = function(req, res) {
 			ids = typingProfiles.map(function(doc) { return doc._id});
 
 			// Get all the activities for the typing profiles
-			Activity.find({'typingProfile': {$in: ids}}, (err, activities) => {
-				if (err) return res.status(500).send(util.norm.errors(err));
-				res.send({ activities });
-			});
+			if (limit && page) {
+				Activity.paginate({'typingProfile': {$in: ids}}, {page: page, limit: limit, sort: sort}, (err, activities) => {
+					if (err) return res.status(500).send(util.norm.errors(err));
+					res.send({ activities: activities.docs, meta: {pages: activities.pages} });
+				});
+			} else {
+				Activity.find({'typingProfile': {$in: ids}}, (err, activities) => {
+					if (err) return res.status(500).send(util.norm.errors(err));
+					res.send({ activities });
+				});
+			}
 		});
 	});
 }

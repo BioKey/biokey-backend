@@ -8,11 +8,22 @@ exports.me = function(req, res) {
 }
 
 exports.getAll = function(req, res) {
+	let limit = parseInt(req.query.limit);
+	let page = parseInt(req.query.page);
+	let sort = req.query.sort || 'name';
+
 	// Allow the client to query only the user's organization
-	User.find({'organization' : req.user.organization}, (err, users) => {
-		if (err) return res.status(500).send(util.norm.errors(err));
-		res.send({ users });
-	});
+	if (limit && page) {
+		User.paginate({'organization' : req.user.organization}, {page: page, limit: limit, sort: sort}, (err, users) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			res.send({ users: users.docs, meta: {pages: users.pages} });
+		});
+	} else {
+		User.find({'organization' : req.user.organization}, (err, users) => {
+			if (err) return res.status(500).send(util.norm.errors(err));
+			res.send({ users });
+		});
+	}
 }
 
 exports.get = function(req, res) {

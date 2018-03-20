@@ -266,6 +266,7 @@ const genericSendAdminAlert = function(organization, adminMessage) {
 
     // Text the administrators.
     phoneNumbers.forEach(phoneNumber => {
+      if(phoneNumber){
       twilio.messages.create({
           to: phoneNumber,
           from: process.env.TWILIO_FROM_PHONE_NUMBER,
@@ -274,6 +275,7 @@ const genericSendAdminAlert = function(organization, adminMessage) {
           if (err) console.log("Could not send text to " + phoneNumber);
           console.log("Sent text to regarding " + adminMessage  + " to " + phoneNumber);
         });
+      }
     });
   });
 }

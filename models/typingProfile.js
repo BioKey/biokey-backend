@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 var Activity = require('./activity');
 var Keystroke = require('./keystroke');
 var AWS = require('aws-sdk');
@@ -43,6 +44,7 @@ var typingProfileSchema = mongoose.Schema({
     challengeStrategies: [String]
 });
 
+typingProfileSchema.plugin(mongoosePaginate);
 typingProfileSchema.index({ user: 1, machine: 1 }, { unique: true }); // ASSUMPTION: user-machine pairs should be unique
 
 /**

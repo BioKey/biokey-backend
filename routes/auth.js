@@ -50,5 +50,28 @@ router.post('/login', middleware.requireSignin, Auth.login);
  */
 router.post('/register', Auth.register);
 
+/**
+ * @api {post} /api/auth/register/:organization_id Register for Organization
+ * @apiName Register for Organization
+ * @apiDescription
+ * End point for users to register under a particular organization. Users are granted a
+ * <a href="https://jwt.io/" target="_blank">JSON web token</a>
+ * to be used on authenticated network calls.
+ * @apiGroup Auth
+ * 
+ * @apiParam {String} name The user's name
+ * @apiParam {String} email The user's email
+ * @apiParam {String} password The user's password
+ * @apiParamExample {json} Request-Example
+ *     {
+ *       "name": "Hosh Weinstein",
+ *       "email": "test@example.com",
+ *       "password": "password"
+ *     }
+ * @apiUse GrantTokenSuccess
+ * @apiUse UnauthorizedError
+ */
+router.post('/register/:organization_id', Auth.registerForOrganization);
+
 
 module.exports = router;

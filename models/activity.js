@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 
 var activitySchema = mongoose.Schema({
     timestamp: {
@@ -25,5 +26,8 @@ var activitySchema = mongoose.Schema({
         require: true
     }
 });
+
+activitySchema.plugin(mongoosePaginate);
+activitySchema.index({ timestamp: -1 });
 
 module.exports = mongoose.model('Activity', activitySchema);

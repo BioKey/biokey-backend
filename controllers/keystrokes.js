@@ -33,15 +33,9 @@ exports.post = function(req, res) {
 	if (keystrokesRaw.length == 0 || !keystrokesRaw[0]) return res.status(404).send(util.norm.errors({ message: 'No keystrokes found' }));
 
 	// Try to find the TypingProfile
-	// Query for activity typing profile and user_id if not admin
-	let query = { _id: keystrokesRaw[0].typingProfile };
-	if (!req.user.isAdmin) query.user = req.user._id;
-	TypingProfile.findOne(query, (err, typingProfile) => {
+	TypingProfile.findOne({ _id: keystrokesRaw[0].typingProfile, user: req.user._id }, (err, typingProfile) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
-		if (String(typingProfile.user) != req.user._id) {
-			return res.status(404).send(util.norm.errors({ message: 'Cannot add keystrokes for someone else' }));
-		}
 		
 		// Validate all keystrokes
 		var validatePromises = [];
