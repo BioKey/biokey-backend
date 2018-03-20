@@ -5,7 +5,7 @@ const Machine = require('../models/machine');
 const Organization = require('../models/organization');
 const util = require('../services/util');
 
-let testModel = require('../ensemble.json');
+let testModel = require('../ensemble-c-2.json');
 testModel.model = testModel.model + ''
 testModel.weights = testModel.weights + ''
 

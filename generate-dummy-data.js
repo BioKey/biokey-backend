@@ -9,7 +9,7 @@ const TypingProfile = require('./models/typingProfile');
 const User = require('./models/user');
 const confirm = require('confirm-cli');
 const testGaussian = require('./test-gaussian');
-let testModel = require('./ensemble.json');
+let testModel = require('./ensemble-c-2.json');
 testModel.model = testModel.model + ''
 testModel.weights = testModel.weights + ''
 
