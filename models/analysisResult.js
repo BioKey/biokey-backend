@@ -18,6 +18,6 @@ var analysisResultSchema = mongoose.Schema({
     }
 });
 
-analysisResultSchema.index({ timestamp: -1});
+analysisResultSchema.index({ timestamp: 1});
 
 module.exports = mongoose.model('AnalysisResult', analysisResultSchema);
