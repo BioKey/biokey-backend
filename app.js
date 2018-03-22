@@ -6,9 +6,10 @@ const morgan = require('morgan');
 const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
 const config = require('./config');
 
-//DB setup
+// DB setup
 mongoose.Promise = global.Promise;
 mongoose.connect(config.mongoURI[app.get('env')], { useMongoClient: true })
 	.then(db => {
@@ -19,6 +20,7 @@ mongoose.connect(config.mongoURI[app.get('env')], { useMongoClient: true })
 	});
 
 // App setup
+app.use(helmet());
 if (app.get('env') !== 'test') app.use(morgan('dev'));
 app.use(cors());
 app.use(bodyParser.json({ type: '*/*' }));
