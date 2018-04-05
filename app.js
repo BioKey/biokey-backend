@@ -8,12 +8,13 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const config = require('./config');
+const mongoURI = process.env.MONGO_URI || config.mongoURI[app.get('env')];
 
 // DB setup
 mongoose.Promise = global.Promise;
-mongoose.connect(config.mongoURI[app.get('env')], { useMongoClient: true })
+mongoose.connect(mongoURI, { useMongoClient: true })
 	.then(db => {
-		return console.log('Connected to Database: ' + config.mongoURI[app.settings.env]);
+		return console.log('Connected to Database: ' + mongoURI);
 	})
 	.catch(err => {
 		console.error('Error connecting to the database. ' + err);
