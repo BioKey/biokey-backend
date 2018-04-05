@@ -7,6 +7,7 @@ const util = require('../services/util');
 let testModel = require('../ensemble-c-2.json');
 testModel.model = JSON.stringify(testModel.model)
 testModel.weights = JSON.stringify(testModel.weights)
+testModel.reset = JSON.stringify(testModel.reset)
 
 exports.getAll = function(req, res) {
 	let limit = parseInt(req.query.limit);
@@ -193,17 +194,17 @@ exports.update = function(req, res) {
 		if (!user || String(user.organization) != req.user.organization) {
 			return res.status(404).send(util.norm.errors({ message: 'User not found' }));
 		}
-		console.log('Here 1');
+
 		// Assert valid machine.
 		Machine.findById(updatedProfile.machine, (err2, machine) => {
 			if (err2) return res.status(500).send(util.norm.errors(err2));
 			if (!machine) return res.status(404).send(util.norm.errors({ message: 'Machine not found' }));
-			console.log('Here 2');
+
 			// Find and save typing profile.
 			TypingProfile.findById(req.params.id, (err3, typingProfile) => {
 				if (err3) return res.status(500).send(util.norm.errors(err3));
 				if (!typingProfile) return res.status(404).send(util.norm.errors({ message: 'TypingProfile not found' }));
-				console.log('Here 3');
+
 				let oldProfile = JSON.parse(JSON.stringify(typingProfile));
 				if (updatedProfile.user) typingProfile.user = updatedProfile.user;
 				if (updatedProfile.machine) typingProfile.machine = updatedProfile.machine;
@@ -216,12 +217,12 @@ exports.update = function(req, res) {
 
 				typingProfile.save((err4, saved) => {
 					if (err4) return res.status(500).send(util.norm.errors(err4));
-					console.log('Here 4');
+					
 					// Strip the model from saved because it is too big to send.
 					if (saved.tensorFlowModel) saved.tensorFlowModel = null;
 					// Save activity, alert the relevant party.
 					util.send.activity.typingProfile(origin, oldProfile, saved, user);
-					console.log('Here 4*');
+
 					// Check if user fields related to typing profile has been updated.
 					if (req.body.phoneNumber || req.body.googleAuthKey) {
 						let oldUser = JSON.parse(JSON.stringify(user));
@@ -230,7 +231,7 @@ exports.update = function(req, res) {
 
 						user.save((err5, savedUser) => {
 							if (err5) return res.status(500).send(util.norm.errors(err5));
-							console.log('Here 5');
+
 							// Save activities for each typingProfile, alert the relevant party.
 							TypingProfile.find({"user": user._id}, (err6, typingProfiles) => {
 								if (err6) return res.status(500).send(util.norm.errors(err));

@@ -12,6 +12,7 @@ const testGaussian = require('./test-gaussian');
 let testModel = require('./ensemble-c-2.json');
 testModel.model = JSON.stringify(testModel.model)
 testModel.weights = JSON.stringify(testModel.weights)
+testModel.reset = JSON.stringify(testModel.reset)
 
 confirm("This will delete all current data, do you want to proceed?", function() {
     mongoose.Promise = global.Promise;

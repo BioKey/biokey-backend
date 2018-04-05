@@ -134,9 +134,8 @@ const sendTypingProfileActivity = function(origin, old, updated, user) {
   updated.googleAuthKey = user.googleAuthKey;
 
   let objectType = 'TypingProfile';
-  console.log('World 1');
+
   getAdminPhoneNumbers(user, function(phoneNumbers) {
-    console.log('World 2');
     saveAndSendActivity(
       buildActivity(updated._id, activityType, origin, sqsParams(objectType, updated, activityType),
       objectType, phoneNumbers));
@@ -172,15 +171,12 @@ const buildActivity = function(typingProfileId, activityType, origin, sqs) {
  */
 const saveAndSendActivity = function(activity, objectType, phoneNumbers) {
   let newActivity = new Activity(activity);
-  console.log('World 3');
   newActivity.save((err, saved) => {
     if (err) console.log("Activity save err: " + err);
     else {
-      console.log('World 4');
       console.log("Saved activity: " + saved._id);
       if (activity.initiatedBy == 'ADMIN') {
         // Alert the client.
-        console.log('World 5');
         sendSQS(activity.paramaters.sqs);
       } else if (activity.initiatedBy == 'CLIENT' && activity.activityType != 'INFO') {
         // Alert the admin.
