@@ -4,13 +4,13 @@ const mongoURL = process.env.MONGO_URL || 'localhost';
 const mongoPort = process.env.MONGO_PORT || '27017';
 
 config.mongoURI = {
-	development: 'mongodb://localhost/biokey-dev',
-	production: 'mongodb://localhost/biokey',
-	test: 'mongodb://localhost/biokey-test'
+	development: `mongodb://${mongoURL}:${mongoPort}/biokey-dev`,
+	production: `mongodb://${mongoURL}:${mongoPort}/biokey`,
+	test: `mongodb://${mongoURL}:${mongoPort}/biokey-test`
 };
 
 config.secret = process.env.SECRET || 'thesecret';
 
-config.port = 3000;
+config.port = process.env.PORT || 3000;
 
 module.exports = config;
