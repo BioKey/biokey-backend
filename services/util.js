@@ -136,6 +136,7 @@ const sendTypingProfileActivity = function(origin, old, updated, user) {
   let objectType = 'TypingProfile';
 
   getAdminPhoneNumbers(user, function(phoneNumbers) {
+    console.log(phoneNumbers);
     saveAndSendActivity(
       buildActivity(updated._id, activityType, origin, sqsParams(objectType, updated, activityType),
       objectType, phoneNumbers));
@@ -243,6 +244,7 @@ const sendAdminAlert = function(objectType, activityType, activity, phoneNumbers
 
   // Text the administrators.
   phoneNumbers.forEach(phoneNumber => {
+    console.log(phoneNumber);
     twilio.messages.create({
         to: phoneNumber,
         from: process.env.TWILIO_FROM_PHONE_NUMBER,
