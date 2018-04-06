@@ -266,6 +266,7 @@ const genericSendAdminAlert = function(organization, adminMessage) {
 
     // Text the administrators.
     phoneNumbers.forEach(phoneNumber => {
+      console.log(phoneNumber);
       if(phoneNumber){
       twilio.messages.create({
           to: phoneNumber,
@@ -288,13 +289,9 @@ const genericSendAdminAlert = function(organization, adminMessage) {
  * @return {Array}          The array of admin numbers
  */
 const getAdminPhoneNumbers = function(user, nextF) {
-  let phoneNumbers = [];
   User.find({ 'organization': user.organization, 'isAdmin': true }, (err, admins) => {
-    if (err || admins.length == 0) nextF(phoneNumbers);
-    else admins.forEach(admin => {
-      phoneNumbers.push(admin.phoneNumber);
-    });
-    nextF(phoneNumbers);
+    if (err || admins.length == 0) nextF([]);
+    else nextF(admins.map(a => a.phoneNumber));
   });
 }
 
