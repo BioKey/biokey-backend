@@ -6,7 +6,7 @@ const util = require('../services/util');
 exports.getAll = function(req, res) {
 	let limit = parseInt(req.query.limit);
 	let page = parseInt(req.query.page);
-	let sort = JSON.parse(req.query.sort) || { 'timestamp' : -1 };
+	let sort = JSON.parse(req.query.sort || "{ 'timestamp' : -1 }");
 
 	// Get all the users for the organization
 	User.find({'organization' : req.user.organization}, {_id: 1}, (err, users) => {
