@@ -26,7 +26,7 @@ exports.getAll = function(req, res) {
 					res.send({ activities: activities.docs, meta: {pages: activities.pages} });
 				});
 			} else {
-				Activity.find({'typingProfile': {$in: ids}}, (err, activities) => {
+				Activity.find({'typingProfile': {$in: ids}}).sort(sort).exec((err, activities) => {
 					if (err) return res.status(500).send(util.norm.errors(err));
 					res.send({ activities });
 				});
