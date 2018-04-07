@@ -7,7 +7,7 @@ const middleware = require('../services/middleware');
  * @api {get} /api/typingProfiles  ListTypingProfiles
  * @apiName ListTypingProfiles
  * @apiDescription
- * Get a list of all typingProfiles for an existing user in the administrator's organization.
+ * Get a list of all typing profiles for the requesting user's organization. The requesting user will not be able to request profiles outside of the organization. Can specify the limit, page, and sort for pagination.
  * 
  * @apiGroup TypingProfiles
  * 
@@ -21,13 +21,12 @@ router.get('/', middleware.requireAdmin, TypingProfile.getAll);
  * @api {get} /api/typingProfiles/:id  GetTypingProfile
  * @apiName GetTypingProfile
  * @apiDescription
- * Get a specific typing profile when an id is provided
+ * Get the typing profile within the requesting user's organization given an id.
  * 
  * @apiGroup TypingProfiles
  *
  * @apiUse TypingProfileSuccess
  * @apiUse RequestHeaders
- * @apiUse AdminError
  * @apiUse UnauthorizedError
  */
 router.get('/:id', middleware.requireAuth, TypingProfile.get)
@@ -36,12 +35,10 @@ router.get('/:id', middleware.requireAuth, TypingProfile.get)
  * @api {post} /api/typingProfiles/:id/heartbeat  PostHeartBeat
  * @apiName PostHeartbeat
  * @apiDescription
- * Recieves a hearbeat request from the client to verify client is online and secure.
+ * Update the typing profile with the latest heartbeat from the client.
  * 
  * @apiGroup TypingProfiles
- * 
- * @apiUse TypingProfileRequest
- * @apiUse TypingProfileSuccess
+ *
  * @apiUse RequestHeaders
  * @apiUse UnauthorizedError
  */
@@ -65,12 +62,12 @@ router.post('/machine/:mac', middleware.requireAuth, TypingProfile.postTypingPro
  * @api {post} /api/typingProfiles  PostTypingProfile
  * @apiName PostTypingProfile
  * @apiDescription
- * Creates a new typing profile for an existing user within an organization.
+ * Create a new typing profile within the requesting user's organization. If the user is an admin, they can create a typing profile associated with any user within their organization. If the requesting user is not an admin, they can only create an typing profile for themselves. Also creates an activity that the user created a typing profile. Also alerts the admin through text message that the user created a typing profile.
  * 
  * @apiGroup TypingProfiles
  * 
  * @apiUse RequestHeaders
- * @apiUse TypingProfileRequest
+ * @apiUse TypingProfileRequestBody
  * @apiUse TypingProfileSuccess
  * @apiUse UnauthorizedError
  */
@@ -80,14 +77,12 @@ router.post('/', middleware.requireAuth, TypingProfile.post);
  * @api {put} /api/typingProfiles/:id  UpdateTypingProfile
  * @apiName UpdateTypingProfile
  * @apiDescription
- * Update a typing profile. Enqueues an SQS job.
- * 
- * @apiSampleRequest sqsJob
+ * Update an existing activity within the requesting user's organization given an id. If specified, can also update a user's phone number and google authentication key. Also creates an activity with the change. If the change was important (lock, unlock), alerts the admin through text message of the change.
  * 
  * @apiGroup TypingProfiles
  * 
  * @apiUse RequestHeaders
- * @apiUse TypingProfileRequest  
+ * @apiUse TypingProfileAndUserRequestBody  
  * @apiUse TypingProfileSuccess
  * @apiUse UnauthorizedError
  */
@@ -97,7 +92,7 @@ router.put('/:id', middleware.requireAuth, TypingProfile.update);
  * @api {delete} /api/typingProfiles/:id  DeleteTypingProfile
  * @apiName DeleteTypingProfile
  * @apiDescription
- * Delete a typing profile
+ * Deletes an existing typing profile within the requesting user's organization given an id.
  *
  * @apiGroup TypingProfiles
  *

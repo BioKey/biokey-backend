@@ -7,7 +7,7 @@ const middleware = require('../services/middleware');
  * @api {get} /api/analysisResults  ListAnalysisResults
  * @apiName ListAnalysisResults
  * @apiDescription
- * Get a list of all analysis results of a given specific id.
+ * Get a list of all analysis results for the requesting user's organization. The requesting user will not be able to request results outside of the organization. Can specify the start and end timestamp to look within.
  * 
  * @apiGroup AnalysisResults
  * 
@@ -21,7 +21,7 @@ router.get('/', middleware.requireAdmin, AnalysisResult.getAll);
  * @api {get} /api/analysisResults/:id  GetAnalysisResults
  * @apiName GetAnalysisResults
  * @apiDescription
- * Get a specific analysis result when its id is provided
+ * Get the analysis results within the requesting user's organization given an id. Not implemented because no user should need to get individual analysis results (not useful by themselves).
  * 
  * @apiGroup AnalysisResults
  *
@@ -35,7 +35,7 @@ router.get('/:id', middleware.requireAdmin, AnalysisResult.get)
  * @api {post} /api/analysisResults  PostAnalysisResult
  * @apiName PostAnalysisResult
  * @apiDescription
- * Create a new analysis result and post it.
+ * Create a new analysis result within the requesting user's organization. The requesting user can only create an analysis result for themselves.
  * 
  * @apiGroup AnalysisResults
  * 
@@ -50,12 +50,13 @@ router.post('/', middleware.requireAuth, AnalysisResult.post);
  * @api {put} /api/analysisResults/:id  UpdateAnalysisResult
  * @apiName UpdateAnalysisResult
  * @apiDescription
- * Update an existing analysis result. If the analysis result does not exist, the endpoint outputs an error. Requires admin permissions.
+ * Update an existing analysis result within the requesting user's organization given an id. Not implemented because no user should be able to change analysis results (they should be immutable).
  *
  * @apiGroup AnalysisResults
  *  
  * @apiUse AnalysisResultRequestBody
  * @apiuse AnalysisResultSuccess
+ * @apiUse RequestHeaders
  * @apiUse AdminError
  */
 router.put('/:id', middleware.requireAdmin, AnalysisResult.update);
@@ -64,7 +65,7 @@ router.put('/:id', middleware.requireAdmin, AnalysisResult.update);
  * @api {delete} /api/analysisResults/:id  DeleteAnalysisResult
  * @apiName DeleteAnalysisResult
  * @apiDescription
- * Delete an analysis result. If the analysis result does not exist, the endpoint outputs an error. Requires admin permissions.
+ * Delete an existing analysis result within the requesting user's organization given an id. Not implemented because no user should be able to delete analysis results (for recordkeeping purposes).
  *
  * @apiGroup AnalysisResults
  *

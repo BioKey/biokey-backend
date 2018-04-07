@@ -8,7 +8,7 @@ const middleware = require('../services/middleware');
  * @api {get} /api/organizations  ListOrganizations
  * @apiName ListOrganizations
  * @apiDescription
- * Get the details of the organization of the requesting user. Does not return all the existing organizations because that wouldn't make sense. 
+ * Get the requesting user's organization as no user should have access to details about all organizations.
  * 
  * @apiGroup Organizations
  * 
@@ -22,7 +22,7 @@ router.get('/', middleware.requireAdmin, Organization.getAll);
  * @api {get} /api/organizations/:id  GetOrganization
  * @apiName GetOrganization
  * @apiDescription
- * Get a specific organization when providing its id. This doesn't make sense, however, since organizations are created with the founding user. 
+ * Get the requesting user's organization as no user should have access to details about other organizations. The id parameter must match the requesting user's organization id.
  * 
  * @apiGroup Organizations
  *
@@ -36,7 +36,7 @@ router.get('/:id', middleware.requireAdmin, Organization.get)
  * @api {post} /api/organizations  PostOrganization
  * @apiName PostOrganization
  * @apiDescription
- * This allows the user to create a new organization 
+ * Create a new organization. Not implemented because organizations are created by their founding user instead. 
  * 
  * @apiGroup Organizations
  * 
@@ -51,10 +51,9 @@ router.post('/', middleware.requireAdmin, Organization.post);
  * @api {put} /api/organizations/:id  UpdateOrganization
  * @apiName UpdateOrganization
  * @apiDescription
- * Update the details of a specific organization given its id. 
+ * Update an organization given an id. The id parameter must match the requesting user's organization id.
  * 
  * @apiGroup Organizations
- * 
  * 
  * @apiUse RequestHeaders
  * @apiUse OrganizationRequestBody
@@ -67,7 +66,7 @@ router.put('/:id', middleware.requireAdmin, Organization.update);
  * @api {delete} /api/organizations/:id  DeleteOrganization
  * @apiName DeleteOrganization
  * @apiDescription
- * Delete a specific organization. If the organization does not exist, the endpoint will output an error. 
+ * Delete an organization given an id. The id parameter must match the requesting user's organization id. 
  *
  * @apiGroup Organizations
  *

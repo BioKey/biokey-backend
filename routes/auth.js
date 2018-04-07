@@ -7,9 +7,7 @@ const middleware = require('../services/middleware');
  * @api {post} /api/auth/login Login
  * @apiName Login
  * @apiDescription 
- * End point for users to login. Users are granted a 
- * <a href="https://jwt.io/" target="_blank">JSON web token</a>
- * to be used on authenticated network calls.
+ * End point for users to login. Users are granted a <a href="https://jwt.io/" target="_blank">JSON web token</a> to be used on authenticated network calls.
  * 
  * @apiGroup Auth
  *
@@ -30,9 +28,8 @@ router.post('/login', middleware.requireSignin, Auth.login);
  * @api {post} /api/auth/register Register
  * @apiName Register
  * @apiDescription 
- * End point for users to register for the system. Users are granted a 
- * <a href="https://jwt.io/" target="_blank">JSON web token</a>
- * to be used on authenticated network calls.
+ * End point for users to register for the system. Users are granted a <a href="https://jwt.io/" target="_blank">JSON web token</a> to be used on authenticated network calls.
+ * 
  * @apiGroup Auth
  *
  * @apiParam {String} name The user's name
@@ -54,9 +51,8 @@ router.post('/register', Auth.register);
  * @api {post} /api/auth/register/:organization_id Register for Organization
  * @apiName Register for Organization
  * @apiDescription
- * End point for users to register under a particular organization. Users are granted a
- * <a href="https://jwt.io/" target="_blank">JSON web token</a>
- * to be used on authenticated network calls.
+ * End point for users to register under a particular organization. Users are granted a <a href="https://jwt.io/" target="_blank">JSON web token</a> to be used on authenticated network calls.
+ * 
  * @apiGroup Auth
  * 
  * @apiParam {String} name The user's name

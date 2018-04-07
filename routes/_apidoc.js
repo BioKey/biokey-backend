@@ -106,7 +106,7 @@
  * @apiParam {String} activity.activityType The type of the activity, can be one of ['LOCK', 'UNLOCK', 'INFO', 'LOGOUT', 'LOGIN', "NEW_PROFILE"]
  * @apiParam {String} avtivity.initatedBy Who initiated this activity, can be one of ['CLIENT', 'ADMIN']
  * 
- * @apiParamExample Response (example):
+ * @apiParamExample {json} Request-Example:
  *     {
  *       "activity": {
  *          "typingProfile": "5a4c08cd19d0a40d9c051653",
@@ -172,7 +172,7 @@
  * @apiParam {Number} analysisResult.timestamp The time that the analysis result was created
  * @apiParam {TypingProfile} analysisResults.typingProfile The typing profile that submitted the analysis results
  *
- * @apiParamExample {json} Request-Example
+ * @apiParamExample {json} Request-Example:
  *     {  
  *          "analysisResult" : {
  *          "probability": 0.6,
@@ -234,7 +234,7 @@
  * @apiParam {Boolean} keystroke.keyDown Specifies whether the key was pressed or released.
  * @apiParam {TypingProfile} keystroke.typingProfile The typing profile that submitted the new keystoke.
  *
- * @apiParamExample {json} Request-Example
+ * @apiParamExample {json} Request-Example:
  *     {  
  *       "keystroke": {
  *          "character": "R",
@@ -299,10 +299,9 @@
  * @apiParam {String} machine.mac The machine's unique MAC address.
  * @apiParam {String} machine.organization The organization that the machine is assigned to.
  
- * @apiParamExample Response (example):
+ * @apiParamExample {json} Request-Example:
  *     {
- *       "machine": 
- *          {
+ *       "machine": {
  *              "mac": "00:0a:95:9d:68:16",
  *              "organization": "5a4fd2d5fb0f2f041278e510"
  *          }
@@ -355,15 +354,13 @@
  * @apiParam {Number} organization.maxUsers The number of users that the organization may have.
  * @apiParam {Array} organization.defaultChallengeStrategies The default challenge strategies for typing profiles in the organization.
  *
- * @apiParamExample Response (example):
+ * @apiParamExample {json} Request-Example:
  *     {
- *       "organization": 
- *          {
+ *       "organization": {
  *              "name": "testOrganization",
  *              "maxUsers": "100",
  *              "defaultChallengeStrategies": []
  *          }
- *        
  *      }
  */
 
@@ -408,16 +405,42 @@
  */
 
 /**
- * @apiDefine TypingProfileRequest
+ * @apiDefine TypingProfileRequestBody
  * @apiParam {User} typingProfile.user The user that the typing profile is associated with.
  * @apiParam {Machine} typingProfile.machine The machine that the typing profile is assigned to.
  * @apiParam {Boolean} typingProfile.isLocked The lock status of the typing profile.
  * @apiParam {String} typingProfile.tensorFlowModel The tensor flow model of the typing profile.
  * @apiParam {String} typingProfile.endpoint The sqs endpoint of the typing profile.
  * @apiParam {Array} typingProfile.challengeStrategies The challenge strategies of the typing profile.
- * @apiParam {String} typingProfile.lastHeartbeat The last time the typing profile was checked
+ * @apiParam {String} typingProfile.lastHeartbeat The last time the typing profile was checked.
  * 
- * @apiParamExample Request (example):
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "typingProfile": {
+ *          "user": "bb4fd2d5aa0f2f041258e517",
+ *          "machine": "bb4fd2d5aa0f2f041258e517",
+ *          "isLocked": "false",
+ *          "lastHeartbeat": "2020-04-24T11:41:47.280Z",
+ *          "tensorFlowModel": "testModelString",
+ *          "endpoint": "https://aws.amazon.com",
+ *          "challengeStrategies": []
+ *        }
+ *      }
+ */
+
+ /**
+ * @apiDefine TypingProfileAndUserRequestBody
+ * @apiParam {User} typingProfile.user The user that the typing profile is associated with.
+ * @apiParam {Machine} typingProfile.machine The machine that the typing profile is assigned to.
+ * @apiParam {Boolean} typingProfile.isLocked The lock status of the typing profile.
+ * @apiParam {String} typingProfile.tensorFlowModel The tensor flow model of the typing profile.
+ * @apiParam {String} typingProfile.endpoint The sqs endpoint of the typing profile.
+ * @apiParam {Array} typingProfile.challengeStrategies The challenge strategies of the typing profile.
+ * @apiParam {String} typingProfile.lastHeartbeat The last time the typing profile was checked.
+ * @apiParam {String} phoneNumber The user's phone number that was also updated.
+ * @apiParam {String} googleAuthKey The user's google authentication key that was also updated.
+ * 
+ * @apiParamExample {json} Request-Example:
  *     {
  *       "typingProfile": {
  *          "user": "bb4fd2d5aa0f2f041258e517",
@@ -488,12 +511,6 @@
  /**
   * @apiDefine AdminError
   * @apiError (Errors) {text} 401 Unauthorized. Only administrators can access.
-  * @apiError (Errors) {text} 500 Internal server error.
-  */
-
- /**
-  * @apiDefine UserError
-  * @apiError (Errors) {text} 401 Unauthorized. You do not have permission to access this data.
   * @apiError (Errors) {text} 500 Internal server error.
   */
 

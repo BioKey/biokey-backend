@@ -102,7 +102,7 @@ exports.update = function(req, res) {
 }
 
 exports.delete = function(req, res) {
-	// Ensure that the user this activity belongs to belongs to the same organization as requester
+	/*// Ensure that the user this activity belongs to belongs to the same organization as requester
 	Activity.findById(req.params.id, (err, activity) => {
 		if (err) return res.status(500).send(util.norm.errors(err));
 		if (!activity) return res.status(404).send(util.norm.errors({ message: 'No activity was found.' }));
@@ -117,9 +117,12 @@ exports.delete = function(req, res) {
 					return res.status(404).send(util.norm.errors({ message: 'No activity was found.' }));
 				}
 
-				machine.remove();
+				activity.remove();
 				activity.sendStatus(200);
 			});
 		});
-	});
+	});*/
+
+	// Why would we ever delete an activity?!
+	res.sendStatus(405);
 }
