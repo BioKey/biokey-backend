@@ -82,7 +82,7 @@ exports.update = function(req, res) {
 		});
 	});*/
 
-	// Why would we ever change a analysisResult?!
+	// Why would we ever change an analysisResult?!
 	res.sendStatus(405);
 }
 

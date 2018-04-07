@@ -14,7 +14,6 @@ const middleware = require('../services/middleware');
  * @apiGroup Users
  *
  * @apiUse RequestHeaders
- *
  * @apiUse UserSuccess
  * @apiUse UnauthorizedError
  */
@@ -24,37 +23,12 @@ router.get('/me', middleware.requireAuth, User.me);
  * @api {get} /api/users  ListUsers
  * @apiName ListUsers
  * @apiDescription 
- * Get a list of all users in the administrator's organization.
+ * Get a list of all existing users in the administrator's organization.
  * 
  * @apiGroup Users
  *
  * @apiUse RequestHeaders
- * 
- * @apiSuccess {Array} users List of users
- * @apiSuccess {String} users._id  UUID of the user for the system
- * @apiSuccess {String} users.email User's email
- * @apiSuccess {String} users.name User's name
- * @apiSuccess {String} users.phoneNumber User's phone number
- * @apiSuccess {Organization} users.organization User's organization
- * @apiSuccess {Boolean} users.isAdmin  Whether user is a system administrator
- * @apiSuccess {String} users.googleAuthKey User's secret key for Google Auth 2FA
- * 
- * @apiSuccessExample Response (example):
- *     HTTP/1.1 200 Success
- *     { 
- *       "users": [
- *          {
- *            "_id": "5a2c87d5f8de982a759cedf0",
- *            "email": "test@example.com",
- *            "name": "Hosh Weinstein",
- *            "organization": "5a4c019629015e0c8b9c1737",
- *            "isAdmin": false,
- *            "googleAuthKey": "OIEHFOWLIW271",
- *            "phoneNumber": "+11234567890"
- *          }
- *       ]
- *     }
- * 
+ * @apiUse UsersSuccess
  * @apiUse AdminError
  */
 router.get('/', middleware.requireAdmin, User.getAll);
@@ -63,12 +37,12 @@ router.get('/', middleware.requireAdmin, User.getAll);
  * @api {get} /api/users/:id  GetUser
  * @apiName GetUser
  * @apiDescription 
- * End point for user's to get a specific user's information.
+ * Gets a specific user's information when provided their id.
  * 
  * @apiGroup Users
+ *
  * @apiUse RequestHeaders
  * @apiUse UserSuccess
- * 
  * @apiUse UserError
  */
 router.get('/:id', middleware.requireAuth, User.get);
@@ -77,12 +51,12 @@ router.get('/:id', middleware.requireAuth, User.get);
  * @api {post} /api/users  PostUser
  * @apiName PostUser
  * @apiDescription 
- * Creates a user and returns the newly created user.
+ * Creates a new user, adds the user to the organization and returns the user as an object. 
  * 
  * @apiGroup Users
+ *
  * @apiUse RequestHeaders
  * @apiUse UserRequestBody
- *
  * @apiUse UserSuccess
  * @apiUse UserError
  */
@@ -92,13 +66,12 @@ router.post('/', middleware.requireAdmin, User.post);
  * @api {put} /api/users/:id  UpdateUser
  * @apiName UpdateUser
  * @apiDescription 
- * Update a user with optional password update. Returns the updated user. Include "password" in body to change password.
- * Enqueues an SQS job.
+ * Update a user with optional password update. Returns the updated user. Include "password" in body to change password. Enqueues an SQS job.
  * 
  * @apiGroup Users
+ *
  * @apiUse RequestHeaders
  * @apiUse UserRequestBody
- *
  * @apiUse UserSuccess
  * @apiUse UserError
  */
@@ -109,7 +82,9 @@ router.put('/:id', middleware.requireAuth, User.update);
  * @apiName DeleteUser
  * @apiDescription 
  * End point to delete a specific user.
+ *
  * @apiGroup Users
+ *
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */

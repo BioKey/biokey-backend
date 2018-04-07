@@ -12,7 +12,8 @@
     "coverWin": "SET NODE_ENV=test& node_modules\\istanbul\\lib\\cli.js cover node_modules\\mocha\\bin\\_mocha .\\test --recursive",
     "docs": "node_modules/.bin/apidoc -i routes -o docs",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls",
-    "gen-data": "node generate-dummy-data.js"
+    "gen-data": "node generate-dummy-data.js",
+    "docsWin": "node_modules\\.bin\\apidoc -i routes -o docs"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",

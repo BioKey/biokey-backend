@@ -8,28 +8,12 @@ const middleware = require('../services/middleware');
  * @api {get} /api/organizations  ListOrganizations
  * @apiName ListOrganizations
  * @apiDescription
- * Get the organization of the requesting user
+ * Get the details of the organization of the requesting user. Does not return all the existing organizations because that wouldn't make sense. 
  * 
  * @apiGroup Organizations
  * 
  * @apiUse RequestHeaders
- * @apiSuccess {Object} organization The organization of the requesting user
- * @apiSuccess {String} organizations._id UUID of the organization for the system.
- * @apiSuccess {String} organizations.name The organization's unique name.
- * @apiSuccess {Number} organizations.maxUsers The number of users that the organization may have.
- * @apiSuccess {Array} organizations.defaultChallengeStrategies The default challenge strategies for typing profiles in the organization.
- * 
- * @apiSuccessExample Response (example):
- *     HTTP/1.1 200 Success
- *     {
- *       "organizations":
- *          {
- *              "_id": "5a4fd2d5fb0f2f041278e510",
- *              "name": "testOrganization",
- *              "maxUsers": "100",
- *              "defaultChallengeStrategies": []
- *          }
- *     }
+ * @apiUse OrganizationsSuccess
  * @apiUse AdminError
  */
 router.get('/', middleware.requireAdmin, Organization.getAll);
@@ -38,9 +22,10 @@ router.get('/', middleware.requireAdmin, Organization.getAll);
  * @api {get} /api/organizations/:id  GetOrganization
  * @apiName GetOrganization
  * @apiDescription
- * Get a specific organization.
+ * Get a specific organization when providing its id. This doesn't make sense, however, since organizations are created with the founding user. 
  * 
  * @apiGroup Organizations
+ *
  * @apiUse RequestHeaders
  * @apiUse OrganizationSuccess
  * @apiUse AdminError
@@ -51,21 +36,12 @@ router.get('/:id', middleware.requireAdmin, Organization.get)
  * @api {post} /api/organizations  PostOrganization
  * @apiName PostOrganization
  * @apiDescription
- * Post a new organization.
+ * This allows the user to create a new organization 
  * 
  * @apiGroup Organizations
  * 
  * @apiUse RequestHeaders
- * @apiParam {String} name The new organization's unique name.
- * @apiParam {Number} maxUsers The number of users that the new organization may have.
- * @apiParamExample {json} Request-Example
- *     {
- *       "organization": {
- *          "name": "testOrganization",
- *          "maxUsers": "100"
- *        }
- *     }
- * 
+ * @apiUse OrganizationRequestBody
  * @apiUse OrganizationSuccess
  * @apiUse AdminError
  */
@@ -75,21 +51,13 @@ router.post('/', middleware.requireAdmin, Organization.post);
  * @api {put} /api/organizations/:id  UpdateOrganization
  * @apiName UpdateOrganization
  * @apiDescription
- * Update a organization.
+ * Update the details of a specific organization given its id. 
  * 
  * @apiGroup Organizations
  * 
- * @apiUse RequestHeaders
- * @apiParam {String} name The organization's new unique name.
- * @apiParam {Number} maxUsers The new number of users that the organization may have
- * @apiParamExample {json} Request-Example
- *     {
- *       "organization": {
- *          "name": "testOrganization",
- *          "maxUsers": "100"
- *        }
- *     }
  * 
+ * @apiUse RequestHeaders
+ * @apiUse OrganizationRequestBody
  * @apiUse OrganizationSuccess
  * @apiUse AdminError
  */
@@ -99,8 +67,10 @@ router.put('/:id', middleware.requireAdmin, Organization.update);
  * @api {delete} /api/organizations/:id  DeleteOrganization
  * @apiName DeleteOrganization
  * @apiDescription
- * Delete a organization.
+ * Delete a specific organization. If the organization does not exist, the endpoint will output an error. 
+ *
  * @apiGroup Organizations
+ *
  * @apiUse RequestHeaders
  * @apiUse AdminError
  */
