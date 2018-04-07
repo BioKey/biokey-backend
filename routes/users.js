@@ -7,7 +7,7 @@ const middleware = require('../services/middleware');
  * @api {get} /api/users/me Me
  * @apiName Me
  * @apiDescription 
- * Empty route that requires authentication.
+ * Gets the authenticated user.
  * 
  * @apiGroup Users
  *
