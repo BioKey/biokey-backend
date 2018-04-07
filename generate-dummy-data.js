@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 const config = require('./config');
 
+const Excel = require('exceljs');
+
 const Activity = require('./models/activity');
 const Keystroke = require('./models/keystroke');
 const Machine = require('./models/machine');
@@ -12,19 +14,73 @@ const testGaussian = require('./test-gaussian');
 let testModel = require('./ensemble-c-2.json');
 testModel.model = JSON.stringify(testModel.model)
 testModel.weights = JSON.stringify(testModel.weights)
+testModel.reset = JSON.stringify(testModel.reset)
+
+
+// read from a file
+var workbook = new Excel.Workbook();
+workbook.xlsx.readFile('dummy-data.xlsx')
+    .then(() => {
+        // Parse Data
+        let data = {}
+        workbook.eachSheet((worksheet, sheetId) => {
+            data[worksheet.name] = [];
+            let headers = [];
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber == 1) headers = row.values;
+                else {
+                    let newVal = {};
+                    row.values.forEach((element, i) => {
+                        let h = headers[i];
+                        if (h != null) {
+                            newVal[h] = element;
+                        }
+                    });
+                    data[worksheet.name].push(newVal);
+                }
+            });
+        });
+        
+    });
+ 
+
 
 confirm("This will delete all current data, do you want to proceed?", function() {
-    mongoose.Promise = global.Promise;
-    mongoose.connect(config.mongoURI[process.env.NODE_ENV || 'development'], { useMongoClient: true })
+    var workbook = new Excel.Workbook();
+    workbook.xlsx.readFile('dummy-data.xlsx')
+    .then(() => {
+        // Parse Data
+        let data = {}
+        workbook.eachSheet((worksheet, sheetId) => {
+            data[worksheet.name] = [];
+            let headers = [];
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber == 1) headers = row.values;
+                else {
+                    let newVal = {};
+                    row.values.forEach((element, i) => {
+                        let h = headers[i];
+                        if (h != null) {
+                            if (h == 'challengeStrategies') element = element.split(',');
+                            newVal[h] = element;
+                        }
+                    });
+                    data[worksheet.name].push(newVal);
+                }
+            });
+        });
+
+        // Insert data
+        mongoose.Promise = global.Promise;
+        mongoose.connect(process.env.MONGO_URI || config.mongoURI[process.env.NODE_ENV || 'development'], { useMongoClient: true })
         .then(db => {
             db.dropDatabase();
 
-            let organizations = [{ name: "A", maxUsers: 10}, { name: "B", maxUsers: 20}]
-            let machines = [{ mac: "ABC", organization: "A" }, { mac: "DEF", organization: "A" }, { mac: "GHI", organization: "A" }, { mac: "JKL", organization: "B" }]
-            let users = [{ email: "a@a.com", name: "A", password: "a", isAdmin: false, phoneNumber: "1234567890", organization: "A" }, { email: "b@b.com", name: "B", password: "b", isAdmin: true, phoneNumber: "1234567890", organization: "A" }, { email: "c@c.com", name: "C", password: "c", isAdmin: false, phoneNumber: "1234567890", organization: "A" }, { email: "d@d.com", name: "D", password: "d", isAdmin: false, phoneNumber: "1234567890", organization: "B" }]
-            let typingProfiles = [{ user: "A", machine: "ABC", isLocked: false, tensorFlowModel: testModel, endpoint: "pointA", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }, { user: "B", machine: "DEF", isLocked: false, tensorFlowModel: testModel, endpoint: "pointB", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }, { user: "C", machine: "GHI", isLocked: false, tensorFlowModel: testModel, endpoint: "pointC", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }, { user: "D", machine: "JKL", isLocked: false, tensorFlowModel: testModel, endpoint: "pointD", challengeStrategies: ["GoogleAuth", "TextMessage"], lastHeartbeat: 1 }]
-            let activities = [{ timestamp: 1, typingProfile: "A-ABC", activityType: "LOCK" }, { timestamp: 2, typingProfile: "B-DEF", activityType: "UNLOCK" }, { timestamp: 3, typingProfile: "C-GHI", activityType: "INFO" }, { timestamp: 4, typingProfile: "D-JKL", activityType: "UNLOCK" }, { timestamp: 5, typingProfile: "A-ABC", activityType: "INFO" }, { timestamp: 6, typingProfile: "B-DEF", activityType: "LOCK" }, { timestamp: 7, typingProfile: "C-GHI", activityType: "UNLOCK" }, { timestamp: 8, typingProfile: "D-JKL", activityType: "INFO" }, { timestamp: 9, typingProfile: "A-ABC", activityType: "INFO" }, { timestamp: 10, typingProfile: "B-DEF", activityType: "INFO" }, { timestamp: 11, typingProfile: "C-GHI", activityType: "INFO" }, { timestamp: 12, typingProfile: "D-JKL", activityType: "INFO" }]
-            let keystrokes = [{ character: 1, timestamp: 10, keyDown: true, typingProfile: "A-ABC" }, { character: 1, timestamp: 11, keyDown: false, typingProfile: "B-DEF" }, { character: 1, timestamp: 12, keyDown: true, typingProfile: "C-GHI" }, { character: 1, timestamp: 13, keyDown: false, typingProfile: "D-JKL" }, { character: 1, timestamp: 14, keyDown: true, typingProfile: "A-ABC" }, { character: 1, timestamp: 15, keyDown: false, typingProfile: "B-DEF" }, { character: 1, timestamp: 16, keyDown: true, typingProfile: "C-GHI" }, { character: 1, timestamp: 17, keyDown: false, typingProfile: "D-JKL" }, { character: 1, timestamp: 18, keyDown: true, typingProfile: "A-ABC" }, { character: 1, timestamp: 19, keyDown: false, typingProfile: "B-DEF" }, { character: 1, timestamp: 20, keyDown: true, typingProfile: "C-GHI" }, { character: 1, timestamp: 21, keyDown: false, typingProfile: "D-JKL" }, { character: 1, timestamp: 22, keyDown: true, typingProfile: "A-ABC" }, { character: 1, timestamp: 23, keyDown: false, typingProfile: "B-DEF" }, { character: 1, timestamp: 24, keyDown: true, typingProfile: "C-GHI" }, { character: 1, timestamp: 25, keyDown: false, typingProfile: "D-JKL" }, { character: 1, timestamp: 26, keyDown: true, typingProfile: "A-ABC" }, { character: 1, timestamp: 27, keyDown: false, typingProfile: "B-DEF" }, { character: 1, timestamp: 28, keyDown: true, typingProfile: "C-GHI" }, { character: 1, timestamp: 29, keyDown: false, typingProfile: "D-JKL" }, { character: 1, timestamp: 30, keyDown: true, typingProfile: "A-ABC" }, { character: 1, timestamp: 31, keyDown: false, typingProfile: "B-DEF" }, { character: 1, timestamp: 32, keyDown: true, typingProfile: "C-GHI" }, { character: 1, timestamp: 33, keyDown: false, typingProfile: "D-JKL" }, { character: 1, timestamp: 34, keyDown: true, typingProfile: "A-ABC" }, { character: 1, timestamp: 35, keyDown: false, typingProfile: "B-DEF" }]
+            let organizations = data['organizations'];
+            let machines = data['machines'];
+            let users = data['users'];
+            let typingProfiles = data['typingProfiles']
+            let activities = data['activities']
 
             Organization.create(organizations, function(err, newOrganizations) {
                 if (err) throw err;
@@ -71,7 +127,7 @@ confirm("This will delete all current data, do you want to proceed?", function()
                             console.log("Created " + typingProfiles.length + " TypingProfiles");
 
                                 activities = activities.map(a => {
-                                    let params = a.typingProfile.split('-');
+                                    let params = a.typingProfile.split(':');
                                     let user = users.find(u => u.name == params[0])._id;
                                     let machine = machines.find(m => m.mac == params[1])._id;
                                     a.typingProfile = typingProfiles.find(tp => tp.user == user && tp.machine == machine)._id;
@@ -84,23 +140,7 @@ confirm("This will delete all current data, do you want to proceed?", function()
 
                                     console.log("Created " + activities.length + " Activities");
 
-                                    keystrokes = keystrokes.map(k => {
-                                        let params = k.typingProfile.split('-');
-                                        let user = users.find(u => u.name == params[0])._id;
-                                        let machine = machines.find(m => m.mac == params[1])._id;
-                                        k.typingProfile = typingProfiles.find(tp => tp.user == user && tp.machine == machine)._id;
-                                        return k;
-                                    });
-
-
-                                    Keystroke.create(keystrokes, function(err, newKeystrokes) {
-                                        if (err) throw err;
-                                        keystrokes = newKeystrokes
-
-                                        console.log("Created " + keystrokes.length + " Keystrokes");
-
-                                        mongoose.connection.close()
-                                    });
+                                    mongoose.connection.close()
                                 });
                         });
                     });
@@ -109,4 +149,6 @@ confirm("This will delete all current data, do you want to proceed?", function()
         }).catch(err => {
             console.error('Error connecting to the database. ' + err);
         });
+    });
+    
 });

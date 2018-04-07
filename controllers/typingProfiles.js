@@ -7,6 +7,7 @@ const util = require('../services/util');
 let testModel = require('../ensemble-c-2.json');
 testModel.model = JSON.stringify(testModel.model)
 testModel.weights = JSON.stringify(testModel.weights)
+testModel.reset = JSON.stringify(testModel.reset)
 
 exports.getAll = function(req, res) {
 	let limit = parseInt(req.query.limit);

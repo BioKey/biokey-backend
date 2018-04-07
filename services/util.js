@@ -136,6 +136,7 @@ const sendTypingProfileActivity = function(origin, old, updated, user) {
   let objectType = 'TypingProfile';
 
   getAdminPhoneNumbers(user, function(phoneNumbers) {
+    console.log(phoneNumbers);
     saveAndSendActivity(
       buildActivity(updated._id, activityType, origin, sqsParams(objectType, updated, activityType),
       objectType, phoneNumbers));
@@ -243,6 +244,7 @@ const sendAdminAlert = function(objectType, activityType, activity, phoneNumbers
 
   // Text the administrators.
   phoneNumbers.forEach(phoneNumber => {
+    console.log(phoneNumber);
     twilio.messages.create({
         to: phoneNumber,
         from: process.env.TWILIO_FROM_PHONE_NUMBER,
@@ -266,6 +268,7 @@ const genericSendAdminAlert = function(organization, adminMessage) {
 
     // Text the administrators.
     phoneNumbers.forEach(phoneNumber => {
+      console.log(phoneNumber);
       if(phoneNumber){
       twilio.messages.create({
           to: phoneNumber,
@@ -288,13 +291,9 @@ const genericSendAdminAlert = function(organization, adminMessage) {
  * @return {Array}          The array of admin numbers
  */
 const getAdminPhoneNumbers = function(user, nextF) {
-  let phoneNumbers = [];
   User.find({ 'organization': user.organization, 'isAdmin': true }, (err, admins) => {
-    if (err || admins.length == 0) nextF(phoneNumbers);
-    else admins.forEach(admin => {
-      phoneNumbers.push(admin.phoneNumber);
-    });
-    nextF(phoneNumbers);
+    if (err || admins.length == 0) nextF([]);
+    else nextF(admins.map(a => a.phoneNumber));
   });
 }
 

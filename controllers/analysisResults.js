@@ -22,7 +22,6 @@ exports.getAll = function(req, res) {
 			if (start && end) {
 				AnalysisResult.find({typingProfile: typingProfile._id, timestamp: {$gt: start, $lt: end}}).sort({timestamp: 1}).exec((err, analysisResults) => {
 					if (err) return res.status(500).send(util.norm.errors(err));
-					console.log(analysisResults);
 					return res.send({ analysisResults });
 				});
 			} else {

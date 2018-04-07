@@ -6,7 +6,7 @@ const util = require('../services/util');
 exports.getAll = function(req, res) {
 	let limit = parseInt(req.query.limit);
 	let page = parseInt(req.query.page);
-	let sort = req.query.sort || '-timestamp';
+	let sort = { 'timestamp' : -1 };
 
 	// Get all the users for the organization
 	User.find({'organization' : req.user.organization}, {_id: 1}, (err, users) => {
@@ -20,12 +20,13 @@ exports.getAll = function(req, res) {
 
 			// Get all the activities for the typing profiles
 			if (limit && page) {
+				console.log('Here 123')
 				Activity.paginate({'typingProfile': {$in: ids}}, {page: page, limit: limit, sort: sort}, (err, activities) => {
 					if (err) return res.status(500).send(util.norm.errors(err));
 					res.send({ activities: activities.docs, meta: {pages: activities.pages} });
 				});
 			} else {
-				Activity.find({'typingProfile': {$in: ids}}, (err, activities) => {
+				Activity.find({'typingProfile': {$in: ids}}).sort(sort).exec((err, activities) => {
 					if (err) return res.status(500).send(util.norm.errors(err));
 					res.send({ activities });
 				});
